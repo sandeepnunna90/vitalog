@@ -28,6 +28,41 @@ Do not re-litigate these without first updating `docs/Vitalog_architecture.md`:
 - All LLM calls pass through the AI Gateway (architecture §7.1).
 - Citation verification: Mode A (structured tool-use) for the Summary Generator; Mode B (parse-and-match) for the Observation Generator and NLQ Handler (architecture §7.2.1).
 
+## Code Standards
+
+### Python
+
+- Type hints on every public function signature (parameters + return type). No `Any` without a comment explaining why.
+- Pydantic v2 models: `model_config = ConfigDict(strict=True)`. Never `extra="allow"`.
+- All LLM calls through `Gateway.call()` — never instantiate `anthropic.Anthropic()` directly outside `src/gateway/`.
+- No bare `except:` — catch specific exceptions or `except Exception as e:` with a log statement.
+- `ruff check` and `ruff format` must pass before commit (`make lint`).
+- `mypy --strict` must pass (`make typecheck`).
+
+### Naming
+
+- Files and modules: `snake_case.py`.
+- Classes: `PascalCase`. Pydantic models are classes.
+- Prompt files: `prompts/<concern>/<version>.md` (e.g., `prompts/summary/v1.md`).
+
+### Tests
+
+- Unit tests use fixtures from `tests/fixtures/` — no network calls, no Supabase writes.
+- Integration tests (marked `@pytest.mark.integration`) may call live Supabase; skip them with `pytest -m "not integration"`.
+- Every new public function in `src/` needs at least one test.
+
+## Key files (update as tasks land)
+
+- `src/gateway/gateway.py` — single LLM chokepoint; all external AI calls go here.
+- `src/ingestion/classifier.py` — document classification (returns `ClassificationResult`).
+- `src/ingestion/structurer.py` — LLM structurer + composite confidence; contains `THRESHOLD_AUTO_ACCEPT` / `THRESHOLD_REJECT` constants.
+- `src/normalization/tier1.py` — canonical biomarker alias lookup.
+- `src/intelligence/summary_generator.py` — Mode A citation-verified cardiology summary.
+- `src/intelligence/observation_generator.py` — Mode B, one-sentence factual observations.
+- `src/mcp_server/server.py` — stdio MCP server entry point; registers all six tools.
+- `reference_data/biomarker_taxonomy.json` — 30-entry taxonomy seed; source of truth for canonical names, UCUM units, and guideline ranges.
+- `prompts/` — versioned prompt files; bump version on any edit.
+
 ## Storage policy
 
 Classification-gated per architecture §7.6:
@@ -57,6 +92,14 @@ Do not propose these unless the user explicitly asks (architecture §12):
 - Web UI.
 - Tiers 2 and 3 of biomarker normalization.
 - Arithmetic validation on derived values inside Citation Mode A.
+
+## Gotchas
+
+- **Confidence threshold constants live in `src/ingestion/structurer.py`** (`THRESHOLD_AUTO_ACCEPT`, `THRESHOLD_REJECT`). Never change them without re-running `make calibrate` and reviewing `eval_corpus/calibration_report.md`.
+- **Prompt versioning is mandatory.** The eval logger stores `(prompt_id, version)` per call. Editing a prompt without bumping the version will silently corrupt eval replay. Version format: `v1`, `v2` — no semver.
+- **Mode A vs Mode B.** Summary Generator uses Mode A (every numeric must be wrapped in a `Citation` with `source_record_id`). Observation Generator uses Mode B (parse output numerics, match against retrieval set within ±0.5%). They cannot be swapped.
+- **Classification gates storage** (architecture §7.6). A `not_supported` document must never write a row to `biomarker_records` — only an audit log entry. Violating this breaks the privacy model.
+- **Mark's patient profile** is hardcoded in `reference_data/mark_profile.json` for the capstone. Do not load it from Supabase unless task 18 (if-time) has landed.
 
 ## Common commands
 
