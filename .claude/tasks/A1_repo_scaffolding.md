@@ -71,4 +71,13 @@ Project CLAUDE.md hard-requires `ruff check`, `ruff format`, and `mypy --strict`
 
 ## Notes / changelog
 
-_(append after work is done)_
+### 2026-05-13 — Implemented
+
+Created all files per the spec. Key decisions:
+- Used `[dependency-groups] dev` (modern uv format) instead of the deprecated `[tool.uv.dev-dependencies]`.
+- `make test` handles pytest exit code 5 (no tests collected) as success so the target doesn't fail on an empty test suite.
+- `mypy.ini` whitelists `boto3`, `botocore`, `mcp`, `supabase`, `postgrest`, `gotrue`, `realtime`, `storage3`, `reportlab` for `ignore_missing_imports` — all lack complete type stubs.
+- `uv` installed at runtime via pip3 (not globally pre-installed on dev machine).
+- All 6 ACs verified: `uv sync` clean, `make lint` passes, `make typecheck` passes (9 source files), `make test` passes, all 8 src packages present, `.env.example` covers every env var.
+
+Files created: `pyproject.toml`, `ruff.toml`, `mypy.ini`, `pytest.ini`, `Makefile`, `.env.example`, `.gitignore`, `src/` (9 packages), `tests/` (10 packages), `prompts/`, `reference_data/`, `eval_corpus/`, `scripts/`.
