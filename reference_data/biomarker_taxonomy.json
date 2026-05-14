@@ -350,7 +350,7 @@
       "ACC_AHA_stage2_hypertension": ">=140 mm[Hg]",
       "ACC_AHA_target_general": "<130 mm[Hg]",
       "ACC_AHA_target_T2D": "<130 mm[Hg]",
-      "ACC_AHA_target_CKD": "<120 mm[Hg]"
+      "ACC_AHA_target_CKD": "<130 mm[Hg]"
     },
     "guideline_citations": {
       "ACC_AHA": "Whelton PK, et al. 2017 ACC/AHA Hypertension Guideline. J Am Coll Cardiol. 2018;71(19):e127-e248. https://doi.org/10.1016/j.jacc.2017.11.006"

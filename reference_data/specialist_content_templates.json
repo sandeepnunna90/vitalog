@@ -247,7 +247,7 @@
             "title": "Anemia of CKD",
             "required": false,
             "instructions": "Hemoglobin, ferritin. Anemia of CKD typically normocytic.",
-            "biomarker_context": ["hemoglobin", "hematocrit", "ferritin"]
+            "biomarker_context": ["hemoglobin", "ferritin"]
           },
           {
             "id": "glycemic_and_bp",
