@@ -1,0 +1,307 @@
+{
+  "version": "2.1",
+  "description": "UCUM units and conversion rules for Vitalog biomarker taxonomy",
+  "source": "Unified Code for Units of Measure https://ucum.org/",
+  "units": {
+    "%": {
+      "ucum_code": "%",
+      "display_name": "Percent",
+      "dimension": "dimensionless"
+    },
+    "mg/dL": {
+      "ucum_code": "mg/dL",
+      "display_name": "Milligrams per deciliter",
+      "dimension": "mass/volume"
+    },
+    "mmol/L": {
+      "ucum_code": "mmol/L",
+      "display_name": "Millimoles per liter",
+      "dimension": "amount_of_substance/volume"
+    },
+    "mEq/L": {
+      "ucum_code": "mEq/L",
+      "display_name": "Milliequivalents per liter",
+      "dimension": "amount_of_substance/volume"
+    },
+    "mIU/L": {
+      "ucum_code": "mIU/L",
+      "display_name": "Milli-international units per liter",
+      "dimension": "biological_activity/volume"
+    },
+    "uIU/mL": {
+      "ucum_code": "uIU/mL",
+      "display_name": "Micro-international units per milliliter",
+      "dimension": "biological_activity/volume"
+    },
+    "ng/dL": {
+      "ucum_code": "ng/dL",
+      "display_name": "Nanograms per deciliter",
+      "dimension": "mass/volume"
+    },
+    "ng/mL": {
+      "ucum_code": "ng/mL",
+      "display_name": "Nanograms per milliliter",
+      "dimension": "mass/volume"
+    },
+    "pg/mL": {
+      "ucum_code": "pg/mL",
+      "display_name": "Picograms per milliliter",
+      "dimension": "mass/volume"
+    },
+    "umol/L": {
+      "ucum_code": "umol/L",
+      "display_name": "Micromoles per liter",
+      "dimension": "amount_of_substance/volume"
+    },
+    "nmol/L": {
+      "ucum_code": "nmol/L",
+      "display_name": "Nanomoles per liter",
+      "dimension": "amount_of_substance/volume"
+    },
+    "pmol/L": {
+      "ucum_code": "pmol/L",
+      "display_name": "Picomoles per liter",
+      "dimension": "amount_of_substance/volume"
+    },
+    "mmol/mol": {
+      "ucum_code": "mmol/mol",
+      "display_name": "Millimoles per mole (IFCC HbA1c)",
+      "dimension": "amount_of_substance/amount_of_substance"
+    },
+    "U/L": {
+      "ucum_code": "U/L",
+      "display_name": "Units per liter (enzymatic activity)",
+      "dimension": "enzymatic_activity/volume"
+    },
+    "mg/L": {
+      "ucum_code": "mg/L",
+      "display_name": "Milligrams per liter",
+      "dimension": "mass/volume"
+    },
+    "mg/g": {
+      "ucum_code": "mg/g",
+      "display_name": "Milligrams per gram (albumin:creatinine ratio)",
+      "dimension": "mass/mass"
+    },
+    "mg/mmol": {
+      "ucum_code": "mg/mmol",
+      "display_name": "Milligrams per millimole (ACR, SI)",
+      "dimension": "mass/amount_of_substance"
+    },
+    "mL/min/1.73m2": {
+      "ucum_code": "mL/min/{1.73_m2}",
+      "display_name": "Milliliters per minute per 1.73 square meters",
+      "dimension": "volume_rate/area"
+    },
+    "mm[Hg]": {
+      "ucum_code": "mm[Hg]",
+      "display_name": "Millimeters of mercury",
+      "dimension": "pressure"
+    },
+    "g/dL": {
+      "ucum_code": "g/dL",
+      "display_name": "Grams per deciliter",
+      "dimension": "mass/volume"
+    },
+    "g/L": {
+      "ucum_code": "g/L",
+      "display_name": "Grams per liter",
+      "dimension": "mass/volume"
+    },
+    "10*3/uL": {
+      "ucum_code": "10*3/uL",
+      "display_name": "Thousands per microliter",
+      "dimension": "number/volume"
+    },
+    "10*9/L": {
+      "ucum_code": "10*9/L",
+      "display_name": "Billions per liter (SI)",
+      "dimension": "number/volume"
+    },
+    "L/L": {
+      "ucum_code": "L/L",
+      "display_name": "Liters per liter (volume fraction, SI hematocrit)",
+      "dimension": "volume/volume"
+    },
+    "umol/L_creat": {
+      "ucum_code": "umol/L",
+      "display_name": "Micromoles per liter (creatinine, SI)",
+      "dimension": "amount_of_substance/volume"
+    }
+  },
+  "conversions": [
+    {
+      "id": "hba1c_ifcc_to_ngsp",
+      "from_unit": "mmol/mol",
+      "to_unit": "%",
+      "formula": "ifcc_to_ngsp",
+      "description": "IFCC to NGSP HbA1c conversion using IFCC Master Equation",
+      "equation": "ngsp_percent = (0.0915 * ifcc_mmol_mol) + 2.15",
+      "source": "IFCC/NGSP Master Equation. Hoelzel W, et al. Clin Chem. 2004;50(1):166-174. https://doi.org/10.1373/clinchem.2003.024802",
+      "notes": "Official IFCC-NGSP alignment equation; inverse: ifcc = (ngsp - 2.15) / 0.0915"
+    },
+    {
+      "id": "glucose_mmol_to_mgdl",
+      "from_unit": "mmol/L",
+      "to_unit": "mg/dL",
+      "formula": "linear",
+      "factor": 18.0182,
+      "description": "Glucose conversion mmol/L to mg/dL",
+      "source": "MW of glucose = 180.182 g/mol"
+    },
+    {
+      "id": "cholesterol_mmol_to_mgdl",
+      "from_unit": "mmol/L",
+      "to_unit": "mg/dL",
+      "formula": "linear",
+      "factor": 38.6659,
+      "description": "Cholesterol conversion mmol/L to mg/dL",
+      "source": "MW of cholesterol = 386.659 g/mol"
+    },
+    {
+      "id": "triglycerides_mmol_to_mgdl",
+      "from_unit": "mmol/L",
+      "to_unit": "mg/dL",
+      "formula": "linear",
+      "factor": 88.5742,
+      "description": "Triglyceride conversion mmol/L to mg/dL (using triolein MW 885.44 / 10)",
+      "source": "MW of triolein = 885.44 g/mol; conventional factor 88.57"
+    },
+    {
+      "id": "creatinine_umol_to_mgdl",
+      "from_unit": "umol/L",
+      "to_unit": "mg/dL",
+      "formula": "linear",
+      "factor": 0.011312,
+      "description": "Creatinine conversion umol/L to mg/dL",
+      "source": "MW of creatinine = 113.12 g/mol"
+    },
+    {
+      "id": "urine_acr_mg_mmol_to_mg_g",
+      "from_unit": "mg/mmol",
+      "to_unit": "mg/g",
+      "formula": "linear",
+      "factor": 8.84,
+      "description": "ACR conversion mg/mmol (SI) to mg/g (US)",
+      "source": "MW of creatinine = 113.12 g/mol; 1 mmol creatinine = 0.11312 g; 1 mg/mmol = 1/(0.11312) mg/g ≈ 8.84 mg/g"
+    },
+    {
+      "id": "bun_mmol_to_mgdl",
+      "from_unit": "mmol/L",
+      "to_unit": "mg/dL",
+      "formula": "linear",
+      "factor": 2.8014,
+      "description": "BUN conversion mmol/L urea to mg/dL BUN",
+      "source": "MW of urea nitrogen = 28.014 g/mol (2 nitrogen atoms)"
+    },
+    {
+      "id": "free_t4_pmol_to_ngdl",
+      "from_unit": "pmol/L",
+      "to_unit": "ng/dL",
+      "formula": "linear",
+      "factor": 0.07775,
+      "description": "Free T4 conversion pmol/L to ng/dL",
+      "source": "MW of thyroxine = 776.87 g/mol; 1 pmol/L = 0.07769 ng/dL (commonly 0.0777)"
+    },
+    {
+      "id": "vitamin_d_nmol_to_ngml",
+      "from_unit": "nmol/L",
+      "to_unit": "ng/mL",
+      "formula": "linear",
+      "factor": 0.4006,
+      "description": "25-OH Vitamin D conversion nmol/L to ng/mL",
+      "source": "MW of 25-OH cholecalciferol = 400.64 g/mol"
+    },
+    {
+      "id": "vitamin_b12_pmol_to_pgml",
+      "from_unit": "pmol/L",
+      "to_unit": "pg/mL",
+      "formula": "linear",
+      "factor": 1.3548,
+      "description": "Vitamin B12 conversion pmol/L to pg/mL",
+      "source": "MW of cyanocobalamin = 1355.37 g/mol"
+    },
+    {
+      "id": "hemoglobin_gl_to_gdl",
+      "from_unit": "g/L",
+      "to_unit": "g/dL",
+      "formula": "linear",
+      "factor": 0.1,
+      "description": "Hemoglobin conversion g/L (SI) to g/dL (US)"
+    },
+    {
+      "id": "hemoglobin_mmol_to_gdl",
+      "from_unit": "mmol/L",
+      "to_unit": "g/dL",
+      "formula": "linear",
+      "factor": 1.6113,
+      "description": "Hemoglobin conversion mmol/L to g/dL",
+      "source": "MW of hemoglobin tetramer = 64450 g/mol; per monomer = 16113 g/mol"
+    },
+    {
+      "id": "hematocrit_ll_to_percent",
+      "from_unit": "L/L",
+      "to_unit": "%",
+      "formula": "linear",
+      "factor": 100.0,
+      "description": "Hematocrit volume fraction (SI) to percentage"
+    },
+    {
+      "id": "wbc_si_to_us",
+      "from_unit": "10*9/L",
+      "to_unit": "10*3/uL",
+      "formula": "linear",
+      "factor": 1.0,
+      "description": "WBC count SI to US (numerically equivalent)"
+    },
+    {
+      "id": "platelets_si_to_us",
+      "from_unit": "10*9/L",
+      "to_unit": "10*3/uL",
+      "formula": "linear",
+      "factor": 1.0,
+      "description": "Platelet count SI to US (numerically equivalent)"
+    },
+    {
+      "id": "tsh_uiuml_to_miul",
+      "from_unit": "uIU/mL",
+      "to_unit": "mIU/L",
+      "formula": "linear",
+      "factor": 1.0,
+      "description": "TSH uIU/mL to mIU/L (numerically equivalent)"
+    },
+    {
+      "id": "sodium_mmol_to_meql",
+      "from_unit": "mmol/L",
+      "to_unit": "mEq/L",
+      "formula": "linear",
+      "factor": 1.0,
+      "description": "Sodium mmol/L to mEq/L (numerically equivalent for monovalent ion)"
+    },
+    {
+      "id": "potassium_mmol_to_meql",
+      "from_unit": "mmol/L",
+      "to_unit": "mEq/L",
+      "formula": "linear",
+      "factor": 1.0,
+      "description": "Potassium mmol/L to mEq/L (numerically equivalent for monovalent ion)"
+    },
+    {
+      "id": "chloride_mmol_to_meql",
+      "from_unit": "mmol/L",
+      "to_unit": "mEq/L",
+      "formula": "linear",
+      "factor": 1.0,
+      "description": "Chloride mmol/L to mEq/L (numerically equivalent for monovalent ion)"
+    },
+    {
+      "id": "ferritin_pmol_to_ngml",
+      "from_unit": "pmol/L",
+      "to_unit": "ng/mL",
+      "formula": "linear",
+      "factor": 0.44,
+      "description": "Ferritin pmol/L to ng/mL",
+      "source": "MW of ferritin ≈ 450,000 g/mol; 1 pmol/L ≈ 0.44 ng/mL (approximate, varies by ferritin form)"
+    }
+  ]
+}

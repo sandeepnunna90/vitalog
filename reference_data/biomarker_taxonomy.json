@@ -1,0 +1,893 @@
+[
+  {
+    "vitalog_id": "hba1c",
+    "canonical_name": "Hemoglobin A1c",
+    "loinc_code": "4548-4",
+    "ucum_unit": "%",
+    "unit_conversions": [
+      {"from_unit": "mmol/mol", "to_unit": "%", "formula": "ifcc_to_ngsp", "factor": null}
+    ],
+    "aliases": [
+      "HbA1c", "hba1c", "hemoglobin a1c", "Hemoglobin A1c", "glycated hemoglobin",
+      "glycosylated hemoglobin", "A1C", "a1c", "HbA1C", "Hgb A1c", "HgbA1c"
+    ],
+    "conditions": ["T2D", "T1D", "prediabetes"],
+    "guideline_ranges": {
+      "ADA_normal": "<5.7%",
+      "ADA_prediabetes": "5.7-6.4%",
+      "ADA_diabetes_diagnosis": ">=6.5%",
+      "ADA_target_diabetes": "<7.0%",
+      "ADA_target_elderly": "<8.0%"
+    },
+    "guideline_citations": {
+      "ADA": "American Diabetes Association. Standards of Care in Diabetes—2024. Diabetes Care. 2024;47(Suppl 1):S1-S321. https://doi.org/10.2337/dc24-S001"
+    },
+    "provenance": {
+      "source": "ADA Standards of Care in Diabetes 2024, Section 6",
+      "verified_date": "2024-01-01",
+      "notes": "NGSP-standardized values"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "fasting_glucose",
+    "canonical_name": "Fasting Plasma Glucose",
+    "loinc_code": "1558-6",
+    "ucum_unit": "mg/dL",
+    "unit_conversions": [
+      {"from_unit": "mmol/L", "to_unit": "mg/dL", "formula": "linear", "factor": 18.0182}
+    ],
+    "aliases": [
+      "fasting glucose", "Fasting Glucose", "FPG", "fasting blood glucose", "FBG",
+      "fasting plasma glucose", "glucose fasting", "Fasting Blood Sugar", "FBS"
+    ],
+    "conditions": ["T2D", "T1D", "prediabetes", "metabolic_syndrome"],
+    "guideline_ranges": {
+      "ADA_normal": "<100 mg/dL",
+      "ADA_prediabetes": "100-125 mg/dL",
+      "ADA_diabetes_diagnosis": ">=126 mg/dL",
+      "ADA_target_preprandial": "80-130 mg/dL"
+    },
+    "guideline_citations": {
+      "ADA": "American Diabetes Association. Standards of Care in Diabetes—2024. Diabetes Care. 2024;47(Suppl 1):S1-S321. https://doi.org/10.2337/dc24-S001"
+    },
+    "provenance": {
+      "source": "ADA Standards of Care in Diabetes 2024, Section 2",
+      "verified_date": "2024-01-01",
+      "notes": "Fasting defined as no caloric intake for at least 8 hours"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "postprandial_glucose",
+    "canonical_name": "2-Hour Postprandial Glucose",
+    "loinc_code": "1521-4",
+    "ucum_unit": "mg/dL",
+    "unit_conversions": [
+      {"from_unit": "mmol/L", "to_unit": "mg/dL", "formula": "linear", "factor": 18.0182}
+    ],
+    "aliases": [
+      "postprandial glucose", "Postprandial Glucose", "2h glucose", "2-hour glucose",
+      "post-meal glucose", "PPG", "2hPG", "OGTT 2h"
+    ],
+    "conditions": ["T2D", "T1D", "prediabetes"],
+    "guideline_ranges": {
+      "ADA_normal": "<140 mg/dL",
+      "ADA_prediabetes": "140-199 mg/dL",
+      "ADA_diabetes_diagnosis": ">=200 mg/dL",
+      "ADA_target_postprandial": "<180 mg/dL"
+    },
+    "guideline_citations": {
+      "ADA": "American Diabetes Association. Standards of Care in Diabetes—2024. Diabetes Care. 2024;47(Suppl 1):S1-S321. https://doi.org/10.2337/dc24-S001"
+    },
+    "provenance": {
+      "source": "ADA Standards of Care in Diabetes 2024, Section 6",
+      "verified_date": "2024-01-01",
+      "notes": "Measured 2 hours after a meal or 75g oral glucose load"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "total_cholesterol",
+    "canonical_name": "Total Cholesterol",
+    "loinc_code": "2093-3",
+    "ucum_unit": "mg/dL",
+    "unit_conversions": [
+      {"from_unit": "mmol/L", "to_unit": "mg/dL", "formula": "linear", "factor": 38.6659}
+    ],
+    "aliases": [
+      "total cholesterol", "Total Cholesterol", "TC", "cholesterol total",
+      "cholesterol", "Cholesterol", "CHOL"
+    ],
+    "conditions": ["CVD", "dyslipidemia", "T2D", "HTN"],
+    "guideline_ranges": {
+      "ACC_AHA_desirable": "<200 mg/dL",
+      "ACC_AHA_borderline_high": "200-239 mg/dL",
+      "ACC_AHA_high": ">=240 mg/dL"
+    },
+    "guideline_citations": {
+      "ACC_AHA": "Grundy SM, et al. 2018 AHA/ACC Guideline on Management of Blood Cholesterol. J Am Coll Cardiol. 2019;73(24):e285-e350. https://doi.org/10.1016/j.jacc.2018.11.003"
+    },
+    "provenance": {
+      "source": "2018 AHA/ACC Cholesterol Guideline",
+      "verified_date": "2024-01-01",
+      "notes": "Part of standard lipid panel"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "ldl_cholesterol",
+    "canonical_name": "LDL Cholesterol",
+    "loinc_code": "13457-7",
+    "ucum_unit": "mg/dL",
+    "unit_conversions": [
+      {"from_unit": "mmol/L", "to_unit": "mg/dL", "formula": "linear", "factor": 38.6659}
+    ],
+    "aliases": [
+      "LDL", "LDL-C", "ldl cholesterol", "LDL cholesterol", "LDL-Cholesterol",
+      "low density lipoprotein", "Low Density Lipoprotein Cholesterol", "LDL Chol"
+    ],
+    "conditions": ["CVD", "dyslipidemia", "T2D", "HTN"],
+    "guideline_ranges": {
+      "ACC_AHA_optimal": "<100 mg/dL",
+      "ACC_AHA_near_optimal": "100-129 mg/dL",
+      "ACC_AHA_borderline_high": "130-159 mg/dL",
+      "ACC_AHA_high": "160-189 mg/dL",
+      "ACC_AHA_very_high": ">=190 mg/dL",
+      "ACC_AHA_target_very_high_risk": "<70 mg/dL",
+      "ACC_AHA_target_high_risk": "<100 mg/dL"
+    },
+    "guideline_citations": {
+      "ACC_AHA": "Grundy SM, et al. 2018 AHA/ACC Guideline on Management of Blood Cholesterol. J Am Coll Cardiol. 2019;73(24):e285-e350. https://doi.org/10.1016/j.jacc.2018.11.003"
+    },
+    "provenance": {
+      "source": "2018 AHA/ACC Cholesterol Guideline, Table 4",
+      "verified_date": "2024-01-01",
+      "notes": "Calculated (Friedewald) or directly measured"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "hdl_cholesterol",
+    "canonical_name": "HDL Cholesterol",
+    "loinc_code": "2085-9",
+    "ucum_unit": "mg/dL",
+    "unit_conversions": [
+      {"from_unit": "mmol/L", "to_unit": "mg/dL", "formula": "linear", "factor": 38.6659}
+    ],
+    "aliases": [
+      "HDL", "HDL-C", "hdl cholesterol", "HDL cholesterol", "HDL-Cholesterol",
+      "high density lipoprotein", "High Density Lipoprotein Cholesterol", "HDL Chol"
+    ],
+    "conditions": ["CVD", "dyslipidemia", "T2D", "HTN"],
+    "guideline_ranges": {
+      "ACC_AHA_low_men": "<40 mg/dL",
+      "ACC_AHA_low_women": "<50 mg/dL",
+      "ACC_AHA_high_protective": ">=60 mg/dL"
+    },
+    "guideline_citations": {
+      "ACC_AHA": "Grundy SM, et al. 2018 AHA/ACC Guideline on Management of Blood Cholesterol. J Am Coll Cardiol. 2019;73(24):e285-e350. https://doi.org/10.1016/j.jacc.2018.11.003"
+    },
+    "provenance": {
+      "source": "2018 AHA/ACC Cholesterol Guideline",
+      "verified_date": "2024-01-01",
+      "notes": "Higher values are cardioprotective"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "triglycerides",
+    "canonical_name": "Triglycerides",
+    "loinc_code": "2571-8",
+    "ucum_unit": "mg/dL",
+    "unit_conversions": [
+      {"from_unit": "mmol/L", "to_unit": "mg/dL", "formula": "linear", "factor": 88.5742}
+    ],
+    "aliases": [
+      "triglycerides", "Triglycerides", "TG", "TRIG", "trigs",
+      "Triglyceride", "triglyceride", "serum triglycerides"
+    ],
+    "conditions": ["CVD", "dyslipidemia", "T2D", "metabolic_syndrome"],
+    "guideline_ranges": {
+      "ACC_AHA_normal": "<150 mg/dL",
+      "ACC_AHA_borderline_high": "150-199 mg/dL",
+      "ACC_AHA_high": "200-499 mg/dL",
+      "ACC_AHA_very_high": ">=500 mg/dL"
+    },
+    "guideline_citations": {
+      "ACC_AHA": "Grundy SM, et al. 2018 AHA/ACC Guideline on Management of Blood Cholesterol. J Am Coll Cardiol. 2019;73(24):e285-e350. https://doi.org/10.1016/j.jacc.2018.11.003"
+    },
+    "provenance": {
+      "source": "2018 AHA/ACC Cholesterol Guideline",
+      "verified_date": "2024-01-01",
+      "notes": "Measured fasting for most accurate results"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "non_hdl_cholesterol",
+    "canonical_name": "Non-HDL Cholesterol",
+    "loinc_code": "43396-1",
+    "ucum_unit": "mg/dL",
+    "unit_conversions": [
+      {"from_unit": "mmol/L", "to_unit": "mg/dL", "formula": "linear", "factor": 38.6659}
+    ],
+    "aliases": [
+      "Non-HDL", "non-HDL cholesterol", "Non-HDL Cholesterol", "nonHDL",
+      "non HDL cholesterol", "non-HDL-C"
+    ],
+    "conditions": ["CVD", "dyslipidemia", "T2D"],
+    "guideline_ranges": {
+      "ACC_AHA_optimal": "<130 mg/dL",
+      "ACC_AHA_target_very_high_risk": "<100 mg/dL",
+      "ACC_AHA_target_high_risk": "<130 mg/dL"
+    },
+    "guideline_citations": {
+      "ACC_AHA": "Grundy SM, et al. 2018 AHA/ACC Guideline on Management of Blood Cholesterol. J Am Coll Cardiol. 2019;73(24):e285-e350. https://doi.org/10.1016/j.jacc.2018.11.003"
+    },
+    "provenance": {
+      "source": "2018 AHA/ACC Cholesterol Guideline",
+      "verified_date": "2024-01-01",
+      "notes": "Calculated as Total Cholesterol minus HDL-C"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "egfr",
+    "canonical_name": "Estimated Glomerular Filtration Rate",
+    "loinc_code": "62238-1",
+    "ucum_unit": "mL/min/1.73m2",
+    "unit_conversions": [],
+    "aliases": [
+      "eGFR", "egfr", "Estimated GFR", "GFR", "estimated glomerular filtration rate",
+      "eGFR (CKD-EPI)", "kidney function", "glomerular filtration rate"
+    ],
+    "conditions": ["CKD", "T2D", "HTN", "T1D"],
+    "guideline_ranges": {
+      "KDIGO_G1_normal": ">=90 mL/min/1.73m2",
+      "KDIGO_G2_mildly_decreased": "60-89 mL/min/1.73m2",
+      "KDIGO_G3a_mild_moderate": "45-59 mL/min/1.73m2",
+      "KDIGO_G3b_moderate_severe": "30-44 mL/min/1.73m2",
+      "KDIGO_G4_severely_decreased": "15-29 mL/min/1.73m2",
+      "KDIGO_G5_kidney_failure": "<15 mL/min/1.73m2",
+      "ADA_target_monitoring": ">=60 mL/min/1.73m2"
+    },
+    "guideline_citations": {
+      "KDIGO": "KDIGO 2024 CKD Guideline. Kidney Int. 2024. https://doi.org/10.1016/j.kint.2023.10.018",
+      "ADA": "American Diabetes Association. Standards of Care in Diabetes—2024. Diabetes Care. 2024;47(Suppl 1):S1-S321. https://doi.org/10.2337/dc24-S001"
+    },
+    "provenance": {
+      "source": "KDIGO 2024 CKD Clinical Practice Guideline",
+      "verified_date": "2024-01-01",
+      "notes": "CKD-EPI 2021 equation preferred (race-free)"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "creatinine",
+    "canonical_name": "Serum Creatinine",
+    "loinc_code": "2160-0",
+    "ucum_unit": "mg/dL",
+    "unit_conversions": [
+      {"from_unit": "umol/L", "to_unit": "mg/dL", "formula": "linear", "factor": 0.011312}
+    ],
+    "aliases": [
+      "creatinine", "Creatinine", "serum creatinine", "Serum Creatinine", "SCr",
+      "Cr", "CREA", "creat"
+    ],
+    "conditions": ["CKD", "T2D", "HTN"],
+    "guideline_ranges": {
+      "normal_male": "0.74-1.35 mg/dL",
+      "normal_female": "0.59-1.04 mg/dL"
+    },
+    "guideline_citations": {
+      "Mayo_Clinic": "Mayo Clinic Laboratories Reference Ranges. https://www.mayocliniclabs.com/test-catalog/Clinical+and+Interpretive/8472"
+    },
+    "provenance": {
+      "source": "Mayo Clinic Laboratories Reference Ranges",
+      "verified_date": "2024-01-01",
+      "notes": "Reference ranges vary by lab; used to calculate eGFR"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "urine_acr",
+    "canonical_name": "Urine Albumin-to-Creatinine Ratio",
+    "loinc_code": "9318-7",
+    "ucum_unit": "mg/g",
+    "unit_conversions": [
+      {"from_unit": "mg/mmol", "to_unit": "mg/g", "formula": "linear", "factor": 8.84}
+    ],
+    "aliases": [
+      "ACR", "urine ACR", "Urine ACR", "albumin creatinine ratio",
+      "Albumin-Creatinine Ratio", "urine albumin", "microalbumin creatinine ratio",
+      "UACR", "spot urine ACR"
+    ],
+    "conditions": ["CKD", "T2D", "HTN", "T1D"],
+    "guideline_ranges": {
+      "KDIGO_A1_normal": "<30 mg/g",
+      "KDIGO_A2_moderately_increased": "30-300 mg/g",
+      "KDIGO_A3_severely_increased": ">300 mg/g",
+      "ADA_target": "<30 mg/g"
+    },
+    "guideline_citations": {
+      "KDIGO": "KDIGO 2024 CKD Guideline. Kidney Int. 2024. https://doi.org/10.1016/j.kint.2023.10.018",
+      "ADA": "American Diabetes Association. Standards of Care in Diabetes—2024. Diabetes Care. 2024;47(Suppl 1):S1-S321. https://doi.org/10.2337/dc24-S001"
+    },
+    "provenance": {
+      "source": "KDIGO 2024 CKD Guideline, Chapter 1",
+      "verified_date": "2024-01-01",
+      "notes": "Spot urine sample; preferred over 24h collection"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "bp_systolic",
+    "canonical_name": "Systolic Blood Pressure",
+    "loinc_code": "8480-6",
+    "ucum_unit": "mm[Hg]",
+    "unit_conversions": [],
+    "aliases": [
+      "systolic blood pressure", "Systolic Blood Pressure", "SBP", "systolic BP",
+      "systolic", "Systolic", "BP systolic"
+    ],
+    "conditions": ["HTN", "CVD", "T2D", "CKD"],
+    "guideline_ranges": {
+      "ACC_AHA_normal": "<120 mm[Hg]",
+      "ACC_AHA_elevated": "120-129 mm[Hg]",
+      "ACC_AHA_stage1_hypertension": "130-139 mm[Hg]",
+      "ACC_AHA_stage2_hypertension": ">=140 mm[Hg]",
+      "ACC_AHA_target_general": "<130 mm[Hg]",
+      "ACC_AHA_target_T2D": "<130 mm[Hg]",
+      "ACC_AHA_target_CKD": "<130 mm[Hg]"
+    },
+    "guideline_citations": {
+      "ACC_AHA": "Whelton PK, et al. 2017 ACC/AHA Hypertension Guideline. J Am Coll Cardiol. 2018;71(19):e127-e248. https://doi.org/10.1016/j.jacc.2017.11.006"
+    },
+    "provenance": {
+      "source": "2017 ACC/AHA High Blood Pressure Guideline",
+      "verified_date": "2024-01-01",
+      "notes": "Average of 2+ readings on 2+ occasions"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "bp_diastolic",
+    "canonical_name": "Diastolic Blood Pressure",
+    "loinc_code": "8462-4",
+    "ucum_unit": "mm[Hg]",
+    "unit_conversions": [],
+    "aliases": [
+      "diastolic blood pressure", "Diastolic Blood Pressure", "DBP", "diastolic BP",
+      "diastolic", "Diastolic", "BP diastolic"
+    ],
+    "conditions": ["HTN", "CVD", "T2D", "CKD"],
+    "guideline_ranges": {
+      "ACC_AHA_normal": "<80 mm[Hg]",
+      "ACC_AHA_stage1_hypertension": "80-89 mm[Hg]",
+      "ACC_AHA_stage2_hypertension": ">=90 mm[Hg]",
+      "ACC_AHA_target_general": "<80 mm[Hg]"
+    },
+    "guideline_citations": {
+      "ACC_AHA": "Whelton PK, et al. 2017 ACC/AHA Hypertension Guideline. J Am Coll Cardiol. 2018;71(19):e127-e248. https://doi.org/10.1016/j.jacc.2017.11.006"
+    },
+    "provenance": {
+      "source": "2017 ACC/AHA High Blood Pressure Guideline",
+      "verified_date": "2024-01-01",
+      "notes": "Average of 2+ readings on 2+ occasions"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "tsh",
+    "canonical_name": "Thyroid Stimulating Hormone",
+    "loinc_code": "3016-3",
+    "ucum_unit": "mIU/L",
+    "unit_conversions": [
+      {"from_unit": "uIU/mL", "to_unit": "mIU/L", "formula": "linear", "factor": 1.0}
+    ],
+    "aliases": [
+      "TSH", "tsh", "thyroid stimulating hormone", "Thyroid Stimulating Hormone",
+      "thyrotropin", "Thyrotropin", "thyroid-stimulating hormone"
+    ],
+    "conditions": ["hypothyroidism", "hyperthyroidism", "thyroid_disease"],
+    "guideline_ranges": {
+      "ATA_normal": "0.5-4.5 mIU/L",
+      "ATA_subclinical_hypothyroid": "4.5-10.0 mIU/L",
+      "ATA_overt_hypothyroid": ">10.0 mIU/L",
+      "ATA_subclinical_hyperthyroid": "0.1-0.5 mIU/L",
+      "ATA_overt_hyperthyroid": "<0.1 mIU/L",
+      "ATA_target_treated_hypothyroid": "0.5-2.5 mIU/L"
+    },
+    "guideline_citations": {
+      "ATA": "Jonklaas J, et al. ATA Guidelines for Treatment of Hypothyroidism. Thyroid. 2014;24(12):1670-1751. https://doi.org/10.1089/thy.2014.0028"
+    },
+    "provenance": {
+      "source": "ATA 2014 Hypothyroidism Guidelines",
+      "verified_date": "2024-01-01",
+      "notes": "Reference range varies slightly between labs; 0.5-4.5 is the widely cited standard"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "free_t4",
+    "canonical_name": "Free Thyroxine",
+    "loinc_code": "3024-7",
+    "ucum_unit": "ng/dL",
+    "unit_conversions": [
+      {"from_unit": "pmol/L", "to_unit": "ng/dL", "formula": "linear", "factor": 0.07775}
+    ],
+    "aliases": [
+      "free T4", "Free T4", "FT4", "fT4", "free thyroxine", "Free Thyroxine",
+      "T4 free", "thyroxine free"
+    ],
+    "conditions": ["hypothyroidism", "hyperthyroidism", "thyroid_disease"],
+    "guideline_ranges": {
+      "ATA_normal": "0.8-1.8 ng/dL",
+      "ATA_low_hypothyroid": "<0.8 ng/dL",
+      "ATA_high_hyperthyroid": ">1.8 ng/dL"
+    },
+    "guideline_citations": {
+      "ATA": "Jonklaas J, et al. ATA Guidelines for Treatment of Hypothyroidism. Thyroid. 2014;24(12):1670-1751. https://doi.org/10.1089/thy.2014.0028"
+    },
+    "provenance": {
+      "source": "ATA 2014 Hypothyroidism Guidelines",
+      "verified_date": "2024-01-01",
+      "notes": "Measured when TSH is abnormal to confirm diagnosis"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "alt",
+    "canonical_name": "Alanine Aminotransferase",
+    "loinc_code": "1742-6",
+    "ucum_unit": "U/L",
+    "unit_conversions": [],
+    "aliases": [
+      "ALT", "alt", "alanine aminotransferase", "Alanine Aminotransferase",
+      "SGPT", "sgpt", "alanine transaminase"
+    ],
+    "conditions": ["T2D", "NAFLD", "liver_disease"],
+    "guideline_ranges": {
+      "normal_male": "7-56 U/L",
+      "normal_female": "7-45 U/L",
+      "ADA_monitoring": "<56 U/L"
+    },
+    "guideline_citations": {
+      "AASLD": "Rinella ME, et al. AASLD Practice Guidance on NAFLD and NASH. Hepatology. 2023;78(6):1797-1835. https://doi.org/10.1097/HEP.0000000000000323"
+    },
+    "provenance": {
+      "source": "AASLD NAFLD Practice Guidance 2023",
+      "verified_date": "2024-01-01",
+      "notes": "Liver enzyme; elevated in T2D with NAFLD"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "ast",
+    "canonical_name": "Aspartate Aminotransferase",
+    "loinc_code": "1920-8",
+    "ucum_unit": "U/L",
+    "unit_conversions": [],
+    "aliases": [
+      "AST", "ast", "aspartate aminotransferase", "Aspartate Aminotransferase",
+      "SGOT", "sgot", "aspartate transaminase"
+    ],
+    "conditions": ["T2D", "NAFLD", "liver_disease", "CVD"],
+    "guideline_ranges": {
+      "normal_male": "10-40 U/L",
+      "normal_female": "10-35 U/L"
+    },
+    "guideline_citations": {
+      "AASLD": "Rinella ME, et al. AASLD Practice Guidance on NAFLD and NASH. Hepatology. 2023;78(6):1797-1835. https://doi.org/10.1097/HEP.0000000000000323"
+    },
+    "provenance": {
+      "source": "AASLD NAFLD Practice Guidance 2023",
+      "verified_date": "2024-01-01",
+      "notes": "AST/ALT ratio > 2:1 suggests alcoholic liver disease"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "hs_crp",
+    "canonical_name": "High-Sensitivity C-Reactive Protein",
+    "loinc_code": "30522-7",
+    "ucum_unit": "mg/L",
+    "unit_conversions": [
+      {"from_unit": "nmol/L", "to_unit": "mg/L", "formula": "linear", "factor": 0.10516}
+    ],
+    "aliases": [
+      "hsCRP", "hs-CRP", "high sensitivity CRP", "High-Sensitivity CRP",
+      "high-sensitivity C-reactive protein", "CRP high sensitivity",
+      "cardiac CRP", "hs CRP"
+    ],
+    "conditions": ["CVD", "T2D", "HTN", "metabolic_syndrome"],
+    "guideline_ranges": {
+      "ACC_AHA_low_risk": "<1.0 mg/L",
+      "ACC_AHA_average_risk": "1.0-3.0 mg/L",
+      "ACC_AHA_high_risk": ">3.0 mg/L"
+    },
+    "guideline_citations": {
+      "ACC_AHA": "Ridker PM, et al. C-Reactive Protein and Cardiovascular Risk. JACC. 2003;41(11):1795-1798. https://doi.org/10.1016/S0735-1097(03)00385-3",
+      "ACC_AHA_2019": "Arnett DK, et al. 2019 ACC/AHA Primary Prevention Guideline. Circulation. 2019;140(11):e596-e646. https://doi.org/10.1161/CIR.0000000000000678"
+    },
+    "provenance": {
+      "source": "ACC/AHA 2019 Primary Prevention Guideline",
+      "verified_date": "2024-01-01",
+      "notes": "Risk thresholds from Ridker et al. 2003; a result >10 mg/L suggests acute inflammation, not CVD risk"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "vitamin_d",
+    "canonical_name": "25-Hydroxyvitamin D",
+    "loinc_code": "1989-3",
+    "ucum_unit": "ng/mL",
+    "unit_conversions": [
+      {"from_unit": "nmol/L", "to_unit": "ng/mL", "formula": "linear", "factor": 0.4006}
+    ],
+    "aliases": [
+      "vitamin D", "Vitamin D", "25-OH Vitamin D", "25-hydroxyvitamin D",
+      "25(OH)D", "vitamin D3", "calcidiol", "25-OHD"
+    ],
+    "conditions": ["T2D", "osteoporosis", "general_health"],
+    "guideline_ranges": {
+      "Endocrine_Society_deficient": "<20 ng/mL",
+      "Endocrine_Society_insufficient": "20-29 ng/mL",
+      "Endocrine_Society_sufficient": "30-100 ng/mL",
+      "Endocrine_Society_toxic": ">100 ng/mL"
+    },
+    "guideline_citations": {
+      "Endocrine_Society": "Holick MF, et al. Endocrine Society Clinical Practice Guideline: Vitamin D Deficiency. J Clin Endocrinol Metab. 2011;96(7):1911-1930. https://doi.org/10.1210/jc.2011-0385"
+    },
+    "provenance": {
+      "source": "Endocrine Society 2011 Vitamin D Deficiency Guideline",
+      "verified_date": "2024-01-01",
+      "notes": "25-hydroxyvitamin D (calcidiol) is the major circulating form; measures total vitamin D status"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "vitamin_b12",
+    "canonical_name": "Vitamin B12",
+    "loinc_code": "2132-9",
+    "ucum_unit": "pg/mL",
+    "unit_conversions": [
+      {"from_unit": "pmol/L", "to_unit": "pg/mL", "formula": "linear", "factor": 1.3548}
+    ],
+    "aliases": [
+      "vitamin B12", "Vitamin B12", "B12", "cobalamin", "Cobalamin",
+      "cyanocobalamin", "serum B12", "VitB12"
+    ],
+    "conditions": ["T2D", "anemia", "neuropathy"],
+    "guideline_ranges": {
+      "normal": "200-900 pg/mL",
+      "deficient": "<200 pg/mL",
+      "borderline": "200-300 pg/mL"
+    },
+    "guideline_citations": {
+      "ADA": "American Diabetes Association. Standards of Care in Diabetes—2024. Diabetes Care. 2024;47(Suppl 1):S1-S321. https://doi.org/10.2337/dc24-S001",
+      "Lab_Reference": "Stabler SP. Vitamin B12 Deficiency. N Engl J Med. 2013;368:149-160. https://doi.org/10.1056/NEJMcp1113996"
+    },
+    "provenance": {
+      "source": "NEJM 2013 Vitamin B12 Deficiency Review",
+      "verified_date": "2024-01-01",
+      "notes": "Metformin use in T2D can lower B12 levels; ADA recommends periodic monitoring"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "ferritin",
+    "canonical_name": "Serum Ferritin",
+    "loinc_code": "2276-4",
+    "ucum_unit": "ng/mL",
+    "unit_conversions": [
+      {"from_unit": "pmol/L", "to_unit": "ng/mL", "formula": "linear", "factor": 0.44}
+    ],
+    "aliases": [
+      "ferritin", "Ferritin", "serum ferritin", "Serum Ferritin",
+      "iron stores", "FERR"
+    ],
+    "conditions": ["anemia", "T2D", "NAFLD", "iron_deficiency"],
+    "guideline_ranges": {
+      "normal_male": "24-336 ng/mL",
+      "normal_female_premenopausal": "11-307 ng/mL",
+      "iron_deficiency": "<12 ng/mL",
+      "iron_depletion": "<30 ng/mL"
+    },
+    "guideline_citations": {
+      "WHO": "WHO. Serum ferritin concentrations for the assessment of iron status in individuals and populations. WHO/NMH/NHD/MNM/11.2. https://www.who.int/vmnis/indicators/serum_ferritin/en/"
+    },
+    "provenance": {
+      "source": "WHO Serum Ferritin Reference Values 2011",
+      "verified_date": "2024-01-01",
+      "notes": "Acute phase reactant; can be elevated in inflammation independent of iron status"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "hemoglobin",
+    "canonical_name": "Hemoglobin",
+    "loinc_code": "718-7",
+    "ucum_unit": "g/dL",
+    "unit_conversions": [
+      {"from_unit": "g/L", "to_unit": "g/dL", "formula": "linear", "factor": 0.1},
+      {"from_unit": "mmol/L", "to_unit": "g/dL", "formula": "linear", "factor": 1.6113}
+    ],
+    "aliases": [
+      "hemoglobin", "Hemoglobin", "Hgb", "HGB", "Hb", "haemoglobin",
+      "blood hemoglobin"
+    ],
+    "conditions": ["anemia", "CKD", "T2D"],
+    "guideline_ranges": {
+      "normal_male": "13.5-17.5 g/dL",
+      "normal_female": "12.0-15.5 g/dL",
+      "anemia_male": "<13.5 g/dL",
+      "anemia_female": "<12.0 g/dL",
+      "WHO_anemia_nonpregnant_women": "<12.0 g/dL",
+      "WHO_anemia_men": "<13.0 g/dL"
+    },
+    "guideline_citations": {
+      "WHO": "WHO. Haemoglobin concentrations for the diagnosis of anaemia and assessment of severity. WHO/NMH/NHD/MNM/11.1. https://www.who.int/vmnis/indicators/haemoglobin/en/"
+    },
+    "provenance": {
+      "source": "WHO 2011 Haemoglobin Concentrations",
+      "verified_date": "2024-01-01",
+      "notes": "Part of CBC (complete blood count)"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "wbc",
+    "canonical_name": "White Blood Cell Count",
+    "loinc_code": "6690-2",
+    "ucum_unit": "10*3/uL",
+    "unit_conversions": [
+      {"from_unit": "10*9/L", "to_unit": "10*3/uL", "formula": "linear", "factor": 1.0}
+    ],
+    "aliases": [
+      "WBC", "wbc", "white blood cell count", "White Blood Cell Count",
+      "leukocyte count", "Leukocyte Count", "white cells"
+    ],
+    "conditions": ["infection", "immune_disorders", "T2D"],
+    "guideline_ranges": {
+      "normal": "4.5-11.0 10*3/uL",
+      "leukopenia": "<4.5 10*3/uL",
+      "leukocytosis": ">11.0 10*3/uL"
+    },
+    "guideline_citations": {
+      "Lab_Reference": "Bain BJ. Blood Cells: A Practical Guide. 5th ed. Wiley-Blackwell; 2015. https://www.wiley.com/en-us/Blood+Cells%3A+A+Practical+Guide%2C+5th+Edition-p-9781118817353"
+    },
+    "provenance": {
+      "source": "Standard laboratory reference ranges",
+      "verified_date": "2024-01-01",
+      "notes": "Part of CBC"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "platelets",
+    "canonical_name": "Platelet Count",
+    "loinc_code": "777-3",
+    "ucum_unit": "10*3/uL",
+    "unit_conversions": [
+      {"from_unit": "10*9/L", "to_unit": "10*3/uL", "formula": "linear", "factor": 1.0}
+    ],
+    "aliases": [
+      "platelets", "Platelets", "platelet count", "Platelet Count", "PLT",
+      "thrombocytes", "Thrombocytes"
+    ],
+    "conditions": ["bleeding_disorders", "CKD", "NAFLD"],
+    "guideline_ranges": {
+      "normal": "150-400 10*3/uL",
+      "thrombocytopenia": "<150 10*3/uL",
+      "thrombocytosis": ">400 10*3/uL"
+    },
+    "guideline_citations": {
+      "Lab_Reference": "Bain BJ. Blood Cells: A Practical Guide. 5th ed. Wiley-Blackwell; 2015. https://www.wiley.com/en-us/Blood+Cells%3A+A+Practical+Guide%2C+5th+Edition-p-9781118817353"
+    },
+    "provenance": {
+      "source": "Standard laboratory reference ranges",
+      "verified_date": "2024-01-01",
+      "notes": "Part of CBC"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "sodium",
+    "canonical_name": "Serum Sodium",
+    "loinc_code": "2951-2",
+    "ucum_unit": "mEq/L",
+    "unit_conversions": [
+      {"from_unit": "mmol/L", "to_unit": "mEq/L", "formula": "linear", "factor": 1.0}
+    ],
+    "aliases": [
+      "sodium", "Sodium", "serum sodium", "Serum Sodium", "Na", "Na+",
+      "sodium serum"
+    ],
+    "conditions": ["CKD", "HTN", "heart_failure"],
+    "guideline_ranges": {
+      "normal": "136-145 mEq/L",
+      "hyponatremia": "<136 mEq/L",
+      "hypernatremia": ">145 mEq/L"
+    },
+    "guideline_citations": {
+      "Lab_Reference": "Spasovski G, et al. Clinical Practice Guideline on Hyponatraemia. Nephrol Dial Transplant. 2014;29(Suppl 2):i1-i39. https://doi.org/10.1093/ndt/gfu040"
+    },
+    "provenance": {
+      "source": "ERA/ESE Hyponatraemia Guideline 2014",
+      "verified_date": "2024-01-01",
+      "notes": "Part of BMP/CMP; critical electrolyte"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "potassium",
+    "canonical_name": "Serum Potassium",
+    "loinc_code": "2823-3",
+    "ucum_unit": "mEq/L",
+    "unit_conversions": [
+      {"from_unit": "mmol/L", "to_unit": "mEq/L", "formula": "linear", "factor": 1.0}
+    ],
+    "aliases": [
+      "potassium", "Potassium", "serum potassium", "Serum Potassium", "K", "K+",
+      "potassium serum"
+    ],
+    "conditions": ["CKD", "HTN", "heart_failure", "T2D"],
+    "guideline_ranges": {
+      "normal": "3.5-5.0 mEq/L",
+      "hypokalemia": "<3.5 mEq/L",
+      "hyperkalemia": ">5.0 mEq/L",
+      "critical_low": "<2.5 mEq/L",
+      "critical_high": ">6.5 mEq/L"
+    },
+    "guideline_citations": {
+      "Lab_Reference": "Kardalas E, et al. Hypokalemia: a clinical update. Endocr Connect. 2018;7(4):R135-R146. https://doi.org/10.1530/EC-18-0109"
+    },
+    "provenance": {
+      "source": "Standard laboratory reference ranges",
+      "verified_date": "2024-01-01",
+      "notes": "Part of BMP/CMP; CKD patients on ACEi/ARB at higher risk for hyperkalemia"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "chloride",
+    "canonical_name": "Serum Chloride",
+    "loinc_code": "2075-0",
+    "ucum_unit": "mEq/L",
+    "unit_conversions": [
+      {"from_unit": "mmol/L", "to_unit": "mEq/L", "formula": "linear", "factor": 1.0}
+    ],
+    "aliases": [
+      "chloride", "Chloride", "serum chloride", "Serum Chloride", "Cl", "Cl-",
+      "chloride serum"
+    ],
+    "conditions": ["CKD", "metabolic_disorders"],
+    "guideline_ranges": {
+      "normal": "98-106 mEq/L",
+      "hypochloremia": "<98 mEq/L",
+      "hyperchloremia": ">106 mEq/L"
+    },
+    "guideline_citations": {
+      "Lab_Reference": "Berend K, et al. Physiological Approach to Assessment of Acid-Base Disturbances. N Engl J Med. 2014;371:1434-1445. https://doi.org/10.1056/NEJMra1003327"
+    },
+    "provenance": {
+      "source": "Standard laboratory reference ranges",
+      "verified_date": "2024-01-01",
+      "notes": "Part of BMP/CMP"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "bun",
+    "canonical_name": "Blood Urea Nitrogen",
+    "loinc_code": "3094-0",
+    "ucum_unit": "mg/dL",
+    "unit_conversions": [
+      {"from_unit": "mmol/L", "to_unit": "mg/dL", "formula": "linear", "factor": 2.8014}
+    ],
+    "aliases": [
+      "BUN", "bun", "blood urea nitrogen", "Blood Urea Nitrogen",
+      "urea nitrogen", "serum urea", "SUN"
+    ],
+    "conditions": ["CKD", "T2D", "HTN"],
+    "guideline_ranges": {
+      "normal": "7-20 mg/dL",
+      "elevated": ">20 mg/dL"
+    },
+    "guideline_citations": {
+      "Lab_Reference": "Mayo Clinic Laboratories Reference Ranges. https://www.mayocliniclabs.com/test-catalog/Clinical+and+Interpretive/8588"
+    },
+    "provenance": {
+      "source": "Mayo Clinic Laboratories Reference Ranges",
+      "verified_date": "2024-01-01",
+      "notes": "Part of BMP/CMP; used with creatinine (BUN:Cr ratio) to differentiate pre/post-renal azotemia"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "serum_glucose",
+    "canonical_name": "Serum Glucose (Random)",
+    "loinc_code": "2345-7",
+    "ucum_unit": "mg/dL",
+    "unit_conversions": [
+      {"from_unit": "mmol/L", "to_unit": "mg/dL", "formula": "linear", "factor": 18.0182}
+    ],
+    "aliases": [
+      "glucose", "Glucose", "serum glucose", "Serum Glucose", "random glucose",
+      "blood glucose", "blood sugar", "GLU"
+    ],
+    "conditions": ["T2D", "T1D", "prediabetes", "hypoglycemia"],
+    "guideline_ranges": {
+      "ADA_normal_random": "<140 mg/dL",
+      "ADA_diabetes_diagnosis_random": ">=200 mg/dL with symptoms",
+      "ADA_hypoglycemia": "<70 mg/dL",
+      "ADA_severe_hypoglycemia": "<54 mg/dL"
+    },
+    "guideline_citations": {
+      "ADA": "American Diabetes Association. Standards of Care in Diabetes—2024. Diabetes Care. 2024;47(Suppl 1):S1-S321. https://doi.org/10.2337/dc24-S001"
+    },
+    "provenance": {
+      "source": "ADA Standards of Care in Diabetes 2024",
+      "verified_date": "2024-01-01",
+      "notes": "Random (non-fasting) glucose; distinct from fasting glucose"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "fructosamine",
+    "canonical_name": "Fructosamine",
+    "loinc_code": "1592-5",
+    "ucum_unit": "umol/L",
+    "unit_conversions": [],
+    "aliases": [
+      "fructosamine", "Fructosamine", "glycated protein", "glycated albumin",
+      "serum fructosamine"
+    ],
+    "conditions": ["T2D", "T1D"],
+    "guideline_ranges": {
+      "normal": "174-286 umol/L",
+      "elevated_indicates_poor_control": ">286 umol/L"
+    },
+    "guideline_citations": {
+      "ADA": "American Diabetes Association. Standards of Care in Diabetes—2024. Diabetes Care. 2024;47(Suppl 1):S1-S321. https://doi.org/10.2337/dc24-S001"
+    },
+    "provenance": {
+      "source": "ADA Standards of Care in Diabetes 2024",
+      "verified_date": "2024-01-01",
+      "notes": "Reflects 2-3 week average glucose; used when HbA1c is unreliable (e.g., hemolytic anemia, hemoglobin variants)"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  }
+]

@@ -1,0 +1,201 @@
+{
+  "version": "1.0",
+  "description": "Published guideline ranges for Vitalog biomarkers with full citations",
+  "guidelines": {
+    "ADA_2024": {
+      "name": "ADA Standards of Care in Diabetes 2024",
+      "organization": "American Diabetes Association",
+      "year": 2024,
+      "citation": "American Diabetes Association Professional Practice Committee. Standards of Care in Diabetes—2024. Diabetes Care. 2024;47(Suppl 1):S1-S321.",
+      "doi": "https://doi.org/10.2337/dc24-S001",
+      "url": "https://diabetesjournals.org/care/issue/47/Supplement_1",
+      "ranges": {
+        "hba1c": {
+          "normal": {"value": "<5.7", "unit": "%", "label": "Normal"},
+          "prediabetes": {"value": "5.7-6.4", "unit": "%", "label": "Prediabetes"},
+          "diabetes_diagnosis": {"value": ">=6.5", "unit": "%", "label": "Diabetes (diagnosis)"},
+          "target_diabetes": {"value": "<7.0", "unit": "%", "label": "Treatment target (most adults)"},
+          "target_elderly": {"value": "<8.0", "unit": "%", "label": "Treatment target (older adults, complex/intermediate)"},
+          "source_section": "Section 6: Glycemic Goals and Hypoglycemia"
+        },
+        "fasting_glucose": {
+          "normal": {"value": "<100", "unit": "mg/dL", "label": "Normal"},
+          "prediabetes": {"value": "100-125", "unit": "mg/dL", "label": "Impaired Fasting Glucose"},
+          "diabetes_diagnosis": {"value": ">=126", "unit": "mg/dL", "label": "Diabetes (diagnosis, confirmed on repeat)"},
+          "target_preprandial": {"value": "80-130", "unit": "mg/dL", "label": "Target preprandial (adults)"},
+          "source_section": "Section 2: Classification and Diagnosis"
+        },
+        "postprandial_glucose": {
+          "normal": {"value": "<140", "unit": "mg/dL", "label": "Normal (2h OGTT)"},
+          "prediabetes": {"value": "140-199", "unit": "mg/dL", "label": "Impaired Glucose Tolerance"},
+          "diabetes_diagnosis": {"value": ">=200", "unit": "mg/dL", "label": "Diabetes (2h OGTT diagnosis)"},
+          "target_postprandial": {"value": "<180", "unit": "mg/dL", "label": "Target postprandial (adults)"},
+          "source_section": "Section 6: Glycemic Goals and Hypoglycemia"
+        },
+        "serum_glucose_hypoglycemia": {
+          "hypoglycemia_alert": {"value": "<70", "unit": "mg/dL", "label": "Hypoglycemia alert value (Level 1)"},
+          "clinically_significant_hypoglycemia": {"value": "<54", "unit": "mg/dL", "label": "Clinically significant hypoglycemia (Level 2)"},
+          "source_section": "Section 6: Glycemic Goals and Hypoglycemia"
+        }
+      }
+    },
+    "ACC_AHA_CHOLESTEROL_2018": {
+      "name": "2018 AHA/ACC Guideline on Management of Blood Cholesterol",
+      "organization": "American Heart Association / American College of Cardiology",
+      "year": 2018,
+      "citation": "Grundy SM, Stone NJ, Bailey AL, et al. 2018 AHA/ACC/AACVPR/AAPA/ABC/ACPM/ADA/AGS/APhA/ASPC/NLA/PCNA Guideline on the Management of Blood Cholesterol. J Am Coll Cardiol. 2019;73(24):e285-e350.",
+      "doi": "https://doi.org/10.1016/j.jacc.2018.11.003",
+      "url": "https://www.jacc.org/doi/10.1016/j.jacc.2018.11.003",
+      "ranges": {
+        "total_cholesterol": {
+          "desirable": {"value": "<200", "unit": "mg/dL", "label": "Desirable"},
+          "borderline_high": {"value": "200-239", "unit": "mg/dL", "label": "Borderline High"},
+          "high": {"value": ">=240", "unit": "mg/dL", "label": "High"},
+          "source_section": "Table 2: Classification of LDL, Total, HDL, and Non-HDL Cholesterol"
+        },
+        "ldl_cholesterol": {
+          "optimal": {"value": "<100", "unit": "mg/dL", "label": "Optimal"},
+          "near_optimal": {"value": "100-129", "unit": "mg/dL", "label": "Near/Above Optimal"},
+          "borderline_high": {"value": "130-159", "unit": "mg/dL", "label": "Borderline High"},
+          "high": {"value": "160-189", "unit": "mg/dL", "label": "High"},
+          "very_high": {"value": ">=190", "unit": "mg/dL", "label": "Very High"},
+          "target_very_high_risk": {"value": "<70", "unit": "mg/dL", "label": "Target (very high cardiovascular risk)"},
+          "target_high_risk": {"value": "<100", "unit": "mg/dL", "label": "Target (high cardiovascular risk)"},
+          "source_section": "Table 2 and Risk-Based Statin Therapy Recommendations"
+        },
+        "hdl_cholesterol": {
+          "low_men": {"value": "<40", "unit": "mg/dL", "label": "Low (men) — cardiovascular risk factor"},
+          "low_women": {"value": "<50", "unit": "mg/dL", "label": "Low (women) — cardiovascular risk factor"},
+          "high_protective": {"value": ">=60", "unit": "mg/dL", "label": "High — negative risk factor (protective)"},
+          "source_section": "Section on Risk Assessment"
+        },
+        "triglycerides": {
+          "normal": {"value": "<150", "unit": "mg/dL", "label": "Normal"},
+          "borderline_high": {"value": "150-199", "unit": "mg/dL", "label": "Borderline High"},
+          "high": {"value": "200-499", "unit": "mg/dL", "label": "High"},
+          "very_high": {"value": ">=500", "unit": "mg/dL", "label": "Very High — pancreatitis risk"},
+          "source_section": "Section on Hypertriglyceridemia"
+        },
+        "non_hdl_cholesterol": {
+          "optimal": {"value": "<130", "unit": "mg/dL", "label": "Optimal"},
+          "target_very_high_risk": {"value": "<100", "unit": "mg/dL", "label": "Target (very high risk)"},
+          "target_high_risk": {"value": "<130", "unit": "mg/dL", "label": "Target (high risk)"},
+          "source_section": "Non-HDL Cholesterol Goals"
+        }
+      }
+    },
+    "ACC_AHA_HTN_2017": {
+      "name": "2017 ACC/AHA/AAPA/ABC/ACPM/AGS/APhA/ASH/ASPC/NMA/PCNA Guideline for the Prevention, Detection, Evaluation, and Management of High Blood Pressure in Adults",
+      "organization": "American Heart Association / American College of Cardiology",
+      "year": 2017,
+      "citation": "Whelton PK, Carey RM, Aronow WS, et al. 2017 ACC/AHA High Blood Pressure Guideline. J Am Coll Cardiol. 2018;71(19):e127-e248.",
+      "doi": "https://doi.org/10.1016/j.jacc.2017.11.006",
+      "url": "https://www.jacc.org/doi/10.1016/j.jacc.2017.11.006",
+      "ranges": {
+        "bp_systolic": {
+          "normal": {"value": "<120", "unit": "mm[Hg]", "label": "Normal"},
+          "elevated": {"value": "120-129", "unit": "mm[Hg]", "label": "Elevated"},
+          "stage1_hypertension": {"value": "130-139", "unit": "mm[Hg]", "label": "Stage 1 Hypertension"},
+          "stage2_hypertension": {"value": ">=140", "unit": "mm[Hg]", "label": "Stage 2 Hypertension"},
+          "hypertensive_crisis": {"value": ">180", "unit": "mm[Hg]", "label": "Hypertensive Crisis"},
+          "target_general": {"value": "<130", "unit": "mm[Hg]", "label": "Treatment target (most patients)"},
+          "target_T2D": {"value": "<130", "unit": "mm[Hg]", "label": "Treatment target (diabetes)"},
+          "target_CKD": {"value": "<130", "unit": "mm[Hg]", "label": "Treatment target (CKD)"},
+          "source_section": "Table 7: BP Categories and Section 9: Special Situations"
+        },
+        "bp_diastolic": {
+          "normal": {"value": "<80", "unit": "mm[Hg]", "label": "Normal"},
+          "stage1_hypertension": {"value": "80-89", "unit": "mm[Hg]", "label": "Stage 1 Hypertension"},
+          "stage2_hypertension": {"value": ">=90", "unit": "mm[Hg]", "label": "Stage 2 Hypertension"},
+          "hypertensive_crisis": {"value": ">120", "unit": "mm[Hg]", "label": "Hypertensive Crisis"},
+          "target_general": {"value": "<80", "unit": "mm[Hg]", "label": "Treatment target"},
+          "source_section": "Table 7: BP Categories"
+        }
+      }
+    },
+    "ATA_2014": {
+      "name": "Guidelines for the Treatment of Hypothyroidism: Prepared by the American Thyroid Association Task Force on Thyroid Hormone Replacement",
+      "organization": "American Thyroid Association",
+      "year": 2014,
+      "citation": "Jonklaas J, Bianco AC, Bauer AJ, et al. Guidelines for the Treatment of Hypothyroidism: Prepared by the American Thyroid Association Task Force on Thyroid Hormone Replacement. Thyroid. 2014;24(12):1670-1751.",
+      "doi": "https://doi.org/10.1089/thy.2014.0028",
+      "url": "https://www.liebertpub.com/doi/10.1089/thy.2014.0028",
+      "ranges": {
+        "tsh": {
+          "normal": {"value": "0.5-4.5", "unit": "mIU/L", "label": "Normal (euthyroid)"},
+          "subclinical_hypothyroid": {"value": "4.5-10.0", "unit": "mIU/L", "label": "Subclinical Hypothyroidism"},
+          "overt_hypothyroid": {"value": ">10.0", "unit": "mIU/L", "label": "Overt Hypothyroidism"},
+          "subclinical_hyperthyroid": {"value": "0.1-0.49", "unit": "mIU/L", "label": "Subclinical Hyperthyroidism"},
+          "overt_hyperthyroid": {"value": "<0.1", "unit": "mIU/L", "label": "Overt Hyperthyroidism"},
+          "target_treated_hypothyroid": {"value": "0.5-2.5", "unit": "mIU/L", "label": "Target for treated hypothyroidism"},
+          "source_section": "Section on Monitoring L-T4 Therapy"
+        },
+        "free_t4": {
+          "normal": {"value": "0.8-1.8", "unit": "ng/dL", "label": "Normal"},
+          "low": {"value": "<0.8", "unit": "ng/dL", "label": "Low — consistent with hypothyroidism"},
+          "high": {"value": ">1.8", "unit": "ng/dL", "label": "High — consistent with hyperthyroidism"},
+          "source_section": "Diagnosis and Biochemical Assessment"
+        }
+      }
+    },
+    "KDIGO_2024": {
+      "name": "KDIGO 2024 Clinical Practice Guideline for the Evaluation and Management of Chronic Kidney Disease",
+      "organization": "Kidney Disease: Improving Global Outcomes",
+      "year": 2024,
+      "citation": "KDIGO CKD Work Group. KDIGO 2024 Clinical Practice Guideline for the Evaluation and Management of Chronic Kidney Disease. Kidney Int. 2024.",
+      "doi": "https://doi.org/10.1016/j.kint.2023.10.018",
+      "url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+      "ranges": {
+        "egfr": {
+          "G1_normal": {"value": ">=90", "unit": "mL/min/1.73m2", "label": "G1: Normal or high"},
+          "G2_mildly_decreased": {"value": "60-89", "unit": "mL/min/1.73m2", "label": "G2: Mildly decreased"},
+          "G3a_mild_to_moderate": {"value": "45-59", "unit": "mL/min/1.73m2", "label": "G3a: Mild to moderately decreased"},
+          "G3b_moderate_to_severe": {"value": "30-44", "unit": "mL/min/1.73m2", "label": "G3b: Moderately to severely decreased"},
+          "G4_severely_decreased": {"value": "15-29", "unit": "mL/min/1.73m2", "label": "G4: Severely decreased"},
+          "G5_kidney_failure": {"value": "<15", "unit": "mL/min/1.73m2", "label": "G5: Kidney failure"},
+          "source_section": "Chapter 1: Definition and Classification of CKD"
+        },
+        "urine_acr": {
+          "A1_normal_to_mildly_increased": {"value": "<30", "unit": "mg/g", "label": "A1: Normal to mildly increased"},
+          "A2_moderately_increased": {"value": "30-300", "unit": "mg/g", "label": "A2: Moderately increased (microalbuminuria)"},
+          "A3_severely_increased": {"value": ">300", "unit": "mg/g", "label": "A3: Severely increased (macroalbuminuria)"},
+          "source_section": "Chapter 1: Definition and Classification of CKD"
+        }
+      }
+    },
+    "ACC_AHA_PREVENTION_2019": {
+      "name": "2019 ACC/AHA Guideline on the Primary Prevention of Cardiovascular Disease",
+      "organization": "American Heart Association / American College of Cardiology",
+      "year": 2019,
+      "citation": "Arnett DK, Blumenthal RS, Albert MA, et al. 2019 ACC/AHA Guideline on the Primary Prevention of Cardiovascular Disease. Circulation. 2019;140(11):e596-e646.",
+      "doi": "https://doi.org/10.1161/CIR.0000000000000678",
+      "url": "https://www.ahajournals.org/doi/10.1161/CIR.0000000000000678",
+      "ranges": {
+        "hs_crp": {
+          "low_risk": {"value": "<1.0", "unit": "mg/L", "label": "Low cardiovascular risk"},
+          "average_risk": {"value": "1.0-3.0", "unit": "mg/L", "label": "Average cardiovascular risk"},
+          "high_risk": {"value": ">3.0", "unit": "mg/L", "label": "High cardiovascular risk"},
+          "acute_inflammation_caution": {"value": ">10.0", "unit": "mg/L", "label": "Likely acute inflammation — interpret with caution for CVD risk"},
+          "source_section": "Risk Enhancers for Borderline-Risk Patients"
+        }
+      }
+    },
+    "ENDOCRINE_SOCIETY_VITAMIN_D_2011": {
+      "name": "Evaluation, Treatment, and Prevention of Vitamin D Deficiency: an Endocrine Society Clinical Practice Guideline",
+      "organization": "The Endocrine Society",
+      "year": 2011,
+      "citation": "Holick MF, Binkley NC, Bischoff-Ferrari HA, et al. Evaluation, Treatment, and Prevention of Vitamin D Deficiency: an Endocrine Society Clinical Practice Guideline. J Clin Endocrinol Metab. 2011;96(7):1911-1930.",
+      "doi": "https://doi.org/10.1210/jc.2011-0385",
+      "url": "https://academic.oup.com/jcem/article/96/7/1911/2833671",
+      "ranges": {
+        "vitamin_d": {
+          "deficient": {"value": "<20", "unit": "ng/mL", "label": "Vitamin D Deficient"},
+          "insufficient": {"value": "20-29", "unit": "ng/mL", "label": "Vitamin D Insufficient"},
+          "sufficient": {"value": "30-100", "unit": "ng/mL", "label": "Vitamin D Sufficient"},
+          "toxicity_risk": {"value": ">100", "unit": "ng/mL", "label": "Potential Toxicity"},
+          "source_section": "Evidence-Based Recommendations for Vitamin D"
+        }
+      }
+    }
+  }
+}

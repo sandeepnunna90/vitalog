@@ -1,0 +1,166 @@
+{
+  "version": "1.0",
+  "description": "Maps chronic conditions to their relevant biomarker vitalog_ids",
+  "conditions": {
+    "T2D": {
+      "display_name": "Type 2 Diabetes",
+      "icd10": "E11",
+      "primary_biomarkers": [
+        "hba1c",
+        "fasting_glucose",
+        "postprandial_glucose",
+        "serum_glucose"
+      ],
+      "monitoring_biomarkers": [
+        "egfr",
+        "urine_acr",
+        "ldl_cholesterol",
+        "total_cholesterol",
+        "triglycerides",
+        "hdl_cholesterol",
+        "non_hdl_cholesterol",
+        "bp_systolic",
+        "bp_diastolic",
+        "alt",
+        "ast",
+        "vitamin_b12",
+        "fructosamine"
+      ],
+      "notes": "Metformin use may deplete B12; liver enzymes monitored for NAFLD comorbidity"
+    },
+    "T1D": {
+      "display_name": "Type 1 Diabetes",
+      "icd10": "E10",
+      "primary_biomarkers": [
+        "hba1c",
+        "fasting_glucose",
+        "postprandial_glucose",
+        "serum_glucose"
+      ],
+      "monitoring_biomarkers": [
+        "egfr",
+        "urine_acr",
+        "ldl_cholesterol",
+        "total_cholesterol",
+        "fructosamine"
+      ],
+      "notes": "Fructosamine useful if HbA1c unreliable due to hemolytic anemia"
+    },
+    "HTN": {
+      "display_name": "Hypertension",
+      "icd10": "I10",
+      "primary_biomarkers": [
+        "bp_systolic",
+        "bp_diastolic"
+      ],
+      "monitoring_biomarkers": [
+        "egfr",
+        "urine_acr",
+        "creatinine",
+        "potassium",
+        "sodium",
+        "total_cholesterol",
+        "ldl_cholesterol"
+      ],
+      "notes": "ACEi/ARB use can raise potassium; renal function monitored"
+    },
+    "CVD": {
+      "display_name": "Cardiovascular Disease",
+      "icd10": "I25",
+      "primary_biomarkers": [
+        "ldl_cholesterol",
+        "total_cholesterol",
+        "hdl_cholesterol",
+        "triglycerides",
+        "non_hdl_cholesterol"
+      ],
+      "monitoring_biomarkers": [
+        "hs_crp",
+        "bp_systolic",
+        "bp_diastolic",
+        "fasting_glucose",
+        "hba1c"
+      ],
+      "notes": "hsCRP used for residual risk assessment in borderline-risk patients"
+    },
+    "CKD": {
+      "display_name": "Chronic Kidney Disease",
+      "icd10": "N18",
+      "primary_biomarkers": [
+        "egfr",
+        "urine_acr",
+        "creatinine"
+      ],
+      "monitoring_biomarkers": [
+        "bun",
+        "potassium",
+        "sodium",
+        "hemoglobin",
+        "ferritin"
+      ],
+      "notes": "CKD staging requires both eGFR (G stage) and ACR (A stage)"
+    },
+    "hypothyroidism": {
+      "display_name": "Hypothyroidism",
+      "icd10": "E03.9",
+      "primary_biomarkers": [
+        "tsh",
+        "free_t4"
+      ],
+      "monitoring_biomarkers": [
+        "total_cholesterol",
+        "ldl_cholesterol",
+        "triglycerides"
+      ],
+      "notes": "Free T4 checked when TSH is abnormal; lipids improve with treatment"
+    },
+    "prediabetes": {
+      "display_name": "Prediabetes",
+      "icd10": "R73.09",
+      "primary_biomarkers": [
+        "hba1c",
+        "fasting_glucose",
+        "postprandial_glucose"
+      ],
+      "monitoring_biomarkers": [
+        "ldl_cholesterol",
+        "bp_systolic",
+        "bp_diastolic"
+      ],
+      "notes": "ADA recommends annual monitoring for progression to T2D"
+    },
+    "dyslipidemia": {
+      "display_name": "Dyslipidemia",
+      "icd10": "E78.5",
+      "primary_biomarkers": [
+        "total_cholesterol",
+        "ldl_cholesterol",
+        "hdl_cholesterol",
+        "triglycerides",
+        "non_hdl_cholesterol"
+      ],
+      "monitoring_biomarkers": [
+        "alt",
+        "ast"
+      ],
+      "notes": "Liver enzymes monitored with statin therapy"
+    },
+    "metabolic_syndrome": {
+      "display_name": "Metabolic Syndrome",
+      "icd10": "E88.81",
+      "primary_biomarkers": [
+        "fasting_glucose",
+        "triglycerides",
+        "hdl_cholesterol",
+        "bp_systolic",
+        "bp_diastolic"
+      ],
+      "monitoring_biomarkers": [
+        "hs_crp",
+        "total_cholesterol",
+        "ldl_cholesterol"
+      ],
+      "notes": "ATP III criteria: 3 of 5 risk factors required for diagnosis"
+    }
+  }
+}
