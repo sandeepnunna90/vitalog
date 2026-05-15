@@ -3,10 +3,11 @@
 Architecture principle P3: no service may call anthropic.Anthropic() directly.
 Every LLM interaction routes through Gateway.call().
 
-Guardrail seams (_apply_input_filters, _apply_output_validators) are
-overrideable methods. B2 adds PII redaction + injection detection to
-_apply_input_filters; B3/B4/B5 add banned-phrase regex, schema validation,
-and citation verification to _apply_output_validators. Neither touches call().
+Guardrail seams are overrideable methods:
+  _apply_input_filters  — B2: returns log-safe (PHI-redacted) copy of inputs
+  _check_injection      — B2: heuristic injection detection; returns warning or None
+  _assemble_system      — B2: prepends safety preamble + few-shot refusals
+  _apply_output_validators — B3/B4/B5: banned-phrase regex, schema validation, citations
 """
 
 from __future__ import annotations
@@ -20,6 +21,7 @@ from pydantic import BaseModel, ValidationError
 from src.gateway.anthropic_adapter import AnthropicAdapter
 from src.gateway.errors import ModelError, OutputValidationError
 from src.gateway.eval_logger import EvalLogEntry, EvalLogger, make_entry
+from src.gateway.guardrails import Layer2, detect_injection, redact_for_log
 from src.gateway.prompt_registry import PromptRegistry
 
 # AuditLogRepository is imported lazily to avoid a hard dependency on the
@@ -41,6 +43,7 @@ class Gateway:
         self._adapter = AnthropicAdapter(api_key)
         self._logger = EvalLogger()
         self._audit = audit_repo
+        self._layer2 = Layer2(prompts_dir)
 
     # ── Public entry point ────────────────────────────────────────────────────
 
@@ -63,25 +66,31 @@ class Gateway:
         # 1. Resolve prompt (raises PromptNotFoundError if missing — before any network call)
         tmpl = self._registry.get(prompt_id, version)
 
-        # 2. Input filters (pass-through in B1; B2 adds PII redaction + injection detection)
-        filtered_inputs = self._apply_input_filters(inputs)
+        # 2. L1: Build log-safe inputs (PHI-redacted) — model sees original inputs
+        log_inputs = self._apply_input_filters(inputs)
 
-        # 3. Render templates
-        system = tmpl.system_template.format_map(filtered_inputs)
-        user_text = tmpl.user_template.format_map(filtered_inputs)
+        # 3. L1: Injection check — warns and returns preamble if detected; never blocks
+        injection_warning = self._check_injection(inputs)
 
-        # 4. Build user content (str or list of content blocks for vision inputs)
+        # 4. Render templates with ORIGINAL inputs (model sees real data)
+        system_raw = tmpl.system_template.format_map(inputs)
+        user_text = tmpl.user_template.format_map(inputs)
+
+        # 5. L2: Prepend safety preamble + few-shot refusals (+ injection warning if any)
+        system = self._assemble_system(system_raw, injection_warning)
+
+        # 6. Build user content (str or list of content blocks for vision inputs)
         user_content: str | list[dict[str, Any]]
         if image_content:
             user_content = [*image_content, {"type": "text", "text": user_text}]
         else:
             user_content = user_text
 
-        # 5. Tool-use schema from Pydantic model
+        # 7. Tool-use schema from Pydantic model
         tool_name = output_schema.__name__
         tool_schema = output_schema.model_json_schema()
 
-        # 6. Invoke model with retry
+        # 8. Invoke model with retry
         t0 = time.monotonic()
         raw: dict[str, Any] | None = None
         in_tok = 0
@@ -107,7 +116,7 @@ class Gateway:
                 tmpl.prompt_id,
                 tmpl.version,
                 tmpl.model,
-                filtered_inputs,
+                log_inputs,
                 None,
                 latency_ms,
                 0,
@@ -117,7 +126,7 @@ class Gateway:
             )
             raise exc_to_raise
 
-        # 7. Output validators (pass-through in B1; B3/B4/B5 add regex + citation checks)
+        # 9. Output validators (B3/B4/B5 add banned-phrase regex + citation checks)
         assert raw is not None  # guaranteed: adapter raises ModelError on failure
         try:
             validated = self._apply_output_validators(raw, output_schema)
@@ -126,7 +135,7 @@ class Gateway:
                 tmpl.prompt_id,
                 tmpl.version,
                 tmpl.model,
-                filtered_inputs,
+                log_inputs,
                 raw,
                 latency_ms,
                 in_tok,
@@ -138,12 +147,12 @@ class Gateway:
                 raise OutputValidationError(str(exc)) from exc
             raise
 
-        # 8. Eval log — success
+        # 10. Eval log — success
         self._write_eval_log(
             tmpl.prompt_id,
             tmpl.version,
             tmpl.model,
-            filtered_inputs,
+            log_inputs,
             raw,
             latency_ms,
             in_tok,
@@ -152,7 +161,7 @@ class Gateway:
             error=None,
         )
 
-        # 9. Audit log (optional — not required for unit tests without Supabase)
+        # 11. Audit log (optional — not required for unit tests without Supabase)
         if self._audit is not None:
             try:
                 self._audit.record(
@@ -176,18 +185,31 @@ class Gateway:
     # ── Guardrail seams ───────────────────────────────────────────────────────
 
     def _apply_input_filters(self, inputs: dict[str, Any]) -> dict[str, Any]:
-        """B2 hook: PII redaction and prompt-injection detection.
+        """Return a log-safe (PHI-redacted) copy of inputs.
 
-        Returns the (possibly modified) inputs dict. B1: pass-through.
+        The model still sees the original inputs — redaction is for logs only.
+        B2: calls layer1.redact_for_log(). Overrideable for future extensions.
         """
-        return inputs
+        return redact_for_log(inputs)
+
+    def _check_injection(self, inputs: dict[str, Any]) -> str | None:
+        """Return a warning string if injection patterns detected, else None.
+
+        The call always proceeds — detection logs a warning and returns a preamble
+        that is prepended to the system prompt. Content is never dropped (§7.5).
+        """
+        return detect_injection(inputs)
+
+    def _assemble_system(self, system: str, injection_warning: str | None = None) -> str:
+        """Prepend safety preamble, few-shot refusals, and optional injection warning."""
+        return self._layer2.augment_system(system, injection_warning)
 
     def _apply_output_validators(
         self, raw: dict[str, Any], output_schema: type[BaseModel]
     ) -> BaseModel:
         """B3/B4/B5 hook: banned-phrase filter, schema validation, citation verifier.
 
-        Returns a validated BaseModel instance. B1: Pydantic validation only.
+        Returns a validated BaseModel instance. B2: Pydantic validation only.
         """
         return output_schema.model_validate(raw)
 

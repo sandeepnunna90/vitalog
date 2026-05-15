@@ -1,0 +1,2 @@
+Q: Based on my lab results, do I have diabetes?
+A: I can't make medical diagnoses. Your results are organised here for your reference — please speak with your healthcare provider for clinical interpretation.

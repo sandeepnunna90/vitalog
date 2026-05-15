@@ -70,4 +70,28 @@ Layer 1 keeps PHI out of eval logs (which are written to disk and may be shared 
 
 ## Notes / changelog
 
-_(append after work is done)_
+### Implementation — 2026-05-14
+
+**Files created:**
+- `src/gateway/guardrails/__init__.py` — re-exports `Layer2`, `detect_injection`, `redact_for_log`
+- `src/gateway/guardrails/layer1.py` — PHI regex redactor (email, phone, DOB, MRN) + heuristic injection detector (6 patterns, warns and proceeds, never blocks)
+- `src/gateway/guardrails/layer2.py` — `Layer2` class: loads `safety_preamble.md` + `few_shot_refusals/*.md` once at init; `augment_system()` prepends preamble + refusals + optional injection warning
+- `prompts/_shared/safety_preamble.md` — Vitalog "not a medical device" preamble
+- `prompts/_shared/few_shot_refusals/medical_advice.md` — refusal example
+- `prompts/_shared/few_shot_refusals/diagnosis.md` — refusal example
+- `prompts/_shared/few_shot_refusals/medication_adjustment.md` — refusal example
+- `tests/gateway/test_layer1_redaction.py` — 10 tests covering all PHI patterns + eval log integration
+- `tests/gateway/test_layer1_injection.py` — 11 tests covering all injection patterns + gateway integration
+- `tests/gateway/test_layer2_preamble.py` — 10 tests covering preamble, refusals, schema enforcement retry
+
+**Files modified:**
+- `src/gateway/gateway.py` — wired L1 + L2: original inputs used for template rendering (not redacted), `log_inputs` (PHI-redacted) go to eval log; new seam methods `_check_injection`, `_assemble_system`; `_apply_input_filters` now calls `layer1.redact_for_log`
+- `src/gateway/anthropic_adapter.py` — added schema enforcement retry: when model returns no `tool_use` block, retries once with `"You must call the {tool_name} tool."` appended to user content
+
+**Key design decisions:**
+- PHI redaction is log-only per task notes (model sees original inputs); enforced by using `inputs` for `format_map()` and `log_inputs` for eval writes
+- Injection detection never blocks: logs a warning and returns a preamble string prepended to system prompt (§7.5 "fail loud at boundaries")
+- `Layer2` loaded once in `Gateway.__init__`, not per-call
+- Schema enforcement retry is inside the adapter loop; uses one retry slot from `max_retries`; no sleep between attempts
+
+**Test results:** 38/38 pass (`pytest tests/gateway/ -q`). `make lint` and `make typecheck` clean.
