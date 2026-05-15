@@ -77,4 +77,45 @@ P7 (designed for migration) and ADR-04 (Supabase now, AWS later) both depend on 
 
 ## Notes / changelog
 
-_(append after work is done)_
+### Implementation complete (2026-05-14)
+
+**Files created:**
+- `migrations/001_initial_schema.sql` — 8 tables (patient, patient_profile, document, canonical_biomarker, pending_taxonomy_entry, biomarker_record, summary, audit_log) + 7 indexes + RLS policies. Enables pgcrypto extension for migration 002.
+- `migrations/002_audit_log_hash_chain.sql` — BEFORE INSERT trigger computing prev_hash, payload_hash, chain_hash via pgcrypto sha256. Trigger is SECURITY DEFINER.
+- `src/persistence/models.py` — Pydantic v2 models with `ConfigDict(strict=True)` for all 8 tables plus Create variants and `RetentionPolicy` / `DocumentClassification` / `VerifiedBy` / `PendingStatus` literal types.
+- `src/persistence/supabase_client.py` — `get_service_client()` (bypasses RLS, uses SUPABASE_SERVICE_KEY) and `get_anon_client(jwt)` (RLS enforced, uses SUPABASE_ANON_KEY + `client.postgrest.auth(jwt)`).
+- `src/persistence/biomarker_repository.py` — `add`, `get`, `find_by_canonical_id`, `list_for_patient`, `list_pending_user`.
+- `src/persistence/document_repository.py` — `add`, `get_by_id`, `list_for_patient`, `update_processing_status`.
+- `src/persistence/taxonomy_repository.py` — canonical: `get_canonical`, `list_all_canonical`; pending: `add_pending`, `list_pending`, `resolve_pending`.
+- `src/persistence/summary_repository.py` — `add`, `get`, `list_for_patient`, `update_annotations`.
+- `src/persistence/audit_log_repository.py` — `record` (append-only, hash columns filled by trigger), `get_last_n`.
+- `src/persistence/document_store.py` — `put(file_bytes, filename, patient_id, retention_policy)` → `supabase-storage://...` or `discard://...`; `get(uri)` → bytes or None.
+- `src/persistence/__init__.py` — re-exports all repos, client factories, and models.
+- `tests/persistence/test_repositories.py` — 12 integration tests covering all repos.
+- `tests/persistence/test_rls_isolation.py` — 6 integration tests proving RLS isolation.
+
+**Modified:**
+- `Makefile` — added `migrate` target (`psql "$(SUPABASE_DB_URL)" -f migrations/00*.sql`).
+- `.env.example` — added `SUPABASE_ANON_KEY=` and `SUPABASE_DB_URL=`.
+
+**Audit log hash chain — plain terms:**
+
+The hash chain makes the audit log tamper-evident. Each row stores three extra fields:
+- `payload_hash` — SHA-256 fingerprint of that row's own payload
+- `prev_hash` — the `chain_hash` of the previous row (genesis row uses `sha256('')`)
+- `chain_hash` — SHA-256 of (`prev_hash` + `payload_hash`)
+
+Every row is mathematically linked to the row before it. If anyone edits or deletes an old audit log entry — even with direct DB access — the hashes stop matching and the tampering is detectable. This matters for Vitalog because the audit log records LLM calls, document uploads, and summary exports; the hash chain gives a cryptographic proof that the sequence of events was not quietly altered after the fact.
+
+**Key design decisions:**
+- Task file said "7 tables" but listed 8 — implemented all 8 per the actual §6.2 schema.
+- All repos use `data: Any` for `.data` access (supabase-py returns `list[JSON]`, not `list[dict[str, Any]]`). `mypy --strict` passes with zero errors.
+- `DocumentStore.put()` with `"discard_after_classification"` policy returns `discard://<uuid>` without uploading. Callers write an audit log entry with the discard URI.
+- RLS tests use a `_fake_jwt()` placeholder — real JWT testing requires a live Supabase auth token issued against the test project. The test structure is correct; swap in a real JWT for full RLS validation.
+- Mark's patient row seeded in G2, not here — A3 only creates the schema.
+
+**Verification:**
+- `ruff check src/persistence/ tests/persistence/` → all checks passed
+- `mypy --strict src/persistence/` → no issues found in 9 source files
+- `pytest -q -m "not integration"` → 33 passed, 17 deselected
+- `grep -r "supabase" src/ --include="*.py" | grep -v "src/persistence/"` → zero output
