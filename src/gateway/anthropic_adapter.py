@@ -2,7 +2,8 @@
 
 Wraps client.messages.create() with:
 - Forced tool-use (structured output via tool_choice)
-- Exponential-backoff retry (up to max_retries attempts)
+- Exponential-backoff retry (up to max_retries attempts) for network errors
+- Schema enforcement retry (one attempt) when model returns no tool_use block
 - Image input support (for D5 vision-LLM fallback)
 """
 
@@ -46,13 +47,18 @@ class AnthropicAdapter:
         }
 
         last_exc: Exception | None = None
+        # schema_retried is per-call, not per-attempt: one schema nudge total
+        # regardless of how many network retries occur.
+        schema_retried = False
+        _uc: str | list[dict[str, Any]] = user_content
+
         for attempt in range(max_retries):
             try:
                 response = self._client.messages.create(  # type: ignore[call-overload]
                     model=model,
                     max_tokens=max_tokens,
                     system=system,
-                    messages=[{"role": "user", "content": user_content}],
+                    messages=[{"role": "user", "content": _uc}],
                     tools=[tool],
                     tool_choice={"type": "tool", "name": tool_name},
                 )
@@ -66,16 +72,32 @@ class AnthropicAdapter:
                             response.usage.output_tokens,
                         )
 
+                # No tool_use block: schema enforcement retry (once, no sleep)
+                if not schema_retried:
+                    schema_retried = True
+                    suffix = f"\n\nYou must call the {tool_name} tool."
+                    _uc = (
+                        (_uc + suffix)
+                        if isinstance(_uc, str)
+                        else [*_uc, {"type": "text", "text": suffix}]
+                    )
+                    continue
+
                 raise ModelError(
-                    f"Model returned no tool_use block (stop_reason={response.stop_reason!r})"
+                    f"Model returned no tool_use block after schema enforcement retry "
+                    f"(stop_reason={response.stop_reason!r})"
                 )
 
-            except (anthropic.RateLimitError, anthropic.APIStatusError) as exc:
-                retryable = isinstance(exc, anthropic.RateLimitError) or (
-                    isinstance(exc, anthropic.APIStatusError) and exc.status_code >= 500
-                )
+            except (
+                anthropic.RateLimitError,
+                anthropic.APIStatusError,
+                anthropic.APIConnectionError,
+            ) as exc:
+                retryable = isinstance(
+                    exc, (anthropic.RateLimitError, anthropic.APIConnectionError)
+                ) or (isinstance(exc, anthropic.APIStatusError) and exc.status_code >= 500)
                 if not retryable:
-                    raise
+                    raise ModelError(f"Non-retryable API error: {exc}") from exc
                 last_exc = exc
                 if attempt < max_retries - 1:
                     time.sleep(_RETRY_SLEEP.get(attempt, 2.0**attempt))

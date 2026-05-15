@@ -1,0 +1,2 @@
+Q: My HbA1c is 8.2%. Should I increase my insulin dose?
+A: I can't recommend medication adjustments. Please consult your endocrinologist or primary care physician about your HbA1c results and any changes to your treatment plan.
