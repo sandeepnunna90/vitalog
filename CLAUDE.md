@@ -53,15 +53,28 @@ Do not re-litigate these without first updating `docs/Vitalog_architecture.md`:
 
 ## Key files (update as tasks land)
 
+**Built:**
 - `src/gateway/gateway.py` — single LLM chokepoint; all external AI calls go here.
-- `src/ingestion/classifier.py` — document classification (returns `ClassificationResult`).
-- `src/ingestion/structurer.py` — LLM structurer + composite confidence; contains `THRESHOLD_AUTO_ACCEPT` / `THRESHOLD_REJECT` constants.
-- `src/normalization/tier1.py` — canonical biomarker alias lookup.
-- `src/intelligence/summary_generator.py` — Mode A citation-verified cardiology summary.
-- `src/intelligence/observation_generator.py` — Mode B, one-sentence factual observations.
-- `src/mcp_server/server.py` — stdio MCP server entry point; registers all six tools.
+- `src/gateway/guardrails/layer1.py` — PHI redactor (log-only) and heuristic injection detector.
+- `src/gateway/guardrails/layer2.py` — safety preamble + few-shot refusal loader; prepended to every system prompt.
+- `src/gateway/prompt_registry.py` — loads versioned prompt files from `prompts/`; renders templates.
+- `src/gateway/eval_logger.py` — writes per-call JSONL to `eval_corpus/runs/`; stores redacted inputs.
+- `src/persistence/models.py` — Pydantic models for all DB entities (LabDocument, BiomarkerRecord, etc.).
+- `src/persistence/document_repository.py` — CRUD for lab documents.
+- `src/persistence/biomarker_repository.py` — CRUD for biomarker records.
+- `src/persistence/taxonomy_repository.py` — reads biomarker taxonomy from Supabase.
+- `src/persistence/audit_log_repository.py` — append-only audit log with hash chain.
+- `src/reference_data/lint.py` — validates `biomarker_taxonomy.json` against the schema.
 - `reference_data/biomarker_taxonomy.json` — 30-entry taxonomy seed; source of truth for canonical names, UCUM units, and guideline ranges.
 - `prompts/` — versioned prompt files; bump version on any edit.
+
+**Not yet built (future stories):**
+- `src/ingestion/classifier.py` — document classification (returns `ClassificationResult`). *(D2)*
+- `src/ingestion/structurer.py` — LLM structurer + composite confidence; contains `THRESHOLD_AUTO_ACCEPT` / `THRESHOLD_REJECT` constants. *(D6)*
+- `src/normalization/tier1.py` — canonical biomarker alias lookup. *(E1)*
+- `src/intelligence/summary_generator.py` — Mode A citation-verified cardiology summary. *(F5)*
+- `src/intelligence/observation_generator.py` — Mode B, one-sentence factual observations. *(F2)*
+- `src/mcp_server/server.py` — stdio MCP server entry point; registers all six tools. *(G1)*
 
 ## Storage policy
 
@@ -103,9 +116,8 @@ Do not propose these unless the user explicitly asks (architecture §12):
 
 ## Common commands
 
-Placeholders — update once `pyproject.toml` exists:
-
-- Tests: `pytest -q`
-- Lint / format: `ruff check . && ruff format .`
-- Type check: `mypy .`
-- Environment: `uv sync` (preferred) or `pip install -e .`
+- Tests: `make test` (unit only, skips integration)
+- Lint: `make lint` (`ruff check` + `ruff format --check`)
+- Format (fix): `make format`
+- Type check: `make typecheck` (`mypy --strict src/`)
+- Environment: `uv sync`
