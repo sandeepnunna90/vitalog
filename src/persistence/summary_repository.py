@@ -21,6 +21,8 @@ class SummaryRepository:
         data: Any = (
             self._client.table(_TABLE).insert(summary.model_dump(mode="json")).execute().data
         )
+        if not data:
+            raise ValueError("INSERT returned no rows — possible duplicate or RLS rejection")
         return SummaryRow.model_validate(data[0])
 
     def get(self, summary_id: uuid.UUID) -> SummaryRow | None:
@@ -51,4 +53,6 @@ class SummaryRepository:
             .execute()
             .data
         )
+        if not data:
+            raise ValueError(f"Summary {summary_id} not found or RLS rejected update")
         return SummaryRow.model_validate(data[0])

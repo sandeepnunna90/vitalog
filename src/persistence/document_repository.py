@@ -7,7 +7,7 @@ from typing import Any
 
 from supabase import Client
 
-from src.persistence.models import DocumentCreate, DocumentRow
+from src.persistence.models import DocumentCreate, DocumentRow, ProcessingStatus
 
 _TABLE = "document"
 
@@ -19,6 +19,8 @@ class DocumentRepository:
     def add(self, doc: DocumentCreate) -> DocumentRow:
         """Insert a new document record and return the persisted row."""
         data: Any = self._client.table(_TABLE).insert(doc.model_dump(mode="json")).execute().data
+        if not data:
+            raise ValueError("INSERT returned no rows — possible duplicate or RLS rejection")
         return DocumentRow.model_validate(data[0])
 
     def get_by_id(self, document_id: uuid.UUID) -> DocumentRow | None:
@@ -44,7 +46,9 @@ class DocumentRepository:
         )
         return [DocumentRow.model_validate(row) for row in data]
 
-    def update_processing_status(self, document_id: uuid.UUID, status: str) -> DocumentRow:
+    def update_processing_status(
+        self, document_id: uuid.UUID, status: ProcessingStatus
+    ) -> DocumentRow:
         """Update the processing_status field for a document."""
         data: Any = (
             self._client.table(_TABLE)
@@ -53,4 +57,6 @@ class DocumentRepository:
             .execute()
             .data
         )
+        if not data:
+            raise ValueError(f"Document {document_id} not found or RLS rejected update")
         return DocumentRow.model_validate(data[0])

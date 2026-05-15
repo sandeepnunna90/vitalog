@@ -48,6 +48,8 @@ class TaxonomyRepository:
         data: Any = (
             self._client.table(_PENDING_TABLE).insert(entry.model_dump(mode="json")).execute().data
         )
+        if not data:
+            raise ValueError("INSERT returned no rows — possible duplicate or RLS rejection")
         return PendingTaxonomyEntryRow.model_validate(data[0])
 
     def list_pending(self, status: PendingStatus = "pending") -> list[PendingTaxonomyEntryRow]:
@@ -72,4 +74,6 @@ class TaxonomyRepository:
             .execute()
             .data
         )
+        if not data:
+            raise ValueError(f"Pending entry {pending_id} not found or RLS rejected update")
         return PendingTaxonomyEntryRow.model_validate(data[0])

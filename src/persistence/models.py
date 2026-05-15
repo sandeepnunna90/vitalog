@@ -59,6 +59,7 @@ class PatientProfileCreate(_Base):
 # ── Document ──────────────────────────────────────────────────────────────────
 
 DocumentClassification = Literal["lab_report", "recognized_unsupported", "not_supported"]
+ProcessingStatus = Literal["pending", "processing", "complete", "failed"]
 
 
 class DocumentRow(_Base):
@@ -67,14 +68,14 @@ class DocumentRow(_Base):
     raw_storage_uri: str | None
     classification: DocumentClassification
     uploaded_at: datetime
-    processing_status: str
+    processing_status: ProcessingStatus
 
 
 class DocumentCreate(_Base):
     patient_id: uuid.UUID
     classification: DocumentClassification
     raw_storage_uri: str | None = None
-    processing_status: str = "pending"
+    processing_status: ProcessingStatus = "pending"
 
 
 # ── Canonical biomarker ───────────────────────────────────────────────────────

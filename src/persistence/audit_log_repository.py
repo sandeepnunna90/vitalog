@@ -23,6 +23,8 @@ class AuditLogRepository:
         """Append an audit event. Hash columns are computed by the DB trigger."""
         entry = AuditLogCreate(actor=actor, event_type=event_type, payload=payload)
         data: Any = self._client.table(_TABLE).insert(entry.model_dump(mode="json")).execute().data
+        if not data:
+            raise ValueError("Audit log INSERT returned no rows — DB trigger or RLS rejection")
         return AuditLogRow.model_validate(data[0])
 
     def get_last_n(self, n: int = 10) -> list[AuditLogRow]:
