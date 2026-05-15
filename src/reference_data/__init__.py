@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -31,8 +32,9 @@ def _load_json(filename: str) -> Any:
         return json.load(f)
 
 
+@lru_cache(maxsize=1)
 def load_taxonomy() -> list[dict[str, Any]]:
-    """Load and return all 30 biomarker taxonomy entries."""
+    """Load and return all 30 biomarker taxonomy entries (cached after first call)."""
     return _load_json("biomarker_taxonomy.json")  # type: ignore[no-any-return]
 
 
@@ -89,14 +91,9 @@ def _build_alias_index(taxonomy: list[dict[str, Any]]) -> dict[str, str]:
     return index
 
 
-_ALIAS_INDEX: dict[str, str] | None = None
-
-
+@lru_cache(maxsize=1)
 def _get_alias_index() -> dict[str, str]:
-    global _ALIAS_INDEX
-    if _ALIAS_INDEX is None:
-        _ALIAS_INDEX = _build_alias_index(load_taxonomy())
-    return _ALIAS_INDEX
+    return _build_alias_index(load_taxonomy())
 
 
 def lookup_alias(raw_name: str) -> str | None:
@@ -114,8 +111,7 @@ def lookup_guideline(vitalog_id: str) -> dict[str, Any] | None:
     Pulls directly from the taxonomy entry (not from guideline_ranges.json,
     which is the extended citation store for the Summary Generator).
     """
-    taxonomy = load_taxonomy()
-    for entry in taxonomy:
+    for entry in load_taxonomy():
         if entry["vitalog_id"] == vitalog_id:
             result: dict[str, Any] = {
                 "guideline_ranges": entry["guideline_ranges"],
