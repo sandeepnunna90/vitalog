@@ -3,12 +3,9 @@
 from __future__ import annotations
 
 import json
-import textwrap
 from pathlib import Path
 from typing import Any
 from unittest.mock import patch
-
-import pytest
 
 from src.gateway.guardrails.layer1 import redact_for_log
 
@@ -72,35 +69,6 @@ def test_non_string_values_pass_through() -> None:
 
 
 # ── Integration: eval log written with redacted inputs ─────────────────────────
-
-
-@pytest.fixture()
-def prompts_dir(tmp_path: Path) -> Path:
-    registry = tmp_path / "_registry.yaml"
-    registry.write_text(
-        textwrap.dedent("""\
-            prompts:
-              - prompt_id: hello
-                version: v1
-                path: hello/v1.md
-        """),
-        encoding="utf-8",
-    )
-    (tmp_path / "hello").mkdir()
-    (tmp_path / "hello" / "v1.md").write_text(
-        textwrap.dedent("""\
-            ---
-            prompt_id: hello
-            version: v1
-            model: claude-sonnet-4-6
-            max_tokens: 256
-            system_template: "You are a helpful assistant."
-            user_template: "Say hello to {name}."
-            ---
-        """),
-        encoding="utf-8",
-    )
-    return tmp_path
 
 
 def test_eval_log_contains_redacted_values(prompts_dir: Path, tmp_path: Path) -> None:

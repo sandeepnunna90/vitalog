@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import textwrap
 from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock, patch
@@ -89,35 +88,6 @@ def test_refusals_included_in_system(tmp_path: Path) -> None:
 
 
 # ── Gateway integration: preamble in system passed to adapter ─────────────────
-
-
-@pytest.fixture()
-def prompts_dir(tmp_path: Path) -> Path:
-    registry = tmp_path / "_registry.yaml"
-    registry.write_text(
-        textwrap.dedent("""\
-            prompts:
-              - prompt_id: hello
-                version: v1
-                path: hello/v1.md
-        """),
-        encoding="utf-8",
-    )
-    (tmp_path / "hello").mkdir()
-    (tmp_path / "hello" / "v1.md").write_text(
-        textwrap.dedent("""\
-            ---
-            prompt_id: hello
-            version: v1
-            model: claude-sonnet-4-6
-            max_tokens: 256
-            system_template: "You are a helpful assistant."
-            user_template: "Say hello to {name}."
-            ---
-        """),
-        encoding="utf-8",
-    )
-    return tmp_path
 
 
 def test_gateway_call_system_contains_preamble(prompts_dir: Path) -> None:

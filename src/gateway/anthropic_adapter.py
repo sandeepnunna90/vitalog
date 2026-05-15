@@ -47,6 +47,8 @@ class AnthropicAdapter:
         }
 
         last_exc: Exception | None = None
+        # schema_retried is per-call, not per-attempt: one schema nudge total
+        # regardless of how many network retries occur.
         schema_retried = False
         _uc: str | list[dict[str, Any]] = user_content
 
@@ -86,12 +88,16 @@ class AnthropicAdapter:
                     f"(stop_reason={response.stop_reason!r})"
                 )
 
-            except (anthropic.RateLimitError, anthropic.APIStatusError) as exc:
-                retryable = isinstance(exc, anthropic.RateLimitError) or (
-                    isinstance(exc, anthropic.APIStatusError) and exc.status_code >= 500
-                )
+            except (
+                anthropic.RateLimitError,
+                anthropic.APIStatusError,
+                anthropic.APIConnectionError,
+            ) as exc:
+                retryable = isinstance(
+                    exc, (anthropic.RateLimitError, anthropic.APIConnectionError)
+                ) or (isinstance(exc, anthropic.APIStatusError) and exc.status_code >= 500)
                 if not retryable:
-                    raise
+                    raise ModelError(f"Non-retryable API error: {exc}") from exc
                 last_exc = exc
                 if attempt < max_retries - 1:
                     time.sleep(_RETRY_SLEEP.get(attempt, 2.0**attempt))

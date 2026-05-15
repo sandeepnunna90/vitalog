@@ -66,13 +66,24 @@ def redact_for_log(inputs: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
+def _collect_text(inputs: dict[str, Any]) -> str:
+    parts: list[str] = []
+    for value in inputs.values():
+        if isinstance(value, str):
+            parts.append(value)
+        elif isinstance(value, dict):
+            parts.append(_collect_text(value))
+    return " ".join(parts)
+
+
 def detect_injection(inputs: dict[str, Any]) -> str | None:
     """Scan all string values in inputs for injection patterns.
 
+    Recurses into nested dicts (consistent with redact_for_log).
     Returns a warning preamble string if any pattern matches, None otherwise.
     Logs a WARNING for each detected pattern. Never blocks the call.
     """
-    text_block = " ".join(str(v) for v in inputs.values() if isinstance(v, str))
+    text_block = _collect_text(inputs)
     for pattern in _INJECTION_PATTERNS:
         if pattern.search(text_block):
             logger.warning("PromptInjectionDetected: pattern %r matched in inputs", pattern.pattern)
