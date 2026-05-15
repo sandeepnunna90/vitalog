@@ -1,0 +1,4 @@
+prompts:
+  - prompt_id: hello
+    version: v1
+    path: hello/v1.md
