@@ -98,6 +98,15 @@ P7 (designed for migration) and ADR-04 (Supabase now, AWS later) both depend on 
 - `Makefile` — added `migrate` target (`psql "$(SUPABASE_DB_URL)" -f migrations/00*.sql`).
 - `.env.example` — added `SUPABASE_ANON_KEY=` and `SUPABASE_DB_URL=`.
 
+**Audit log hash chain — plain terms:**
+
+The hash chain makes the audit log tamper-evident. Each row stores three extra fields:
+- `payload_hash` — SHA-256 fingerprint of that row's own payload
+- `prev_hash` — the `chain_hash` of the previous row (genesis row uses `sha256('')`)
+- `chain_hash` — SHA-256 of (`prev_hash` + `payload_hash`)
+
+Every row is mathematically linked to the row before it. If anyone edits or deletes an old audit log entry — even with direct DB access — the hashes stop matching and the tampering is detectable. This matters for Vitalog because the audit log records LLM calls, document uploads, and summary exports; the hash chain gives a cryptographic proof that the sequence of events was not quietly altered after the fact.
+
 **Key design decisions:**
 - Task file said "7 tables" but listed 8 — implemented all 8 per the actual §6.2 schema.
 - All repos use `data: Any` for `.data` access (supabase-py returns `list[JSON]`, not `list[dict[str, Any]]`). `mypy --strict` passes with zero errors.
