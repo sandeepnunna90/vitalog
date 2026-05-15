@@ -72,4 +72,33 @@ P3 is the single most important architectural rule. If even one service calls An
 
 ## Notes / changelog
 
-_(append after work is done)_
+### Implementation — 2026-05-14
+
+**Files created:**
+- `src/gateway/errors.py` — `GatewayError`, `PromptNotFoundError`, `OutputValidationError`, `ModelError`
+- `src/gateway/model_router.py` — `default_model()` returns `"claude-sonnet-4-6"`; v1 adds Task enum + route table additively
+- `src/gateway/prompt_registry.py` — `PromptRegistry` eagerly loads `prompts/_registry.yaml` + all referenced `.md` files at construction; `PromptTemplate` dataclass holds resolved fields; raises `PromptNotFoundError` on unknown prompt
+- `src/gateway/anthropic_adapter.py` — sole file in `src/` permitted to `import anthropic`; forced tool-use via `tool_choice={"type":"tool","name":...}`; retries on 429/5xx with sleeps 0s/1s/2s; raises `ModelError` after exhaustion; accepts `str | list[dict]` user_content for image inputs
+- `src/gateway/eval_logger.py` — `EvalLogger.log()` writes one JSONL per call to `eval_corpus/runs/<YYYY-MM-DD>/<run_id>.jsonl`; `make_entry()` factory populates all fields
+- `src/gateway/gateway.py` — `Gateway.call()` chokepoint; `_apply_input_filters` and `_apply_output_validators` are overrideable seams for B2–B5 guardrails (pass-through in B1); audit log optional (None-safe); eval log failure never propagates to caller
+- `src/gateway/__init__.py` — re-exports `Gateway` + all error classes
+- `prompts/_registry.yaml` — registry index
+- `prompts/hello/v1.md` — sample prompt for unit tests
+- `tests/gateway/test_gateway_call.py` — 7 unit tests covering all 5 ACs; all mocked, zero network
+- `tests/gateway/test_no_direct_anthropic_imports.py` — AST walker enforcing P3
+
+**Modified:**
+- `pyproject.toml` — added `pyyaml>=6.0`
+- `mypy.ini` — added `[mypy-yaml] ignore_missing_imports = True`
+
+**Design decisions:**
+- Prompt frontmatter uses `system_template` + `user_template` fields (not a `---` body separator) to avoid markdown HR ambiguity
+- `audit_repo` is optional (`None`) so unit tests run without a live Supabase connection
+- `block.input` typing: `type: ignore[call-overload]` on `messages.create()` because the `str | list[dict]` union for `content` is valid at runtime but mypy can't verify it through the SDK's overloaded signatures
+- Retry sleep schedule stored in a dict (`{0: 0.0, 1: 1.0, 2: 2.0}`) so tests can patch `time.sleep` cleanly
+
+**Verification results:**
+- `pytest tests/gateway/ -v` → 8/8 passed
+- `make lint` → clean
+- `make typecheck` → clean (24 source files, 0 errors)
+- `grep -r 'anthropic' src/ --include='*.py' | grep -v 'src/gateway/'` → zero lines (AC 6)
