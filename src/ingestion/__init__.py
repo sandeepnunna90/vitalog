@@ -1,4 +1,4 @@
-"""Vitalog ingestion pipeline — upload validation, pre-LLM probes, and classification."""
+"""Vitalog ingestion pipeline — upload validation, pre-LLM probes, classification, and routing."""
 
 from src.ingestion.classification_schemas import Category, ClassificationResult, Subtype
 from src.ingestion.classifier import DocumentClassifier
@@ -8,7 +8,9 @@ from src.ingestion.errors import (
     IngestionError,
     UnsupportedFormatError,
 )
+from src.ingestion.orchestration_hook import IngestionOrchestrator, IngestionResult
 from src.ingestion.probes import probe_image, probe_pdf
+from src.ingestion.storage_router import StorageRouter, StorageRouteResult
 from src.ingestion.upload_validator import UploadValidator, ValidatedUpload
 from src.ingestion.user_messages import get_user_message
 
@@ -26,4 +28,8 @@ __all__ = [
     "Category",
     "Subtype",
     "get_user_message",
+    "StorageRouter",
+    "StorageRouteResult",
+    "IngestionOrchestrator",
+    "IngestionResult",
 ]
