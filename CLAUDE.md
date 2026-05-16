@@ -49,6 +49,13 @@ Storage policy (classification-gated, §7.6):
 
 ## Key files
 
+**Built (Epic A–D):**
+- `src/ingestion/errors.py` — `IngestionError` base + `UnsupportedFormatError(detected_mime)`, `FileTooLargeError(size_bytes, max_bytes)`, `CorruptOrEmptyError(reason)`
+- `src/ingestion/probes.py` — `probe_pdf(file_bytes) -> bool` (PyMuPDF text extractability); `probe_image(file_bytes, mime) -> str | None` (resolution warning if <600×600); both use deferred imports
+- `src/ingestion/upload_validator.py` — `ValidatedUpload` Pydantic model; `UploadValidator` with 6-step pipeline (empty → MIME → support → size → integrity → probes); `_detect_mime()` with puremagic + raw-byte HEIC fallback; `try/except/finally` audit pattern
+- `src/ingestion/__init__.py` — exports all ingestion public API
+- `tests/ingestion/conftest.py` — 10 programmatic fixtures (no committed binaries)
+
 **Built (Epic A–B):**
 - `src/gateway/gateway.py` — single LLM chokepoint; wires Layer 1 + Layer 2; renders templates with original inputs; logs only redacted inputs
 - `src/gateway/anthropic_adapter.py` — SDK adapter; exponential-backoff retry; catches `RateLimitError`, `APIStatusError`, `APIConnectionError`; one schema-enforcement retry per call
@@ -69,7 +76,7 @@ Storage policy (classification-gated, §7.6):
 - `prompts/_shared/safety_preamble.md` + `prompts/_shared/few_shot_refusals/` — Layer 2 prompt assets
 - `tests/gateway/conftest.py` — shared `prompts_dir` fixture for gateway test suite
 
-**Up next (Epic B–C):**
+**Up next (Epic B–D):**
 - `src/ingestion/classifier.py` — document classifier, 3 categories *(D2)*
 - `src/ingestion/structurer.py` — LLM structurer + composite confidence; owns `THRESHOLD_AUTO_ACCEPT` / `THRESHOLD_REJECT` *(D6)*
 - `src/normalization/tier1.py` — LOINC-aware alias lookup *(E1)*
