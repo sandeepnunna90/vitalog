@@ -63,6 +63,11 @@ Storage policy (classification-gated, §7.6):
 - `src/ingestion/storage_router.py` — `StorageRouter` + `StorageRouteResult`; routes on `ClassificationResult.category`; `not_supported` → `discard_after_classification` (no doc row); reasoning truncated to 500 chars in audit; partial-failure gap documented as known capstone limitation
 - `src/ingestion/orchestration_hook.py` — `IngestionOrchestrator` + `IngestionResult`; wires validator → classifier → router; `textract_fn` slot for D4; short-circuit enforced via `should_continue_pipeline`; explicit `RuntimeError` guard on `document_id`
 - `tests/ingestion/test_storage_router.py` + `test_short_circuit.py` — 18 tests; all three routing branches + error paths + PRD Scenarios 9 & 10
+- `src/ingestion/textract_schemas.py` — `BoundingBox`, `Block`, `TableCell`, `Table`, `KVPair`, `TextractResult` Pydantic models; all confidence fields annotated as Textract-native 0–100 scale
+- `src/ingestion/textract_adapter.py` — `TextractAdapter`; calls `AnalyzeDocument(FORMS+TABLES)` synchronously; normalizes verbose Textract response into typed schemas; retries throttle/5xx with exp. backoff (0s/1s/2s); `NoCredentialsError` non-retryable; merged-cell silent overwrite documented as known capstone limitation; writes `textract_extracted` audit entry with latency + confidence stats
+- `src/ingestion/errors.py` — `TextractFailureError(reason, attempt_count)` added
+- `tests/ingestion/test_textract_adapter.py` — 12 unit tests (boto3 mocked via `client=` injection); 1 integration test (skips if `AWS_ACCESS_KEY_ID` unset); covers all 6 ACs + BotoCoreError retry path
+- `runs/cost_notes.md` — Textract free-tier cost note
 
 **Built (Epic A–B):**
 - `src/gateway/gateway.py` — single LLM chokepoint; wires Layer 1 + Layer 2; renders templates with original inputs; logs only redacted inputs
@@ -85,6 +90,7 @@ Storage policy (classification-gated, §7.6):
 - `tests/gateway/conftest.py` — shared `prompts_dir` fixture for gateway test suite
 
 **Up next (Epic B–D):**
+- `src/ingestion/textract_fallback.py` — vision-LLM fallback; uses `min_confidence` from `textract_extracted` audit entry to decide *(D5)*
 - `src/ingestion/structurer.py` — LLM structurer + composite confidence; owns `THRESHOLD_AUTO_ACCEPT` / `THRESHOLD_REJECT` *(D6)*
 - `src/normalization/tier1.py` — LOINC-aware alias lookup *(E1)*
 - `src/intelligence/summary_generator.py` — Mode A citation-verified summary *(F5)*
