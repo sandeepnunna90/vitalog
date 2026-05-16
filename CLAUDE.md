@@ -55,6 +55,11 @@ Storage policy (classification-gated, §7.6):
 - `src/ingestion/upload_validator.py` — `ValidatedUpload` Pydantic model; `UploadValidator` with 6-step pipeline (empty → MIME → support → size → integrity → probes); `_detect_mime()` with puremagic + raw-byte HEIC fallback; `try/except/finally` audit pattern
 - `src/ingestion/__init__.py` — exports all ingestion public API
 - `tests/ingestion/conftest.py` — 10 programmatic fixtures (no committed binaries)
+- `src/ingestion/classification_schemas.py` — `Category` + `Subtype` StrEnums; `ClassificationResult` Pydantic model with `Field(ge=0.0, le=1.0)` on confidence and `Field(min_length=1)` on reasoning
+- `src/ingestion/classifier.py` — `DocumentClassifier`; PDF text via PyMuPDF (early-exit accumulator, 8k char limit); image via base64 vision block; conservative bias override at confidence < 0.70; defensive `fitz.open()` guard
+- `src/ingestion/user_messages.py` — `get_user_message()` returns §5.1 message templates by category/subtype
+- `prompts/classification/v1.md` — classification prompt (Haiku); full v1 subtype taxonomy; conservative bias rules verbatim in system prompt
+- `tests/ingestion/test_classifier_unit.py` + `test_classifier_messages.py` — 16 tests; all Gateway calls mocked
 
 **Built (Epic A–B):**
 - `src/gateway/gateway.py` — single LLM chokepoint; wires Layer 1 + Layer 2; renders templates with original inputs; logs only redacted inputs
@@ -77,7 +82,6 @@ Storage policy (classification-gated, §7.6):
 - `tests/gateway/conftest.py` — shared `prompts_dir` fixture for gateway test suite
 
 **Up next (Epic B–D):**
-- `src/ingestion/classifier.py` — document classifier, 3 categories *(D2)*
 - `src/ingestion/structurer.py` — LLM structurer + composite confidence; owns `THRESHOLD_AUTO_ACCEPT` / `THRESHOLD_REJECT` *(D6)*
 - `src/normalization/tier1.py` — LOINC-aware alias lookup *(E1)*
 - `src/intelligence/summary_generator.py` — Mode A citation-verified summary *(F5)*

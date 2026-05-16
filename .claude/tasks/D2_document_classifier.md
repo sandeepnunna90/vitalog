@@ -67,4 +67,28 @@ Classification gates storage (architecture §7.6) AND the rest of the pipeline. 
 
 ## Notes / changelog
 
-_(append after work is done)_
+### Implementation (2026-05-15)
+
+**Files created:**
+- `src/ingestion/classification_schemas.py` — `Category` + `Subtype` StrEnums (13 subtypes, full v1 taxonomy per AC5); `ClassificationResult` Pydantic model with `Field(ge=0.0, le=1.0)` on `confidence` and `Field(min_length=1)` on `reasoning`.
+- `src/ingestion/classifier.py` — `DocumentClassifier` class; `classify()` calls `Gateway.call("classification", "v1", ...)` then applies conservative bias override (confidence < 0.70 → `not_supported`); `_prepare_inputs()` routes PDFs to text extraction and images to base64 vision block; `_extract_pdf_text()` uses early-exit accumulator (stops at `_PDF_TEXT_LIMIT = 8_000` chars); defensive `fitz.open()` try/except returns `""` on failure.
+- `src/ingestion/user_messages.py` — `get_user_message()` returns §5.1 message templates; `_SUBTYPE_LABELS` dict covers all 13 subtypes.
+- `prompts/classification/v1.md` — classification prompt using `claude-haiku-4-5-20251001`; `max_tokens: 512`; conservative bias rules verbatim in `system_template`; full v1 subtype taxonomy listed in prose (no JSON braces, avoids `format_map` escaping issues).
+- `tests/ingestion/test_classifier_unit.py` — 10 tests covering AC1–AC4 and input-path routing (PDF text, blank PDF placeholder, image vision block, gateway call signature).
+- `tests/ingestion/test_classifier_messages.py` — 6 tests covering AC6 message templates and exhaustive subtype coverage check.
+
+**Files modified:**
+- `prompts/_registry.yaml` — added `classification/v1` entry.
+- `src/ingestion/__init__.py` — added exports: `DocumentClassifier`, `ClassificationResult`, `Category`, `Subtype`, `get_user_message`.
+
+**PR review fixes (commit 8f6f581):**
+- Added `Field(ge=0.0, le=1.0)` to `confidence` — out-of-range model output now caught at Layer3 schema validation (triggers retry) rather than silently reaching `_apply_conservative_bias`.
+- Added `Field(min_length=1)` to `reasoning` — enforces the prompt's stated requirement at the schema level.
+- Replaced join-all-then-truncate in `_extract_pdf_text` with early-exit accumulator to avoid large intermediate string allocation for multi-page PDFs.
+- Added defensive `fitz.open()` try/except so a corrupt PDF falls through to the `[PDF has no extractable text]` placeholder path instead of raising an untyped exception.
+
+**Key design decisions:**
+- `StrEnum` over `(str, Enum)` — Python 3.11+ native, ruff UP042 compliant, enables `category == "lab_report"` comparisons without `.value`.
+- Conservative bias is both in the prompt (instructions to the model) and in code (`_apply_conservative_bias`) — double-layer protection; code-side is the hard deterministic safeguard.
+- `cast(ClassificationResult, gateway.call(...))` — purely for mypy; Layer3 validates the schema before the cast is reached.
+- Model choice: `claude-haiku-4-5-20251001` overrides the gateway default (Sonnet) via the prompt frontmatter `model:` field — classification is a cheap, well-scoped single call.

@@ -38,7 +38,7 @@ Status legend: ⬜ pending · 🟡 in progress · ✅ done · ⏸ blocked
 | ID | Title | Pts | Status | Depends on |
 |---|---|---|---|---|
 | [D1](D1_upload_validation_probes.md) | Upload + validation + pre-LLM probes | 3 | ✅ | A3 |
-| [D2](D2_document_classifier.md) | Document classifier (3 categories) | 5 | ⬜ | B1, B2 |
+| [D2](D2_document_classifier.md) | Document classifier (3 categories) | 5 | ✅ | B1, B2 |
 | [D3](D3_classification_gated_storage.md) | Classification-gated raw doc storage | 3 | ⬜ | D1, D2, A3 |
 | [D4](D4_textract_primary_path.md) | AWS Textract primary path | 5 | ⬜ | D1 |
 | [D5](D5_vision_llm_fallback.md) | Vision-LLM fallback | 3 | ⬜ | D4, B1 |
