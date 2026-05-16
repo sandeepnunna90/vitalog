@@ -17,7 +17,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel
 
 from src.gateway.anthropic_adapter import AnthropicAdapter
 from src.gateway.errors import (
@@ -72,6 +72,13 @@ class Gateway:
         """
         # 1. Resolve prompt (raises PromptNotFoundError if missing — before any network call)
         tmpl = self._registry.get(prompt_id, version)
+
+        # AC6: Validate declared output_schema_name matches the caller's schema class.
+        if tmpl.output_schema_name != output_schema.__name__:
+            raise OutputValidationError(
+                f"Schema mismatch: prompt {prompt_id!r}@{version} declares "
+                f"{tmpl.output_schema_name!r} but caller passed {output_schema.__name__!r}"
+            )
 
         # 2. L1: Build log-safe inputs (PHI-redacted) — model sees original inputs
         log_inputs = self._apply_input_filters(inputs)
@@ -128,17 +135,19 @@ class Gateway:
                 error=str(exc),
             )
             raise
-        except (BannedPhraseViolation, SchemaValidationError, ValidationError) as exc:
+        except (BannedPhraseViolation, SchemaValidationError) as exc:
             latency_ms = int((time.monotonic() - t0) * 1000)
+            # _call_with_l3_retry attaches _retry_* attributes on the second-attempt failure
+            # so the eval log captures the actual raw output and token counts.
             self._write_eval_log(
                 tmpl.prompt_id,
                 tmpl.version,
                 tmpl.model,
                 log_inputs,
-                raw,
+                getattr(exc, "_retry_raw", raw),
                 latency_ms,
-                in_tok,
-                out_tok,
+                getattr(exc, "_retry_in_tok", in_tok),
+                getattr(exc, "_retry_out_tok", out_tok),
                 success=False,
                 error=str(exc),
             )
@@ -237,7 +246,7 @@ class Gateway:
             max_tokens=max_tokens,
         )
 
-        # Default: same system (SchemaValidationError). Overridden below for BannedPhraseViolation.
+        # Default: same system. Overridden below with specific guidance for each failure type.
         retry_system = system
         try:
             return raw, self._apply_output_validators(raw, output_schema), in_tok, out_tok
@@ -248,8 +257,14 @@ class Gateway:
                 + f"\n\nCRITICAL: Your previous response contained banned phrases: {phrases_str}. "
                 "DO NOT use any of these phrases — this output will be rejected."
             )
-        except SchemaValidationError:
-            pass  # retry with same system
+        except SchemaValidationError as exc:
+            field_locs = [str(e.get("loc", "")) for e in exc.field_errors[:3]]
+            fields_str = ", ".join(field_locs) if field_locs else "unknown"
+            hint = (
+                f"\n\nCRITICAL: Previous response had missing/invalid fields: {fields_str}. "
+                "Return the exact tool schema — do not omit any required fields."
+            )
+            retry_system = system + hint
 
         retry_raw, ri, ro = self._adapter.call(
             model=model,
@@ -259,8 +274,15 @@ class Gateway:
             tool_input_schema=tool_schema,
             max_tokens=max_tokens,
         )
-        validated = self._apply_output_validators(retry_raw, output_schema)
-        return retry_raw, validated, in_tok + ri, out_tok + ro
+        try:
+            validated = self._apply_output_validators(retry_raw, output_schema)
+            return retry_raw, validated, in_tok + ri, out_tok + ro
+        except (BannedPhraseViolation, SchemaValidationError) as retry_exc:
+            # Attach accounting data so gateway.call() can log the real raw/tokens.
+            setattr(retry_exc, "_retry_raw", retry_raw)
+            setattr(retry_exc, "_retry_in_tok", in_tok + ri)
+            setattr(retry_exc, "_retry_out_tok", out_tok + ro)
+            raise
 
     # ── Private helpers ───────────────────────────────────────────────────────
 

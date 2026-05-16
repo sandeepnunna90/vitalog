@@ -96,6 +96,7 @@ def query_prompts_dir(tmp_path: Path) -> Path:
             max_tokens: 256
             system_template: "You are a helpful assistant."
             user_template: "Query: {query}"
+            output_schema_name: Answer
             ---
         """),
         encoding="utf-8",

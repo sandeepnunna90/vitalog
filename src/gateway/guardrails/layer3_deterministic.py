@@ -43,6 +43,12 @@ def _collect_output_text(raw: dict[str, Any]) -> str:
             parts.append(value)
         elif isinstance(value, dict):
             parts.append(_collect_output_text(value))
+        elif isinstance(value, list):
+            for item in value:
+                if isinstance(item, str):
+                    parts.append(item)
+                elif isinstance(item, dict):
+                    parts.append(_collect_output_text(item))
     return " ".join(parts)
 
 

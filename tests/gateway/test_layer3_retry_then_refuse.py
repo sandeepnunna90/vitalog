@@ -31,16 +31,14 @@ def _make_tool_response(tool_input: dict[str, Any]) -> MagicMock:
 def _setup_gateway(prompts_dir: Path, phrases: list[str] | None = None) -> Any:
     """Return a Gateway wired to a temp prompts_dir with custom banned phrases."""
     from src.gateway.gateway import Gateway
-    from src.gateway.guardrails.layer3_deterministic import Layer3
 
     shared = prompts_dir / "_shared"
     shared.mkdir(exist_ok=True)
     content = "\n".join(phrases or []) + "\n"
     (shared / "banned_phrases.txt").write_text(content, encoding="utf-8")
 
-    gw = Gateway(prompts_dir=prompts_dir, api_key="test-key")
-    gw._layer3 = Layer3(prompts_dir=prompts_dir)
-    return gw
+    # Gateway.__init__ wires Layer3 from prompts_dir automatically.
+    return Gateway(prompts_dir=prompts_dir, api_key="test-key")
 
 
 # ── Banned-phrase retry ───────────────────────────────────────────────────────

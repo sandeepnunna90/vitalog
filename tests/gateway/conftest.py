@@ -31,6 +31,7 @@ def prompts_dir(tmp_path: Path) -> Path:
             max_tokens: 256
             system_template: "You are a helpful assistant."
             user_template: "Say hello to {name}."
+            output_schema_name: Greeting
             ---
         """),
         encoding="utf-8",

@@ -88,3 +88,40 @@ def test_missing_phrases_file_does_not_raise(tmp_path: Path) -> None:
     l3 = Layer3(prompts_dir=tmp_path)
     result = l3.validate_output({"summary": "you should do something"}, Report)
     assert "you should" in result.summary  # passes because phrase list is empty
+
+
+def test_banned_phrase_in_list_field_detected(tmp_path: Path) -> None:
+    """Banned phrase inside a list[str] field must be caught (not silently skipped)."""
+    from pydantic import BaseModel
+
+    class ObservationReport(BaseModel):
+        observations: list[str]
+
+    l3 = _make_layer3(tmp_path, ["you should"])
+    with pytest.raises(BannedPhraseViolation):
+        l3.validate_output(
+            {"observations": ["HbA1c is 7.2%", "You should see a doctor."]},
+            ObservationReport,
+        )
+
+
+def test_clean_list_field_passes(tmp_path: Path) -> None:
+    """A list[str] field with no banned phrases must pass validation."""
+    from pydantic import BaseModel
+
+    class ObservationReport(BaseModel):
+        observations: list[str]
+
+    l3 = _make_layer3(tmp_path, ["you should"])
+    result = l3.validate_output(
+        {"observations": ["HbA1c is 7.2%", "Glucose is within normal range."]},
+        ObservationReport,
+    )
+    assert len(result.observations) == 2
+
+
+def test_layer3_default_path_loads_real_phrases(tmp_path: Path) -> None:
+    """Layer3(prompts_dir=None) must load the real banned_phrases.txt and flag known phrases."""
+    l3 = Layer3(prompts_dir=None)
+    with pytest.raises(BannedPhraseViolation):
+        l3.validate_output({"summary": "You should take more insulin."}, Report)

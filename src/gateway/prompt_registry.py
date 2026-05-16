@@ -29,6 +29,7 @@ class PromptTemplate:
     max_tokens: int
     system_template: str
     user_template: str
+    output_schema_name: str  # Pydantic class name declared in frontmatter (AC6)
 
 
 def _parse_prompt_file(path: Path) -> PromptTemplate:
@@ -52,6 +53,7 @@ def _parse_prompt_file(path: Path) -> PromptTemplate:
             max_tokens=int(fm["max_tokens"]),
             system_template=str(fm.get("system_template") or ""),
             user_template=str(fm["user_template"]),
+            output_schema_name=str(fm["output_schema_name"]),
         )
     except KeyError as exc:
         raise ValueError(f"Prompt file {path} missing required field: {exc}") from exc

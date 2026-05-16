@@ -1,4 +1,4 @@
-"""Unit tests for Layer 3 schema validation (AC3, AC6)."""
+"""Unit tests for Layer 3 schema validation and AC6 registry enforcement (AC3, AC6)."""
 
 from __future__ import annotations
 
@@ -66,3 +66,60 @@ def test_gateway_apply_output_validators_uses_layer3(prompts_dir: Path, tmp_path
 
     with pytest.raises(SchemaValidationError):
         gw._apply_output_validators({"summary": "ok"}, Report)  # missing value
+
+
+# ── AC6: registry rejects prompts without output_schema_name ─────────────────
+
+
+def test_registry_rejects_prompt_without_output_schema_name(tmp_path: Path) -> None:
+    """PromptRegistry must raise ValueError for prompt files missing output_schema_name."""
+    import textwrap
+
+    from src.gateway.prompt_registry import PromptRegistry
+
+    registry = tmp_path / "_registry.yaml"
+    registry.write_text(
+        textwrap.dedent("""\
+            prompts:
+              - prompt_id: bad
+                version: v1
+                path: bad/v1.md
+        """),
+        encoding="utf-8",
+    )
+    (tmp_path / "bad").mkdir()
+    (tmp_path / "bad" / "v1.md").write_text(
+        textwrap.dedent("""\
+            ---
+            prompt_id: bad
+            version: v1
+            model: claude-sonnet-4-6
+            max_tokens: 256
+            system_template: "You are helpful."
+            user_template: "Hello {name}."
+            ---
+        """),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="output_schema_name"):
+        PromptRegistry(prompts_dir=tmp_path)
+
+
+def test_gateway_call_raises_on_schema_name_mismatch(prompts_dir: Path) -> None:
+    """gateway.call() raises OutputValidationError when schema name mismatches declared name."""
+    from unittest.mock import patch
+
+    from pydantic import BaseModel
+
+    from src.gateway.errors import OutputValidationError
+    from src.gateway.gateway import Gateway
+
+    class WrongSchema(BaseModel):
+        result: str
+
+    gw = Gateway(prompts_dir=prompts_dir, api_key="test-key")
+    # The hello prompt declares output_schema_name: Greeting; WrongSchema doesn't match.
+    with patch.object(gw._adapter, "call"):
+        with pytest.raises(OutputValidationError, match="WrongSchema"):
+            gw.call("hello", "v1", {"name": "Mark"}, WrongSchema)
