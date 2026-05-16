@@ -52,11 +52,19 @@ class DocumentClassifier:
     def _extract_pdf_text(self, file_bytes: bytes) -> str:
         import fitz  # deferred; already a project dep from D1
 
-        doc = fitz.open(stream=file_bytes, filetype="pdf")
+        try:
+            doc = fitz.open(stream=file_bytes, filetype="pdf")
+        except Exception:  # noqa: BLE001
+            return ""
         try:
             parts: list[str] = []
+            total = 0
             for page in doc:
-                parts.append(page.get_text())
+                chunk = page.get_text()
+                parts.append(chunk)
+                total += len(chunk)
+                if total >= _PDF_TEXT_LIMIT:
+                    break
             return " ".join(parts)[:_PDF_TEXT_LIMIT]
         finally:
             doc.close()

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import StrEnum
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class Category(StrEnum):
@@ -32,5 +32,5 @@ class ClassificationResult(BaseModel):
 
     category: Category
     subtype: Subtype
-    confidence: float
-    reasoning: str
+    confidence: float = Field(ge=0.0, le=1.0)
+    reasoning: str = Field(min_length=1)
