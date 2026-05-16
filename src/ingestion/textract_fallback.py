@@ -135,13 +135,13 @@ class TextractFallbackAdapter:
 
     def _build_image_content(self, upload: ValidatedUpload) -> list[dict[str, Any]]:
         """Build the image content block for Gateway.call(image_content=...)."""
-        if upload.mime == "application/pdf":
+        if upload.mime not in _SUPPORTED_MEDIA_TYPES:
+            # PDF and HEIC are not accepted by the Anthropic vision API directly.
+            # PyMuPDF can open both formats, so render page 1 to PNG in all cases.
             img_bytes, media_type = _pdf_to_png(upload.file_bytes)
         else:
             img_bytes = upload.file_bytes
-            # Map unsupported types (e.g. HEIC) to image/jpeg — the raw bytes
-            # are compatible at the API level for common HEIC encodings.
-            media_type = upload.mime if upload.mime in _SUPPORTED_MEDIA_TYPES else "image/jpeg"
+            media_type = upload.mime
 
         encoded = base64.standard_b64encode(img_bytes).decode("ascii")
         return [
@@ -176,14 +176,17 @@ def _compute_min_confidence(result: TextractResult) -> float:
 
 
 def _pdf_to_png(pdf_bytes: bytes) -> tuple[bytes, str]:
-    """Render page 1 of a PDF to a PNG image at 2× zoom for Anthropic vision."""
+    """Render page 1 of a document to PNG at 2× zoom for Anthropic vision.
+
+    Accepts any format PyMuPDF can open (PDF, HEIC, etc.).
+    """
     import fitz  # PyMuPDF — deferred import to match project conventions
 
-    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
-    page = doc[0]
-    mat = fitz.Matrix(2, 2)  # 2× zoom ≈ 144 dpi; sufficient for lab report text
-    pix = page.get_pixmap(matrix=mat)
-    return pix.tobytes("png"), "image/png"
+    with fitz.open(stream=pdf_bytes) as doc:
+        page = doc[0]
+        mat = fitz.Matrix(2, 2)  # 2× zoom ≈ 144 dpi; sufficient for lab report text
+        pix = page.get_pixmap(matrix=mat)
+        return pix.tobytes("png"), "image/png"
 
 
 def _to_textract_result(fallback: FallbackExtractionResult) -> TextractResult:

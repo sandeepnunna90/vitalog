@@ -283,6 +283,30 @@ def test_pdf_upload_builds_png_image_content() -> None:
     assert content[0]["source"]["media_type"] == "image/png"
 
 
+def test_heic_upload_builds_png_image_content() -> None:
+    """HEIC upload → rendered to PNG via PyMuPDF (not sent as raw HEIC bytes)."""
+    adapter, gateway, _ = _make_adapter()
+    upload = _make_upload(mime="image/heic", file_bytes=b"fake heic bytes")
+    low_conf = _textract_result_with_confidence(50.0)
+
+    fake_png = b"\x89PNG fake"
+
+    def capture(**kwargs: object) -> FallbackExtractionResult:
+        capture.image_content = kwargs.get("image_content")  # type: ignore[attr-defined]
+        return _make_fallback_result()
+
+    gateway.call.side_effect = capture
+
+    with patch(
+        "src.ingestion.textract_fallback._pdf_to_png",
+        return_value=(fake_png, "image/png"),
+    ):
+        adapter.extract(upload, _DOC_ID, low_conf)
+
+    content = capture.image_content  # type: ignore[attr-defined]
+    assert content[0]["source"]["media_type"] == "image/png"
+
+
 # ── Tests: _compute_min_confidence ────────────────────────────────────────────
 
 
