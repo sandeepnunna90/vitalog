@@ -12,6 +12,13 @@ from src.ingestion.errors import (
 from src.ingestion.orchestration_hook import IngestionOrchestrator, IngestionResult
 from src.ingestion.probes import probe_image, probe_pdf
 from src.ingestion.storage_router import StorageRouter, StorageRouteResult
+from src.ingestion.structurer import (
+    THRESHOLD_AUTO_ACCEPT,
+    THRESHOLD_REJECT,
+    Structurer,
+    StructurerResult,
+)
+from src.ingestion.structurer_schemas import Band, BiomarkerCandidate, StructuredReport
 from src.ingestion.textract_adapter import TextractAdapter
 from src.ingestion.textract_fallback import FallbackExtractionResult, TextractFallbackAdapter
 from src.ingestion.textract_schemas import TextractResult
@@ -41,4 +48,11 @@ __all__ = [
     "TextractFallbackAdapter",
     "FallbackExtractionResult",
     "TextractResult",
+    "Structurer",
+    "StructurerResult",
+    "THRESHOLD_AUTO_ACCEPT",
+    "THRESHOLD_REJECT",
+    "Band",
+    "BiomarkerCandidate",
+    "StructuredReport",
 ]
