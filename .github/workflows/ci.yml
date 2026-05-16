@@ -7,7 +7,29 @@ on:
     branches: [main]
 
 jobs:
+  code-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: uv sync --group dev
+
+      - name: Ruff lint
+        run: uv run ruff check .
+
+      - name: Ruff format check
+        run: uv run ruff format --check .
+
+      - name: Mypy
+        run: uv run mypy --strict src/
+
   unit-tests:
+    needs: code-quality
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

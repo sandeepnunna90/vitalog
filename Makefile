@@ -1,4 +1,8 @@
-.PHONY: lint format typecheck test migrate calibrate eval
+.PHONY: setup lint format typecheck test migrate calibrate eval
+
+setup:
+	uv sync --group dev
+	git config core.hooksPath .githooks
 
 lint:
 	ruff check .

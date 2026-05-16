@@ -15,7 +15,7 @@
 
 4. **Implement** on the branch. Update the plan file as work progresses.
 
-5. **Commit.** The pre-commit hook auto-runs `ruff check`, `ruff format --check`, and `mypy` — commit is blocked if any fail. Fix before committing, never skip hooks.
+5. **Commit.** The native git pre-commit hook (`.githooks/pre-commit`) auto-runs `ruff check`, `ruff format --check`, and `mypy` — commit is blocked if any fail. Fix before committing, never skip hooks. Run `make setup` on a fresh clone to activate it.
 
 6. **Open PR.**
    ```

@@ -11,19 +11,6 @@
           }
         ]
       }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/pre_commit_lint.sh",
-            "timeout": 60,
-            "statusMessage": "Checking lint + types before commit..."
-          }
-        ]
-      }
     ]
   },
   "permissions": {
