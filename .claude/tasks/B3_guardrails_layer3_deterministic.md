@@ -83,3 +83,18 @@ L2 prompt-level constraints are insufficient under prompt drift and adversarial 
 - `src/gateway/gateway.py` — added `self._layer3 = Layer3(prompts_dir)` in `__init__`; replaced `_apply_output_validators` stub with `self._layer3.validate_output()`; added `_call_with_l3_retry()` helper that makes one retry on `BannedPhraseViolation` (stricter system naming offending phrases) or `SchemaValidationError` (same system); refactored `call()` to use the helper with summed token counts.
 
 **Key design note:** `_call_with_l3_retry` propagates L3 errors if both attempts fail; `call()` catches them and converts to `OutputValidationError` with an "after retry" message, ensuring partial output never reaches the caller.
+
+### PR review fixes (2026-05-16) — PR #7
+
+Addressed automated review findings before merge:
+
+- **BannedPhraseViolation.phrases was leaking regex patterns** (`\byou\ should\b`) — fixed by storing `(compiled_re, original_phrase)` tuples in `Layer3._phrases` and using the original phrase string in the exception.
+- **list[str] fields not scanned** — `_collect_output_text` now recurses into `list` values (catches future `observations: list[str]` fields).
+- **AC6 enforcement** — `output_schema_name` added as a required `PromptTemplate` field; registry raises `ValueError` at load time for prompt files missing it; `Gateway.call()` adds a runtime guard that compares `output_schema.__name__` to the declared name and raises `OutputValidationError` on mismatch.
+- **mypy `union-attr` errors** — replaced direct attribute assignment on the union exception type with `setattr()` calls (avoids `type: ignore` entirely).
+- **E501 line-length violations** — split long f-string in schema-retry hint; extracted `validated` local before tuple return.
+- **Unused `textwrap` import** removed from `test_layer3_schema_validation.py`.
+- **All 7 affected test fixtures** updated with `output_schema_name` in inline prompt YAML.
+- **3 new tests added**: `test_banned_phrase_in_list_field_detected`, `test_clean_list_field_passes`, `test_layer3_default_path_loads_real_phrases`.
+
+Final state: 63 tests pass, `ruff` and `mypy --strict` both clean.
