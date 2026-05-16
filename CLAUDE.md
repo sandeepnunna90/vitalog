@@ -54,6 +54,9 @@ Storage policy (classification-gated, §7.6):
 - `src/gateway/anthropic_adapter.py` — SDK adapter; exponential-backoff retry; catches `RateLimitError`, `APIStatusError`, `APIConnectionError`; one schema-enforcement retry per call
 - `src/gateway/guardrails/layer1.py` — PHI redactor (log-only, recurses into nested dicts) + heuristic injection detector (warns, never blocks)
 - `src/gateway/guardrails/layer2.py` — safety preamble + few-shot refusal loader; prepended to every system prompt via `Layer2.augment_system()`
+- `src/gateway/guardrails/layer3_deterministic.py` — schema validator (wraps Pydantic) + banned-phrase scanner; loaded from `prompts/_shared/banned_phrases.txt`; one retry on failure
+- `src/gateway/errors.py` — typed exception hierarchy: `BannedPhraseViolation(phrases)`, `SchemaValidationError(field_errors)`, `OutputValidationError`, `ModelError`
+- `prompts/_shared/banned_phrases.txt` — 25 banned clinical-advice phrases; case-insensitive `\b`-bounded match
 - `src/gateway/prompt_registry.py` — loads versioned prompt files; renders templates
 - `src/gateway/eval_logger.py` — writes per-call JSONL to `eval_corpus/runs/`; stores redacted inputs
 - `src/persistence/models.py` — Pydantic models for all DB entities; `ProcessingStatus` is a `Literal` type
@@ -76,14 +79,22 @@ Storage policy (classification-gated, §7.6):
 
 ## Workflow
 
-- Always enter plan mode before writing code. Write the plan to `.claude/tasks/<TASK_NAME>.md`.
-- Each plan: context, file paths to modify, reasoning, step-by-step tasks, verification section.
-- Wait for explicit approval before implementing.
-- Update the plan file as work progresses; append change descriptions for handoff.
-- **Definition of done** — after every story, update all three:
-  1. `CLAUDE.md` — move built files from "Up next" → "Built"; add new gotchas
-  2. `.claude/tasks/README.md` — flip Status to ✅ done
-  3. `.claude/tasks/<STORY>.md` — append summary of all changes made
+### Per-story process (every story, no exceptions)
+
+1. Enter plan mode → write plan to `.claude/tasks/<STORY>.md` → wait for approval.
+2. Create a feature branch: `git checkout -b feat/<story-id>-<short-slug>` (e.g. `feat/b3-layer3`).
+3. Implement on the branch — all commits go to the branch, **never directly to `main`**.
+4. Commit (the **pre-commit hook** auto-runs `ruff check`, `ruff format --check`, and `mypy` — commit is blocked if any fail).
+5. Push branch and open PR with `gh pr create` against `main`.
+   - CI runs the test suite automatically on the PR.
+   - The **post-PR hook** automatically invokes the `pr-review-expert` skill and posts the full review as a GitHub PR comment.
+6. Address review findings in **new commits** on the same branch (never amend published commits).
+7. User reviews and merges after all checks pass.
+8. **Definition of done** — update all three tracking artifacts:
+   - `CLAUDE.md` — move built files to "Built"; add new gotchas
+   - `.claude/tasks/README.md` — flip Status to ✅ done
+   - `.claude/tasks/<STORY>.md` — append changelog
+
 - MVP-focused. Flag anything outside architecture §11 capstone scope as deferred.
 
 ## Gotchas
@@ -94,6 +105,7 @@ Storage policy (classification-gated, §7.6):
 - **Classification gates storage.** A `not_supported` document must never write to `biomarker_records` — audit log only. Violating this breaks the privacy model (§7.6).
 - **Confidence thresholds live in `src/ingestion/structurer.py`** (`THRESHOLD_AUTO_ACCEPT`, `THRESHOLD_REJECT`). Never change without re-running `make calibrate` and reviewing `eval_corpus/calibration_report.md`.
 - **Mark's patient profile** is hardcoded in `reference_data/mark_profile.json`. Do not load from Supabase unless task 18 (if-time) has landed.
+- **L3 stores (pattern, phrase) tuples** — `BannedPhraseViolation.phrases` contains the original human-readable phrases, not the compiled regex patterns. The retry system prompt uses these to name the offending text explicitly.
 
 ## Out of capstone scope
 
