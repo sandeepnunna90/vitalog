@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 
 class GatewayError(Exception):
     """Base class for all gateway exceptions."""
@@ -17,3 +19,19 @@ class OutputValidationError(GatewayError):
 
 class ModelError(GatewayError):
     """Raised when the Anthropic adapter exhausts all retry attempts."""
+
+
+class BannedPhraseViolation(GatewayError):  # noqa: N818
+    """Raised when LLM output contains one or more banned clinical-advice phrases."""
+
+    def __init__(self, phrases: list[str]) -> None:
+        self.phrases = phrases
+        super().__init__(f"Banned phrases detected in output: {phrases}")
+
+
+class SchemaValidationError(GatewayError):
+    """Raised when LLM output fails Pydantic schema validation; includes field-level diff."""
+
+    def __init__(self, field_errors: list[Any]) -> None:
+        self.field_errors = field_errors
+        super().__init__(f"Schema validation failed: {field_errors}")

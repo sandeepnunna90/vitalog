@@ -68,4 +68,18 @@ L2 prompt-level constraints are insufficient under prompt drift and adversarial 
 
 ## Notes / changelog
 
-_(append after work is done)_
+### Implementation (2026-05-15)
+
+**Files created:**
+- `src/gateway/guardrails/layer3_deterministic.py` — `Layer3` class with `validate_output(raw, schema)`. Runs Pydantic schema validation first (raises `SchemaValidationError` with `field_errors = exc.errors()`), then scans all string values recursively for banned phrases (raises `BannedPhraseViolation` with `phrases = [original_phrase_strings]`). Phrases are stored as `(compiled_pattern, original_phrase)` tuples so `exc.phrases` is human-readable (not regex patterns).
+- `prompts/_shared/banned_phrases.txt` — 25 phrases (medical advice, diagnosis, prognosis). Compiled with `\b` word boundaries, case-insensitive.
+- `tests/gateway/test_layer3_banned_phrases.py` — 8 tests covering AC1, AC5.
+- `tests/gateway/test_layer3_schema_validation.py` — 5 tests covering AC3, AC6.
+- `tests/gateway/test_layer3_retry_then_refuse.py` — 6 tests covering AC2, AC4.
+
+**Files modified:**
+- `src/gateway/errors.py` — added `BannedPhraseViolation(phrases: list[str])` and `SchemaValidationError(field_errors: list[Any])`.
+- `src/gateway/guardrails/__init__.py` — exported `Layer3`.
+- `src/gateway/gateway.py` — added `self._layer3 = Layer3(prompts_dir)` in `__init__`; replaced `_apply_output_validators` stub with `self._layer3.validate_output()`; added `_call_with_l3_retry()` helper that makes one retry on `BannedPhraseViolation` (stricter system naming offending phrases) or `SchemaValidationError` (same system); refactored `call()` to use the helper with summed token counts.
+
+**Key design note:** `_call_with_l3_retry` propagates L3 errors if both attempts fail; `call()` catches them and converts to `OutputValidationError` with an "after retry" message, ensuring partial output never reaches the caller.
