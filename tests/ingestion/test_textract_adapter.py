@@ -7,6 +7,7 @@ All Textract response fixtures are inline dicts — no committed binary files.
 from __future__ import annotations
 
 import uuid
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -41,9 +42,9 @@ def _make_adapter(client: MagicMock) -> tuple[TextractAdapter, MagicMock]:
     return adapter, audit
 
 
-def _minimal_response(extra_blocks: list[dict] | None = None) -> dict:
+def _minimal_response(extra_blocks: list[dict[str, Any]] | None = None) -> dict[str, Any]:
     """Minimal valid Textract AnalyzeDocument response."""
-    blocks: list[dict] = [
+    blocks: list[dict[str, Any]] = [
         {
             "Id": "page-1",
             "BlockType": "PAGE",
@@ -58,10 +59,11 @@ def _minimal_response(extra_blocks: list[dict] | None = None) -> dict:
 def _make_client_error(code: str) -> Exception:
     import botocore.exceptions
 
-    return botocore.exceptions.ClientError(
+    err: Exception = botocore.exceptions.ClientError(
         {"Error": {"Code": code, "Message": "test error"}},
         "AnalyzeDocument",
     )
+    return err
 
 
 # ── Basic extraction tests ────────────────────────────────────────────────────
@@ -104,7 +106,7 @@ def test_table_reconstructed_row_major() -> None:
     word_id = "word-1"
     cell_id = "cell-1"
     table_id = "table-1"
-    blocks = [
+    blocks: list[dict[str, Any]] = [
         {
             "Id": word_id,
             "BlockType": "WORD",
@@ -149,7 +151,7 @@ def test_kv_pairs_resolved() -> None:
     val_word_id = "vw-1"
     key_block_id = "key-1"
     val_block_id = "val-1"
-    blocks = [
+    blocks: list[dict[str, Any]] = [
         {"Id": key_word_id, "BlockType": "WORD", "Text": "Glucose"},
         {"Id": val_word_id, "BlockType": "WORD", "Text": "95"},
         {

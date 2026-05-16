@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import time
 from pathlib import Path
-from typing import Any
+from typing import Any, TypeVar
 
 from pydantic import BaseModel
 
@@ -36,6 +36,8 @@ try:
     from src.persistence.audit_log_repository import AuditLogRepository as _AuditRepo
 except ImportError:  # pragma: no cover
     _AuditRepo = None  # type: ignore[assignment,misc]
+
+_T = TypeVar("_T", bound=BaseModel)
 
 
 class Gateway:
@@ -59,10 +61,10 @@ class Gateway:
         prompt_id: str,
         version: str,
         inputs: dict[str, Any],
-        output_schema: type[BaseModel],
+        output_schema: type[_T],
         *,
         image_content: list[dict[str, Any]] | None = None,
-    ) -> BaseModel:
+    ) -> _T:
         """Invoke a registered prompt and return a validated Pydantic model.
 
         Raises:
@@ -212,9 +214,7 @@ class Gateway:
         """Prepend safety preamble, few-shot refusals, and optional injection warning."""
         return self._layer2.augment_system(system, injection_warning)
 
-    def _apply_output_validators(
-        self, raw: dict[str, Any], output_schema: type[BaseModel]
-    ) -> BaseModel:
+    def _apply_output_validators(self, raw: dict[str, Any], output_schema: type[_T]) -> _T:
         """B3: schema validation then banned-phrase scan via Layer3.
 
         Raises SchemaValidationError or BannedPhraseViolation on failure.
@@ -230,8 +230,8 @@ class Gateway:
         tool_name: str,
         tool_schema: dict[str, Any],
         max_tokens: int,
-        output_schema: type[BaseModel],
-    ) -> tuple[dict[str, Any], BaseModel, int, int]:
+        output_schema: type[_T],
+    ) -> tuple[dict[str, Any], _T, int, int]:
         """Invoke adapter + L3 validators; retry once on L3 failure.
 
         Returns (raw_dict, validated_model, total_input_tokens, total_output_tokens).

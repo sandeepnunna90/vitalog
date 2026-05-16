@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, cast
+from typing import Any
 
 from src.gateway.gateway import Gateway
 from src.ingestion.classification_schemas import Category, ClassificationResult
@@ -21,15 +21,12 @@ class DocumentClassifier:
 
     def classify(self, upload: ValidatedUpload) -> ClassificationResult:
         inputs, image_content = self._prepare_inputs(upload)
-        result = cast(
+        result = self._gateway.call(
+            "classification",
+            "v1",
+            inputs,
             ClassificationResult,
-            self._gateway.call(
-                "classification",
-                "v1",
-                inputs,
-                ClassificationResult,
-                image_content=image_content,
-            ),
+            image_content=image_content,
         )
         return self._apply_conservative_bias(result)
 

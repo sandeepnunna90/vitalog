@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import uuid
 from datetime import date
+from typing import Any
 
 import pytest
 
@@ -32,7 +33,7 @@ from src.persistence import (
 
 
 @pytest.fixture()
-def svc():
+def svc() -> Any:
     """Service-role Supabase client (bypasses RLS)."""
     return get_service_client()
 

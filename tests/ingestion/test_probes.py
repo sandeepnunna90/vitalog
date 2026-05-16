@@ -5,7 +5,7 @@ from __future__ import annotations
 import io
 
 import pytest
-from PIL import Image  # type: ignore[import-untyped]
+from PIL import Image
 
 from src.ingestion.probes import probe_image, probe_pdf
 

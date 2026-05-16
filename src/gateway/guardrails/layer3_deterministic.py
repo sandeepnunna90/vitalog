@@ -11,13 +11,15 @@ from __future__ import annotations
 import logging
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, TypeVar
 
 from pydantic import BaseModel, ValidationError
 
 from src.gateway.errors import BannedPhraseViolation, SchemaValidationError
 
 logger = logging.getLogger(__name__)
+
+_T = TypeVar("_T", bound=BaseModel)
 
 _DEFAULT_SHARED_DIR = Path(__file__).parent.parent.parent.parent / "prompts" / "_shared"
 
@@ -57,7 +59,7 @@ class Layer3:
         shared_dir = (prompts_dir / "_shared") if prompts_dir else _DEFAULT_SHARED_DIR
         self._phrases: list[tuple[re.Pattern[str], str]] = _load_banned_phrases(shared_dir)
 
-    def validate_output(self, raw: dict[str, Any], output_schema: type[BaseModel]) -> BaseModel:
+    def validate_output(self, raw: dict[str, Any], output_schema: type[_T]) -> _T:
         """Run L3 validation: schema check first, then banned-phrase scan.
 
         Raises SchemaValidationError if Pydantic validation fails.

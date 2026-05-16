@@ -102,7 +102,7 @@ def test_anon_cannot_read_other_patients_records(svc, patient_a, patient_b):  # 
 @pytest.mark.integration
 def test_audit_log_update_blocked(svc, patient_a):  # type: ignore[no-untyped-def]
     """UPDATE on audit_log must be blocked by RLS (no UPDATE policy defined)."""
-    from postgrest.exceptions import APIError  # type: ignore[import-untyped]
+    from postgrest.exceptions import APIError
 
     # Insert a row via service role
     svc.table("audit_log").insert(
@@ -122,7 +122,7 @@ def test_audit_log_update_blocked(svc, patient_a):  # type: ignore[no-untyped-de
 @pytest.mark.integration
 def test_audit_log_delete_blocked(svc, patient_a):  # type: ignore[no-untyped-def]
     """DELETE on audit_log must be blocked by RLS (no DELETE policy defined)."""
-    from postgrest.exceptions import APIError  # type: ignore[import-untyped]
+    from postgrest.exceptions import APIError
 
     svc.table("audit_log").insert(
         {
@@ -140,7 +140,7 @@ def test_audit_log_delete_blocked(svc, patient_a):  # type: ignore[no-untyped-de
 @pytest.mark.integration
 def test_canonical_biomarker_write_blocked(svc):  # type: ignore[no-untyped-def]
     """INSERT on canonical_biomarker via anon client must be blocked by RLS."""
-    from postgrest.exceptions import APIError  # type: ignore[import-untyped]
+    from postgrest.exceptions import APIError
 
     anon = get_anon_client(_fake_jwt(uuid.uuid4()))
     with pytest.raises((APIError, Exception)):

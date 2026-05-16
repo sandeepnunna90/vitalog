@@ -55,7 +55,7 @@ def test_empty_inputs_not_detected() -> None:
 
 
 def test_non_string_values_ignored() -> None:
-    result = detect_injection({"count": 5, "flag": True})  # type: ignore[arg-type]
+    result = detect_injection({"count": 5, "flag": True})
     assert result is None
 
 

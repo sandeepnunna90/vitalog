@@ -9,7 +9,7 @@ from __future__ import annotations
 import io
 
 import pytest
-from PIL import Image  # type: ignore[import-untyped]  # noqa: E402
+from PIL import Image  # noqa: E402
 
 # ── PDF fixtures ──────────────────────────────────────────────────────────────
 
@@ -17,7 +17,7 @@ from PIL import Image  # type: ignore[import-untyped]  # noqa: E402
 @pytest.fixture()
 def text_pdf_bytes() -> bytes:
     """A minimal valid PDF with real extractable text."""
-    from reportlab.pdfgen import canvas  # type: ignore[import-untyped]
+    from reportlab.pdfgen import canvas
 
     buf = io.BytesIO()
     c = canvas.Canvas(buf)
@@ -29,9 +29,9 @@ def text_pdf_bytes() -> bytes:
 @pytest.fixture()
 def image_pdf_bytes() -> bytes:
     """A PDF built from an embedded PNG — PyMuPDF finds zero extractable text."""
-    from reportlab.lib.units import inch  # type: ignore[import-untyped]
-    from reportlab.lib.utils import ImageReader  # type: ignore[import-untyped]
-    from reportlab.pdfgen import canvas  # type: ignore[import-untyped]
+    from reportlab.lib.units import inch
+    from reportlab.lib.utils import ImageReader
+    from reportlab.pdfgen import canvas
 
     img_buf = io.BytesIO()
     Image.new("RGB", (200, 200), color=(180, 180, 180)).save(img_buf, format="PNG")
