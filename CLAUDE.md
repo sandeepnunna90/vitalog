@@ -68,6 +68,9 @@ Storage policy (classification-gated, §7.6):
 - `src/ingestion/errors.py` — `TextractFailureError(reason, attempt_count)` added
 - `tests/ingestion/test_textract_adapter.py` — 12 unit tests (boto3 mocked via `client=` injection); 1 integration test (skips if `AWS_ACCESS_KEY_ID` unset); covers all 6 ACs + BotoCoreError retry path
 - `runs/cost_notes.md` — Textract free-tier cost note
+- `src/ingestion/textract_fallback.py` — `TextractFallbackAdapter`; compares `min_confidence` of `TextractResult` against `THRESHOLD_FALLBACK` (95.0); sends document image to Claude vision via `Gateway.call("extraction", "v1")`; PDF rendered to PNG with PyMuPDF; normalizes `FallbackExtractionResult` back to `TextractResult` (uniform interface for D6); writes `vision_fallback_skipped` or `vision_fallback_invoked` audit entry
+- `prompts/extraction/v1.md` — vision extraction prompt; instructs Claude to transcribe-only (no inference), report per-field confidence 0–100, use `[unreadable]` for unclear text
+- `tests/ingestion/test_textract_fallback.py` — 14 unit tests; Gateway and AuditLogRepository mocked; covers threshold boundary, all audit paths, result conversion, image content building, error propagation
 
 **Built (Epic A–B):**
 - `src/gateway/gateway.py` — single LLM chokepoint; wires Layer 1 + Layer 2; renders templates with original inputs; logs only redacted inputs
@@ -90,7 +93,6 @@ Storage policy (classification-gated, §7.6):
 - `tests/gateway/conftest.py` — shared `prompts_dir` fixture for gateway test suite
 
 **Up next (Epic B–D):**
-- `src/ingestion/textract_fallback.py` — vision-LLM fallback; uses `min_confidence` from `textract_extracted` audit entry to decide *(D5)*
 - `src/ingestion/structurer.py` — LLM structurer + composite confidence; owns `THRESHOLD_AUTO_ACCEPT` / `THRESHOLD_REJECT` *(D6)*
 - `src/normalization/tier1.py` — LOINC-aware alias lookup *(E1)*
 - `src/intelligence/summary_generator.py` — Mode A citation-verified summary *(F5)*
