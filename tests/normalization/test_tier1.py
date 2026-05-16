@@ -5,8 +5,10 @@ from __future__ import annotations
 import pytest
 
 from src.normalization.index_builder import _normalize_key, build_index
-from src.normalization.tier1 import _index, lookup
+from src.normalization.tier1 import lookup
 from src.reference_data import load_taxonomy
+
+_TAXONOMY = load_taxonomy()
 
 # ── _normalize_key ────────────────────────────────────────────────────────────
 
@@ -96,8 +98,8 @@ def test_lookup_with_parenthetical() -> None:
 
 @pytest.mark.parametrize(
     "entry",
-    load_taxonomy(),
-    ids=[e["vitalog_id"] for e in load_taxonomy()],
+    _TAXONOMY,
+    ids=[e["vitalog_id"] for e in _TAXONOMY],
 )
 def test_canonical_name_resolves(entry: dict) -> None:  # type: ignore[type-arg]
     vid = entry["vitalog_id"]
@@ -106,8 +108,8 @@ def test_canonical_name_resolves(entry: dict) -> None:  # type: ignore[type-arg]
 
 @pytest.mark.parametrize(
     "entry",
-    load_taxonomy(),
-    ids=[e["vitalog_id"] for e in load_taxonomy()],
+    _TAXONOMY,
+    ids=[e["vitalog_id"] for e in _TAXONOMY],
 )
 def test_vitalog_id_resolves_to_itself(entry: dict) -> None:  # type: ignore[type-arg]
     vid = entry["vitalog_id"]
@@ -118,7 +120,7 @@ def test_vitalog_id_resolves_to_itself(entry: dict) -> None:  # type: ignore[typ
 
 
 def _alias_params() -> list[tuple[str, str]]:
-    return [(alias, entry["vitalog_id"]) for entry in load_taxonomy() for alias in entry["aliases"]]
+    return [(alias, entry["vitalog_id"]) for entry in _TAXONOMY for alias in entry["aliases"]]
 
 
 @pytest.mark.parametrize("alias,expected_vid", _alias_params())
@@ -146,12 +148,11 @@ def test_build_index_same_alias_same_vid_is_ok() -> None:
     assert index["alpha"] == "a"
 
 
-# ── Cache behaviour (AC6) ─────────────────────────────────────────────────────
+# ── Lookup stability (AC6 — O(1), deterministic) ─────────────────────────────
 
 
-def test_index_is_cached() -> None:
-    _index.cache_clear()
-    lookup("HbA1c")
-    lookup("LDL")
-    info = _index.cache_info()
-    assert info.hits >= 1
+def test_repeated_lookups_are_stable() -> None:
+    """Same input always returns the same vitalog_id across repeated calls."""
+    for _ in range(5):
+        assert lookup("HbA1c") == "hba1c"
+        assert lookup("XYZ_unknown_999") is None
