@@ -39,3 +39,12 @@ class CorruptOrEmptyError(IngestionError):
     def __init__(self, reason: str) -> None:
         self.reason = reason
         super().__init__(f"File is corrupt or empty: {reason}")
+
+
+class TextractFailureError(IngestionError):
+    """Raised when AWS Textract fails after all retry attempts are exhausted."""
+
+    def __init__(self, reason: str, attempt_count: int) -> None:
+        self.reason = reason
+        self.attempt_count = attempt_count
+        super().__init__(f"Textract failed after {attempt_count} attempt(s): {reason}")
