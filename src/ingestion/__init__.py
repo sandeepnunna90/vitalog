@@ -13,6 +13,7 @@ from src.ingestion.orchestration_hook import IngestionOrchestrator, IngestionRes
 from src.ingestion.probes import probe_image, probe_pdf
 from src.ingestion.storage_router import StorageRouter, StorageRouteResult
 from src.ingestion.textract_adapter import TextractAdapter
+from src.ingestion.textract_fallback import FallbackExtractionResult, TextractFallbackAdapter
 from src.ingestion.textract_schemas import TextractResult
 from src.ingestion.upload_validator import UploadValidator, ValidatedUpload
 from src.ingestion.user_messages import get_user_message
@@ -37,5 +38,7 @@ __all__ = [
     "IngestionOrchestrator",
     "IngestionResult",
     "TextractAdapter",
+    "TextractFallbackAdapter",
+    "FallbackExtractionResult",
     "TextractResult",
 ]
