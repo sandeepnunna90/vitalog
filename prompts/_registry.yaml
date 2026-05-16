@@ -2,3 +2,6 @@ prompts:
   - prompt_id: hello
     version: v1
     path: hello/v1.md
+  - prompt_id: classification
+    version: v1
+    path: classification/v1.md
