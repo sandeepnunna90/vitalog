@@ -98,8 +98,14 @@ Storage policy (classification-gated, §7.6):
 - `prompts/_shared/safety_preamble.md` + `prompts/_shared/few_shot_refusals/` — Layer 2 prompt assets
 - `tests/gateway/conftest.py` — shared `prompts_dir` fixture for gateway test suite
 
+**Built (Epic E):**
+- `src/normalization/index_builder.py` — `_normalize_key()` (lowercase + whitespace collapse + parenthetical strip) + `build_index()` (raises ValueError on duplicate alias across entries)
+- `src/normalization/tier1.py` — `lookup(raw_name) -> str | None`; O(1) lru_cached index built from `load_taxonomy()`; only public entry point
+- `src/normalization/__init__.py` — exports `lookup`
+- `tests/normalization/test_tier1.py` — 303 tests; all 30 canonical names + all aliases (parametrized), case folding, whitespace, parentheticals, unknown→None, duplicate detection
+
 **Up next (Epic E–F):**
-- `src/normalization/tier1.py` — LOINC-aware alias lookup *(E1)*
+- `src/normalization/` — E2 pending queue, E3 unit conversion, E4 dedup
 - `src/intelligence/summary_generator.py` — Mode A citation-verified summary *(F5)*
 - `src/intelligence/observation_generator.py` — Mode B factual observations *(F2)*
 - `src/mcp_server/server.py` — stdio MCP server, 6 tools *(G1)*

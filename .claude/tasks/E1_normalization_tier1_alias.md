@@ -63,4 +63,20 @@ Tier 1 is the workhorse of normalization. Without it, the demo's headline chart 
 
 ## Notes / changelog
 
-_(append after work is done)_
+### Implementation (2026-05-16)
+
+**Files created:**
+- `src/normalization/index_builder.py` — `_normalize_key()` strips parentheticals, collapses whitespace, lowercases; `build_index()` raises `ValueError` on duplicate alias across entries (fail-fast for curation bugs)
+- `src/normalization/tier1.py` — `lookup(raw_name) -> str | None` backed by `lru_cache(maxsize=1)` index; only public entry point
+- `src/normalization/__init__.py` — re-exports `lookup`
+- `tests/normalization/test_tier1.py` — 303 tests (all 30 canonical names + all aliases parametrized, case folding, whitespace, parentheticals, unknown→None, duplicate detection, stability)
+
+**Key design decisions:**
+- Built own enhanced index from `load_taxonomy()` rather than delegating to `reference_data._get_alias_index()` — that one lacks whitespace collapsing and parenthetical stripping
+- `_normalize_key` uses `re.sub(r"\s*\(.*?\)", "", raw)` which correctly strips multiple parenthetical groups
+- `build_index` raises at index construction time (startup), not at lookup time — curation bugs fail fast
+
+**PR review fixes:**
+- Added module-level `_TAXONOMY = load_taxonomy()` in tests to replace 5 repeated `load_taxonomy()` calls in `@pytest.mark.parametrize` decorators
+- Replaced `test_index_is_cached` (accessed private `_index` internals) with `test_repeated_lookups_are_stable` (tests observable contract)
+- Removed `_index` import from test file — no longer needed
