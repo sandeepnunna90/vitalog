@@ -66,4 +66,25 @@ Classification-gated storage is the architectural answer to a privacy concern th
 
 ## Notes / changelog
 
-_(append after work is done)_
+### Implementation (2026-05-16)
+
+**Files created:**
+- `src/ingestion/storage_router.py` — `StorageRouteResult` Pydantic model + `StorageRouter` class; three private routing methods (`_route_lab_report`, `_route_recognized_unsupported`, `_route_not_supported`); `not_supported` path calls `store.put` with `"discard_after_classification"` (returns `discard://` URI, no Storage upload) and skips `doc_repo.add` entirely; `reasoning` truncated to 500 chars in audit payload; audit event types: `document_uploaded` / `document_classified_unsupported` / `document_classified_not_supported`.
+- `src/ingestion/orchestration_hook.py` — `IngestionResult` Pydantic model + `IngestionOrchestrator`; wires `UploadValidator → DocumentClassifier → StorageRouter`; `textract_fn: Callable | None` slot for D4; short-circuit enforced via `should_continue_pipeline` flag; explicit `RuntimeError` guard replaces `assert` on `document_id`.
+- `tests/ingestion/test_storage_router.py` — 14 tests covering all three branches, audit event types, PRD Scenarios 9 (discharge summary) and 10 (personal photo), and 3 error-path tests (`store.put` raises, `doc_repo.add` raises after put, reasoning truncation).
+- `tests/ingestion/test_short_circuit.py` — 4 tests proving `textract_fn` is called only for `lab_report`.
+
+**Files modified:**
+- `src/ingestion/__init__.py` — added exports: `StorageRouter`, `StorageRouteResult`, `IngestionOrchestrator`, `IngestionResult`.
+
+**PR review fixes (commit 6ad82bd):**
+- Replaced `assert route.document_id is not None` with explicit `RuntimeError` check — `assert` is stripped by Python `-O` mode.
+- Added code comment in `_route_lab_report` documenting partial-failure gap (orphaned Storage object if `doc_repo.add` raises after `store.put` succeeds) as a known capstone limitation.
+- Truncated `result.reasoning` to `[:500]` in `not_supported` audit payload to avoid storing paraphrased file content in the append-only audit log.
+- Added 3 error-path tests covering the failure modes.
+
+**Key design decisions:**
+- `StorageRouteResult.should_continue_pipeline` decouples routing logic from orchestration — the orchestrator doesn't branch on `Category`, only on this flag. D4 plugs in via `textract_fn` without touching the orchestrator's branching logic.
+- `not_supported` documents produce **no** `DocumentRow` — only an audit entry. This is the hard enforcement of the §7.6 privacy guarantee.
+- `recognized_unsupported` documents get `processing_status="complete"` (pipeline is done for them); `lab_report` gets `"pending"` (Textract runs next in D4).
+- Partial-failure handling (orphaned Storage objects) deferred to post-capstone; documented in code comment and test docstring.

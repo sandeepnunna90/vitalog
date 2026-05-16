@@ -60,6 +60,9 @@ Storage policy (classification-gated, §7.6):
 - `src/ingestion/user_messages.py` — `get_user_message()` returns §5.1 message templates by category/subtype
 - `prompts/classification/v1.md` — classification prompt (Haiku); full v1 subtype taxonomy; conservative bias rules verbatim in system prompt
 - `tests/ingestion/test_classifier_unit.py` + `test_classifier_messages.py` — 16 tests; all Gateway calls mocked
+- `src/ingestion/storage_router.py` — `StorageRouter` + `StorageRouteResult`; routes on `ClassificationResult.category`; `not_supported` → `discard_after_classification` (no doc row); reasoning truncated to 500 chars in audit; partial-failure gap documented as known capstone limitation
+- `src/ingestion/orchestration_hook.py` — `IngestionOrchestrator` + `IngestionResult`; wires validator → classifier → router; `textract_fn` slot for D4; short-circuit enforced via `should_continue_pipeline`; explicit `RuntimeError` guard on `document_id`
+- `tests/ingestion/test_storage_router.py` + `test_short_circuit.py` — 18 tests; all three routing branches + error paths + PRD Scenarios 9 & 10
 
 **Built (Epic A–B):**
 - `src/gateway/gateway.py` — single LLM chokepoint; wires Layer 1 + Layer 2; renders templates with original inputs; logs only redacted inputs
