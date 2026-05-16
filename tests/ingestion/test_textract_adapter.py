@@ -261,7 +261,7 @@ def test_retry_on_throttling() -> None:
     ]
     adapter, audit = _make_adapter(client)
 
-    with patch("time.sleep"):
+    with patch("src.ingestion.textract_adapter.time.sleep"):
         result = adapter.extract(_make_upload(), _DOCUMENT_ID)
 
     assert isinstance(result, TextractResult)
@@ -296,6 +296,26 @@ def test_non_retryable_client_error_raises_immediately() -> None:
     assert client.analyze_document.call_count == 1
     assert exc_info.value.attempt_count == 1
     audit.record.assert_not_called()
+
+
+def test_retry_on_boto_core_error() -> None:
+    """Connection-level BotoCoreError is retried (AC5)."""
+    import botocore.exceptions
+
+    connection_err = botocore.exceptions.BotoCoreError()
+    client = MagicMock()
+    client.analyze_document.side_effect = [
+        connection_err,
+        _minimal_response(),
+    ]
+    adapter, audit = _make_adapter(client)
+
+    with patch("src.ingestion.textract_adapter.time.sleep"):
+        result = adapter.extract(_make_upload(), _DOCUMENT_ID)
+
+    assert isinstance(result, TextractResult)
+    assert client.analyze_document.call_count == 2
+    audit.record.assert_called_once()
 
 
 # ── Integration test ──────────────────────────────────────────────────────────

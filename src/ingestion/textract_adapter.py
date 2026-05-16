@@ -148,6 +148,11 @@ class TextractAdapter:
                         for wid in word_ids
                         if wid in by_id and by_id[wid].get("BlockType") == "WORD"
                     )
+                    # Known capstone limitation: if Textract returns cells with the
+                    # same (RowIndex, ColumnIndex) — e.g. merged/spanning cells —
+                    # the later block silently overwrites the earlier one. RowSpan
+                    # and ColumnSpan are not handled. Lab-report tables rarely use
+                    # merged cells; fix in post-capstone if needed.
                     cell_map[(row_idx, col_idx)] = TableCell(
                         row_index=row_idx,
                         col_index=col_idx,

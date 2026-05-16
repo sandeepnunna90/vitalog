@@ -35,7 +35,7 @@ class TableCell(BaseModel):
     row_index: int  # 1-based (Textract native)
     col_index: int
     text: str
-    confidence: float
+    confidence: float  # Textract-native 0–100 scale
     bbox: BoundingBox | None
 
 
@@ -44,7 +44,7 @@ class Table(BaseModel):
 
     table_id: str
     rows: list[list[TableCell]]  # row-major; outer index = row, inner = cell
-    confidence: float  # TABLE-block-level confidence
+    confidence: float  # Textract-native 0–100 scale (TABLE-block-level)
 
 
 class KVPair(BaseModel):
@@ -52,8 +52,8 @@ class KVPair(BaseModel):
 
     key: str
     value: str
-    key_confidence: float
-    value_confidence: float
+    key_confidence: float  # Textract-native 0–100 scale
+    value_confidence: float  # Textract-native 0–100 scale
     bbox: BoundingBox | None  # KEY block bounding box
 
 
