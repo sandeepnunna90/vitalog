@@ -175,6 +175,30 @@ def test_composite_confidence_stored_on_candidate() -> None:
     assert result.candidates[0].composite_confidence == 80.0
 
 
+def test_classification_confidence_drives_composite_floor() -> None:
+    """When classification_confidence is lowest, it sets the composite floor end-to-end."""
+    structurer, gateway, _ = _make_structurer()
+    # textract_floor=97, llm=96, class=_LOW_CLASS_CONF=0.60 → 60.0
+    # composite = min(97, 96, 60) = 60 → REJECT band (60 < THRESHOLD_REJECT=70)
+    gateway.call.return_value = _make_structured_report([_make_raw_candidate(llm_confidence=96.0)])
+    result = structurer.structure(_high_confidence_textract(), _DOC_ID, _LOW_CLASS_CONF)
+
+    assert result.candidates[0].composite_confidence == 60.0
+    assert result.candidates[0].band == Band.REJECT
+
+
+def test_mid_classification_confidence_does_not_force_reject() -> None:
+    """classification_confidence=0.80 → 80.0 → stays in REVIEW when LLM is also mid."""
+    structurer, gateway, _ = _make_structurer()
+    # textract_floor=97, llm=96, class=_MID_CLASS_CONF=0.80 → 80.0
+    # composite = min(97, 96, 80) = 80 → REVIEW band (not REJECT)
+    gateway.call.return_value = _make_structured_report([_make_raw_candidate(llm_confidence=96.0)])
+    result = structurer.structure(_high_confidence_textract(), _DOC_ID, _MID_CLASS_CONF)
+
+    assert result.candidates[0].composite_confidence == 80.0
+    assert result.candidates[0].band == Band.REVIEW
+
+
 # ── Audit log ─────────────────────────────────────────────────────────────────
 
 

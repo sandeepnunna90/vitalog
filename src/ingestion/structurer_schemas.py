@@ -60,5 +60,5 @@ class BiomarkerCandidate(BaseModel):
     lab_source: str
     llm_confidence: float
     source_page: int | None
-    composite_confidence: float
+    composite_confidence: float = Field(ge=0.0, le=100.0)
     band: Band
