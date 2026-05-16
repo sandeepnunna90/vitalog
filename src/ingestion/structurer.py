@@ -1,0 +1,162 @@
+"""LLM Structurer — converts TextractResult into typed BiomarkerCandidate records (D6).
+
+Owns the two named threshold constants required by architecture §5.1.1.
+Do not change these values without re-running `make calibrate` and reviewing
+eval_corpus/calibration_report.md (C5).
+"""
+
+from __future__ import annotations
+
+import uuid
+from dataclasses import dataclass
+from typing import Any
+
+from src.ingestion.band_router import assign_band
+from src.ingestion.composite_confidence import compute_composite
+from src.ingestion.structurer_schemas import (
+    Band,
+    BiomarkerCandidate,
+    RawBiomarkerCandidate,
+    StructuredReport,
+)
+from src.ingestion.textract_schemas import TextractResult
+
+# Calibrated against eval set in C5. Named constants — never use magic numbers downstream.
+THRESHOLD_AUTO_ACCEPT: float = 95.0
+THRESHOLD_REJECT: float = 70.0
+
+
+@dataclass
+class StructurerResult:
+    candidates: list[BiomarkerCandidate]
+    has_rejects: bool  # True if any candidate landed in the REJECT band
+
+
+class Structurer:
+    """Converts a TextractResult into structured BiomarkerCandidate records with band routing."""
+
+    def __init__(
+        self,
+        gateway: Any,  # Gateway — Any to avoid circular deps in tests
+        audit_repo: Any,  # AuditLogRepository — Any to avoid hard persistence dep in tests
+    ) -> None:
+        self._gateway = gateway
+        self._audit = audit_repo
+
+    def structure(
+        self,
+        textract_result: TextractResult,
+        document_id: uuid.UUID,
+        classification_confidence: float,  # 0-1 from ClassificationResult.confidence
+    ) -> StructurerResult:
+        """Extract biomarker candidates from a TextractResult and assign confidence bands.
+
+        Args:
+            textract_result: Normalized OCR output from D4 or D5 (uniform interface).
+            document_id: Used for audit log correlation.
+            classification_confidence: Confidence from D2 ClassificationResult (0-1 scale).
+
+        Returns:
+            StructurerResult with candidates and a has_rejects flag.
+        """
+        document_text = _serialize_textract_result(textract_result)
+        textract_floor = _compute_textract_floor(textract_result)
+
+        report: StructuredReport = self._gateway.call(
+            prompt_id="structurer",
+            version="v1",
+            inputs={"document_text": document_text},
+            output_schema=StructuredReport,
+        )
+
+        candidates = [
+            _enrich_candidate(raw, textract_floor, classification_confidence)
+            for raw in report.candidates
+        ]
+
+        has_rejects = any(c.band == Band.REJECT for c in candidates)
+
+        self._audit.record(
+            "system",
+            "structurer_complete",
+            {
+                "document_id": str(document_id),
+                "candidate_count": len(candidates),
+                "has_rejects": has_rejects,
+                "auto_accept_count": sum(1 for c in candidates if c.band == Band.AUTO_ACCEPT),
+                "review_count": sum(1 for c in candidates if c.band == Band.REVIEW),
+                "reject_count": sum(1 for c in candidates if c.band == Band.REJECT),
+                "textract_floor": textract_floor,
+                "classification_confidence": classification_confidence,
+                "extraction_notes": report.extraction_notes,
+            },
+        )
+
+        return StructurerResult(candidates=candidates, has_rejects=has_rejects)
+
+
+# ── Module-level helpers ──────────────────────────────────────────────────────
+
+
+def _enrich_candidate(
+    raw: RawBiomarkerCandidate,
+    textract_floor: float,
+    classification_confidence: float,
+) -> BiomarkerCandidate:
+    composite = compute_composite(textract_floor, raw.llm_confidence, classification_confidence)
+    band = assign_band(composite, THRESHOLD_AUTO_ACCEPT, THRESHOLD_REJECT)
+    return BiomarkerCandidate(
+        raw_name=raw.raw_name,
+        raw_value=raw.raw_value,
+        raw_unit=raw.raw_unit,
+        raw_reference_range=raw.raw_reference_range,
+        collection_date=raw.collection_date,
+        lab_source=raw.lab_source,
+        llm_confidence=raw.llm_confidence,
+        source_page=raw.source_page,
+        composite_confidence=composite,
+        band=band,
+    )
+
+
+def _compute_textract_floor(result: TextractResult) -> float:
+    """Return the minimum confidence across all fields in the TextractResult (0-100 scale).
+
+    An empty result returns 0.0 — ensures the most conservative composite.
+    Mirrors the same logic in textract_fallback.py (D5); kept separate to avoid
+    cross-module coupling between two independent adapters.
+    """
+    all_confs: list[float] = (
+        [b.confidence for b in result.blocks]
+        + [c.confidence for t in result.tables for row in t.rows for c in row]
+        + [kv.key_confidence for kv in result.kv_pairs]
+        + [kv.value_confidence for kv in result.kv_pairs]
+    )
+    return min(all_confs, default=0.0)
+
+
+def _serialize_textract_result(result: TextractResult) -> str:
+    """Flatten a TextractResult into readable text for the structurer prompt.
+
+    Section order: KV pairs → Tables → Text lines. Sections are omitted when empty.
+    """
+    parts: list[str] = []
+
+    if result.kv_pairs:
+        parts.append("KEY-VALUE PAIRS:")
+        for kv in result.kv_pairs:
+            parts.append(f"  {kv.key}: {kv.value}")
+
+    if result.tables:
+        parts.append("TABLES:")
+        for i, tbl in enumerate(result.tables, 1):
+            parts.append(f"  Table {i}:")
+            for row in tbl.rows:
+                parts.append("    " + " | ".join(c.text for c in row))
+
+    if result.blocks:
+        parts.append("TEXT LINES:")
+        for blk in result.blocks:
+            parts.append(f"  {blk.text}")
+
+    return "\n".join(parts) if parts else "(empty document)"

@@ -8,3 +8,6 @@ prompts:
   - prompt_id: extraction
     version: v1
     path: extraction/v1.md
+  - prompt_id: structurer
+    version: v1
+    path: structurer/v1.md
