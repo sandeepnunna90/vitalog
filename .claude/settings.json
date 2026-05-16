@@ -44,7 +44,8 @@
       "Bash(tail *)",
       "Bash(grep *)",
       "Bash(rg *)",
-      "Bash(find *)"
+      "Bash(find *)",
+      "Bash(gh api *)"
     ],
     "deny": [
       "Bash(rm -rf *)",
