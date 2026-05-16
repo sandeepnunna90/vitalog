@@ -65,6 +65,9 @@ class StorageRouter:
         patient_id: uuid.UUID,
         filename: str,
     ) -> StorageRouteResult:
+        # Known limitation (capstone): if store.put succeeds but doc_repo.add raises,
+        # the uploaded file is orphaned in Supabase Storage with no document row.
+        # Production fix: wrap in try/except and attempt storage cleanup on failure.
         uri = self._store.put(upload.file_bytes, filename, patient_id, "permanent")
         doc = self._doc_repo.add(
             DocumentCreate(
@@ -151,7 +154,7 @@ class StorageRouter:
                 "classification": "not_supported",
                 "subtype": str(result.subtype),
                 "confidence": result.confidence,
-                "reasoning": result.reasoning,
+                "reasoning": result.reasoning[:500],
             },
         )
         return StorageRouteResult(

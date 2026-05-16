@@ -51,7 +51,11 @@ class IngestionOrchestrator:
         route = self._storage_router.route(upload, classification, patient_id, filename)
 
         if route.should_continue_pipeline and self._textract_fn is not None:
-            assert route.document_id is not None  # always set when should_continue_pipeline=True
+            if route.document_id is None:
+                raise RuntimeError(
+                    "StorageRouter returned should_continue_pipeline=True but document_id is None"
+                    " — this is a bug in the routing logic."
+                )
             self._textract_fn(upload, route.document_id)
 
         return IngestionResult(

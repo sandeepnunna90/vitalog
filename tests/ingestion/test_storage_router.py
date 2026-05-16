@@ -12,6 +12,8 @@ import uuid
 from datetime import UTC, datetime
 from unittest.mock import MagicMock
 
+import pytest
+
 from src.ingestion.classification_schemas import Category, ClassificationResult, Subtype
 from src.ingestion.storage_router import StorageRouter
 from src.ingestion.upload_validator import ValidatedUpload
@@ -234,3 +236,61 @@ def test_not_supported_returns_generic_message() -> None:
     assert "supported" in route_result.user_message.lower()
     assert route_result.document_id is None
     assert route_result.should_continue_pipeline is False
+
+
+def test_not_supported_reasoning_truncated_in_audit() -> None:
+    """reasoning is capped at 500 chars to avoid storing paraphrased file content."""
+    store, audit = MagicMock(), MagicMock()
+    doc_repo = MagicMock()
+    router_obj = StorageRouter(document_store=store, doc_repo=doc_repo, audit_repo=audit)
+    store.put.return_value = "discard://some-uuid"
+
+    long_reasoning = "x" * 600
+    upload = _make_upload(mime="image/jpeg")
+    result = ClassificationResult(
+        category=Category.NOT_SUPPORTED,
+        subtype=Subtype.PERSONAL_PHOTO,
+        confidence=0.95,
+        reasoning=long_reasoning,
+    )
+    router_obj.route(upload, result, _PATIENT_ID, "cat.jpg")
+
+    _, _, payload = audit.record.call_args.args
+    assert len(payload["reasoning"]) == 500
+
+
+# ── Error-path tests ──────────────────────────────────────────────────────────
+
+
+def test_store_put_raises_propagates_to_caller() -> None:
+    """If store.put raises, the exception propagates; no doc row or audit written."""
+    router, store, doc_repo, audit = _make_router()
+    store.put.side_effect = RuntimeError("Supabase Storage unavailable")
+
+    upload = _make_upload()
+    result = _make_result(Category.LAB_REPORT, Subtype.LAB_PANEL)
+
+    with pytest.raises(RuntimeError, match="Supabase Storage unavailable"):
+        router.route(upload, result, _PATIENT_ID, "lab.pdf")
+
+    doc_repo.add.assert_not_called()
+    audit.record.assert_not_called()
+
+
+def test_doc_repo_add_raises_after_store_put_propagates() -> None:
+    """If doc_repo.add raises after store.put succeeds, the exception propagates.
+
+    The file is left orphaned in Storage (known capstone limitation — see storage_router.py).
+    This test documents the behaviour so future cleanup logic has a clear contract.
+    """
+    router, store, doc_repo, audit = _make_router()
+    store.put.return_value = _STORAGE_URI
+    doc_repo.add.side_effect = ValueError("RLS rejection")
+
+    upload = _make_upload()
+    result = _make_result(Category.LAB_REPORT, Subtype.LAB_PANEL)
+
+    with pytest.raises(ValueError, match="RLS rejection"):
+        router.route(upload, result, _PATIENT_ID, "lab.pdf")
+
+    audit.record.assert_not_called()
