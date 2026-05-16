@@ -74,4 +74,26 @@ This is the heart of Ingestion. The composite-confidence + 3-band model is one o
 
 ## Notes / changelog
 
-_(append after work is done)_
+### Implementation (2026-05-16)
+
+**Files created:**
+- `src/ingestion/structurer_schemas.py` — `Band` StrEnum, `RawBiomarkerCandidate` (LLM output), `StructuredReport` (Gateway schema), `BiomarkerCandidate` (public output with composite + band)
+- `src/ingestion/composite_confidence.py` — `compute_composite(textract, llm, classification)` scales classification from 0-1 to 0-100 internally
+- `src/ingestion/band_router.py` — `assign_band(composite, threshold_auto_accept, threshold_reject)` thresholds passed in, not hard-coded
+- `src/ingestion/structurer.py` — `Structurer` class + `THRESHOLD_AUTO_ACCEPT=95.0` / `THRESHOLD_REJECT=70.0` module constants; `_serialize_textract_result` flattens KV/tables/blocks; `_compute_textract_floor` uses global min (conservative, mirrors D5 approach)
+- `prompts/structurer/v1.md` — Sonnet, 4096 tokens, 3 in-prompt examples, "ONLY what's visible" hard constraint
+- `tests/ingestion/test_structurer.py` — 17 tests; Gateway and audit mocked
+- `tests/ingestion/test_composite_confidence.py` — 9 tests; covers all three lowest-signal cases + scaling
+- `tests/ingestion/test_band_router.py` — 9 tests; boundary conditions at both thresholds + custom thresholds
+
+**Files modified:**
+- `prompts/_registry.yaml` — registered `structurer/v1`
+- `src/ingestion/__init__.py` — exported `Structurer`, `StructurerResult`, thresholds, `Band`, `BiomarkerCandidate`, `StructuredReport`
+
+**Key design decisions:**
+- **Textract floor (not per-field)**: `TextractResult` at D6 is post-D5, so the global OCR min is already the relevant signal. Per-field lookup would require the LLM to emit block IDs, adding schema complexity with no calibration benefit.
+- **Thresholds passed to `assign_band`**: lets C5 change constants in `structurer.py` without touching routing logic.
+- **`_compute_textract_floor` copied from D5** (not imported): avoids cross-module coupling between two independent adapters; function is 5 lines.
+- **`dataclass` for `StructurerResult`** (not Pydantic): internal return type, not persisted or serialized.
+
+**Test results:** 218 unit tests pass; 0 failures; mypy --strict clean; ruff check + format clean.

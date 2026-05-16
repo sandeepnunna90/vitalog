@@ -71,6 +71,12 @@ Storage policy (classification-gated, §7.6):
 - `src/ingestion/textract_fallback.py` — `TextractFallbackAdapter`; compares `min_confidence` of `TextractResult` against `THRESHOLD_FALLBACK` (95.0); sends document image to Claude vision via `Gateway.call("extraction", "v1")`; PDF rendered to PNG with PyMuPDF; normalizes `FallbackExtractionResult` back to `TextractResult` (uniform interface for D6); writes `vision_fallback_skipped` or `vision_fallback_invoked` audit entry
 - `prompts/extraction/v1.md` — vision extraction prompt; instructs Claude to transcribe-only (no inference), report per-field confidence 0–100, use `[unreadable]` for unclear text
 - `tests/ingestion/test_textract_fallback.py` — 15 unit tests; Gateway and AuditLogRepository mocked; covers threshold boundary, all audit paths, result conversion, image content building (JPEG/PDF/HEIC), error propagation
+- `src/ingestion/structurer_schemas.py` — `Band` StrEnum; `RawBiomarkerCandidate` (LLM output); `StructuredReport` (Gateway schema); `BiomarkerCandidate` (public output with `composite_confidence` + `band`)
+- `src/ingestion/composite_confidence.py` — `compute_composite(textract, llm, classification)` scales classification 0-1→0-100; returns `min()` of three signals
+- `src/ingestion/band_router.py` — `assign_band(composite, threshold_auto_accept, threshold_reject) → Band`; thresholds passed in, not hard-coded
+- `src/ingestion/structurer.py` — `Structurer` + `THRESHOLD_AUTO_ACCEPT=95.0` / `THRESHOLD_REJECT=70.0` named constants; `_serialize_textract_result` flattens KV/tables/blocks; `_compute_textract_floor` uses global OCR min
+- `prompts/structurer/v1.md` — Sonnet, 4096 tokens, 3 in-prompt examples; "Structure ONLY what is visible" hard constraint
+- `tests/ingestion/test_structurer.py` + `test_composite_confidence.py` + `test_band_router.py` — 35 tests; Gateway and audit mocked; classification-as-floor scenarios covered
 
 **Built (Epic A–B):**
 - `src/gateway/gateway.py` — single LLM chokepoint; wires Layer 1 + Layer 2; renders templates with original inputs; logs only redacted inputs
@@ -92,8 +98,7 @@ Storage policy (classification-gated, §7.6):
 - `prompts/_shared/safety_preamble.md` + `prompts/_shared/few_shot_refusals/` — Layer 2 prompt assets
 - `tests/gateway/conftest.py` — shared `prompts_dir` fixture for gateway test suite
 
-**Up next (Epic B–D):**
-- `src/ingestion/structurer.py` — LLM structurer + composite confidence; owns `THRESHOLD_AUTO_ACCEPT` / `THRESHOLD_REJECT` *(D6)*
+**Up next (Epic E–F):**
 - `src/normalization/tier1.py` — LOINC-aware alias lookup *(E1)*
 - `src/intelligence/summary_generator.py` — Mode A citation-verified summary *(F5)*
 - `src/intelligence/observation_generator.py` — Mode B factual observations *(F2)*
