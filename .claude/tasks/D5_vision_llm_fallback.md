@@ -65,4 +65,25 @@ ADR-02 chose the hybrid path because vision-LLMs confabulate plausible numbers o
 
 ## Notes / changelog
 
-_(append after work is done)_
+### Implementation (2026-05-16)
+
+**Files created:**
+- `src/ingestion/textract_fallback.py` — `TextractFallbackAdapter`; `THRESHOLD_FALLBACK = 95.0`; `_compute_min_confidence` aggregates confidence across all blocks, table cells, and KV pairs; `_build_image_content` routes PDF and HEIC through `_pdf_to_png` (PyMuPDF renders page 1 at 2× zoom → PNG) and passes supported image types directly; `_to_textract_result` normalizes `FallbackExtractionResult` back to `TextractResult` with 1-based row/col indexes matching Textract convention, `bbox=None` throughout, `page_count=1`; writes `vision_fallback_skipped` or `vision_fallback_invoked` audit entry.
+- `prompts/extraction/v1.md` — transcribe-only vision prompt; reports per-field confidence 0–100; instructs model to use `[unreadable]` for unclear text and never interpret or infer values; registered in `prompts/_registry.yaml`.
+- `tests/ingestion/test_textract_fallback.py` — 15 unit tests; Gateway and AuditLogRepository mocked; covers threshold boundary (exactly 95.0), both audit event types, result conversion (full and empty), whitespace line filtering, JPEG/PDF/HEIC image content paths, `_compute_min_confidence` across all signal types, and Gateway error propagation.
+
+**Files modified:**
+- `src/ingestion/__init__.py` — added exports: `TextractFallbackAdapter`, `FallbackExtractionResult`.
+- `prompts/_registry.yaml` — registered `extraction/v1`.
+- `CLAUDE.md` — moved D5 files from "Up next" → "Built (Epic A–D)".
+
+**PR review fixes (commit 6297a85):**
+- Wrapped `fitz.open()` in context manager (`with fitz.open(...) as doc:`) to close the native C handle after PNG render — was leaking one handle per PDF fallback call.
+- Rerouted HEIC uploads through `_pdf_to_png` (PyMuPDF) instead of sending raw HEIC bytes labeled as `image/jpeg` — HEIC is ISOBMFF/HEVC, not wire-compatible with JPEG; Anthropic API would reject it.
+- Added `test_heic_upload_builds_png_image_content` covering the HEIC → PNG conversion path.
+
+**Key design decisions:**
+- `_build_image_content` routes any MIME type not in `_SUPPORTED_MEDIA_TYPES` (the Anthropic vision API's accepted set) through PyMuPDF, so PDF and HEIC both become PNG without separate branches.
+- `FallbackExtractionResult` is a distinct schema (not `TextractResult`) so the prompt output schema is explicit and independently testable; `_to_textract_result` converts it at the boundary.
+- `gateway: Any` and `audit_repo: Any` in `__init__` — avoids circular imports in tests; commented with reason per project convention.
+- Only page 0 of multi-page documents is sent to vision (capstone scope); documented in `_to_textract_result` docstring (`page_count=1`).

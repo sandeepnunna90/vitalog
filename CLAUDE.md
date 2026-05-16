@@ -70,7 +70,7 @@ Storage policy (classification-gated, §7.6):
 - `runs/cost_notes.md` — Textract free-tier cost note
 - `src/ingestion/textract_fallback.py` — `TextractFallbackAdapter`; compares `min_confidence` of `TextractResult` against `THRESHOLD_FALLBACK` (95.0); sends document image to Claude vision via `Gateway.call("extraction", "v1")`; PDF rendered to PNG with PyMuPDF; normalizes `FallbackExtractionResult` back to `TextractResult` (uniform interface for D6); writes `vision_fallback_skipped` or `vision_fallback_invoked` audit entry
 - `prompts/extraction/v1.md` — vision extraction prompt; instructs Claude to transcribe-only (no inference), report per-field confidence 0–100, use `[unreadable]` for unclear text
-- `tests/ingestion/test_textract_fallback.py` — 14 unit tests; Gateway and AuditLogRepository mocked; covers threshold boundary, all audit paths, result conversion, image content building, error propagation
+- `tests/ingestion/test_textract_fallback.py` — 15 unit tests; Gateway and AuditLogRepository mocked; covers threshold boundary, all audit paths, result conversion, image content building (JPEG/PDF/HEIC), error propagation
 
 **Built (Epic A–B):**
 - `src/gateway/gateway.py` — single LLM chokepoint; wires Layer 1 + Layer 2; renders templates with original inputs; logs only redacted inputs
