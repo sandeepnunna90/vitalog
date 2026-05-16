@@ -99,6 +99,8 @@ class UploadValidator:
             CorruptOrEmptyError: file is empty or content does not parse.
         """
         file_hash = hashlib.sha256(file_bytes).hexdigest()
+        # Sanitise filename before storing in audit log: truncate and drop non-printable chars.
+        safe_filename = filename[:255].encode("utf-8", errors="replace").decode("utf-8")
         result: ValidatedUpload | None = None
         error_name: str | None = None
 
@@ -110,7 +112,7 @@ class UploadValidator:
         finally:
             self._record_audit(
                 file_hash=file_hash,
-                filename=filename,
+                filename=safe_filename,
                 size_bytes=len(file_bytes),
                 result=result,
                 error_name=error_name,
