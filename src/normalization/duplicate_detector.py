@@ -11,6 +11,7 @@ from pydantic import BaseModel, ConfigDict
 from src.normalization.constants import MODE_B_NUMERIC_TOLERANCE
 from src.persistence.audit_log_repository import AuditLogRepository
 from src.persistence.biomarker_repository import BiomarkerRepository
+from src.persistence.models import BiomarkerRecordRow
 
 
 class DuplicateCheckResult(BaseModel):
@@ -48,13 +49,24 @@ class DuplicateDetector:
         self-match when the new record is already in the query results.
 
         Records whose canonical_value is None are skipped — no value to compare.
+        An exact duplicate (within tolerance) takes priority over a value_conflict:
+        the loop continues past any conflict priors to check all remaining records.
         """
         if collection_date is None:
+            self._audit_repo.record(
+                actor="normalization",
+                event_type="dedup_skipped_no_date",
+                payload={"new_record_id": str(new_record_id), "canonical_id": canonical_id},
+            )
             return DuplicateCheckResult(status="skipped_no_date")
 
         prior_records = self._biomarker_repo.find_potential_duplicates(
             patient_id, canonical_id, collection_date
         )
+
+        # Accumulate the first conflict found; keep iterating in case a later
+        # prior is an exact duplicate (duplicate takes priority over conflict).
+        conflict_prior: BiomarkerRecordRow | None = None
 
         for prior in prior_records:
             if prior.record_id == new_record_id:
@@ -84,27 +96,31 @@ class DuplicateDetector:
                     prior_collection_date=prior.collection_date,
                     notification_message=_build_notification(collection_date, prior.lab_source),
                 )
-            else:
-                self._audit_repo.record(
-                    actor="normalization",
-                    event_type="value_conflict",
-                    payload={
-                        "prior_record_id": str(prior.record_id),
-                        "new_record_id": str(new_record_id),
-                        "value_conflict": True,
-                    },
-                )
-                return DuplicateCheckResult(
-                    status="value_conflict",
-                    prior_record_id=prior.record_id,
-                    prior_lab_source=prior.lab_source,
-                    prior_collection_date=prior.collection_date,
-                )
+            elif conflict_prior is None:
+                conflict_prior = prior
+
+        if conflict_prior is not None:
+            self._audit_repo.record(
+                actor="normalization",
+                event_type="value_conflict",
+                payload={
+                    "prior_record_id": str(conflict_prior.record_id),
+                    "new_record_id": str(new_record_id),
+                    "value_conflict": True,
+                },
+            )
+            return DuplicateCheckResult(
+                status="value_conflict",
+                prior_record_id=conflict_prior.record_id,
+                prior_lab_source=conflict_prior.lab_source,
+                prior_collection_date=conflict_prior.collection_date,
+            )
 
         return DuplicateCheckResult(status="no_match")
 
 
 def _build_notification(collection_date: date, lab_source: str | None) -> str:
+    # %-d strips leading zero ("March 5" not "March 05"); Python 3.12+ normalises cross-platform
     date_str = collection_date.strftime("%B %-d")
     if lab_source:
         return f"This looks like a duplicate of your {date_str} {lab_source} report."

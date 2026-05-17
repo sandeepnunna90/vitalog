@@ -96,10 +96,34 @@ def test_missing_date_returns_skipped_no_repo_call() -> None:
     biomarker_repo.find_potential_duplicates.assert_not_called()
 
 
+def test_audit_event_on_skipped_no_date() -> None:
+    biomarker_repo = MagicMock()
+    audit_repo = MagicMock()
+    detector = DuplicateDetector(biomarker_repo=biomarker_repo, audit_repo=audit_repo)
+    new_id = uuid.uuid4()
+    detector.check(_PATIENT_ID, _CANONICAL_ID, None, 6.8, new_id)
+    audit_repo.record.assert_called_once()
+    call_kwargs = audit_repo.record.call_args.kwargs
+    assert call_kwargs["event_type"] == "dedup_skipped_no_date"
+    assert call_kwargs["payload"]["new_record_id"] == str(new_id)
+
+
 def test_no_existing_records_returns_no_match() -> None:
-    detector, _ = _make_detector([])
+    detector, audit_repo = _make_detector([])
     result = detector.check(_PATIENT_ID, _CANONICAL_ID, _COLLECTION_DATE, 6.8, uuid.uuid4())
     assert result.status == "no_match"
+    audit_repo.record.assert_not_called()
+
+
+def test_duplicate_wins_over_earlier_conflict() -> None:
+    # prior[0] is a value_conflict; prior[1] is an exact duplicate.
+    # The loop must not short-circuit on the conflict — duplicate takes priority.
+    conflict_prior = _make_row(canonical_value=9.0)
+    dup_prior = _make_row(canonical_value=6.8)
+    detector, _ = _make_detector([conflict_prior, dup_prior])
+    result = detector.check(_PATIENT_ID, _CANONICAL_ID, _COLLECTION_DATE, 6.8, uuid.uuid4())
+    assert result.status == "duplicate"
+    assert result.prior_record_id == dup_prior.record_id
 
 
 def test_self_record_excluded() -> None:
