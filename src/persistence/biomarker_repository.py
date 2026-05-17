@@ -66,3 +66,26 @@ class BiomarkerRepository:
             .data
         )
         return [BiomarkerRecordRow.model_validate(row) for row in data]
+
+    def resolve_pending_records(
+        self,
+        pending_taxonomy_id: uuid.UUID,
+        canonical_biomarker_id: str,
+    ) -> int:
+        """Bulk-update records linked to a pending entry.
+
+        Sets canonical_biomarker_id and verified_by='admin'. Returns the count updated.
+        """
+        data: Any = (
+            self._client.table(_TABLE)
+            .update(
+                {
+                    "canonical_biomarker_id": canonical_biomarker_id,
+                    "verified_by": "admin",
+                }
+            )
+            .eq("pending_taxonomy_id", str(pending_taxonomy_id))
+            .execute()
+            .data
+        )
+        return len(data) if data else 0
