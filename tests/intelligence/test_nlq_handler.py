@@ -186,6 +186,50 @@ def test_answer_mode_b_retry_succeeds() -> None:
     assert call_count == 2
 
 
+# ── Partial retrieval: some found, some missing ───────────────────────────────
+
+
+def test_answer_partial_retrieval_absent_text_in_prompt() -> None:
+    """Mixed retrieval: HbA1c found, TSH absent → LLM called, absent_text non-empty.
+
+    Verifies the _build_inputs absent_text branch is exercised when at least one
+    biomarker is recognized but has no records while another does have records.
+    """
+    repo = MagicMock(spec=BiomarkerRepository)
+
+    # Return HbA1c record for hba1c; return empty for tsh
+    def _side_effect_repo(patient_id: object, canonical_id: str) -> list[BiomarkerRecordRow]:
+        if canonical_id == "hba1c":
+            return [_make_record()]
+        return []
+
+    repo.find_by_canonical_id.side_effect = _side_effect_repo
+
+    from src.gateway.gateway import Gateway
+
+    gw = Gateway(prompts_dir=_PROMPTS_DIR)
+    handler = NlqHandler(gateway=gw, biomarker_repo=repo)
+
+    captured_inputs: dict[str, str] = {}
+
+    def _capture_call(*args: Any, **kwargs: Any) -> tuple[dict[str, Any], int, int]:
+        # Capture the user_content to verify absent_text was included
+        nonlocal captured_inputs
+        user_content = kwargs.get("user_content", args[2] if len(args) > 2 else "")
+        captured_inputs["user_content"] = str(user_content)
+        return (_GOOD_RAW, 50, 20)
+
+    with patch(
+        "src.gateway.anthropic_adapter.AnthropicAdapter.call",
+        side_effect=_capture_call,
+    ):
+        resp = handler.answer("show me my HbA1c and TSH", _PATIENT_ID)
+
+    assert resp.is_fallback is False
+    assert resp.retrieval_count >= 1
+    assert "No data found for" in captured_inputs.get("user_content", "")
+
+
 # ── AC6: audit log ────────────────────────────────────────────────────────────
 
 

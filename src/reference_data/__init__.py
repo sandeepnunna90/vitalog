@@ -48,6 +48,7 @@ def load_ucum_units() -> dict[str, Any]:
     return _load_json("ucum_units.json")  # type: ignore[no-any-return]
 
 
+@lru_cache(maxsize=1)
 def load_condition_biomarker_map() -> dict[str, Any]:
     """Load the condition-to-biomarker mapping."""
     return _load_json("condition_biomarker_map.json")  # type: ignore[no-any-return]

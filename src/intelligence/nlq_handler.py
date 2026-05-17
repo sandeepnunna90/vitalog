@@ -37,7 +37,6 @@ class NlqHandler:
         self,
         query: str,
         patient_id: uuid.UUID,
-        patient_conditions: list[str] | None = None,
     ) -> NlqResponse:
         """Answer a natural-language query using only the patient's stored records.
 
@@ -108,7 +107,7 @@ class NlqHandler:
                     actor="system",
                     event_type="nlq_answered",
                     payload={
-                        "query": query,
+                        "query_length": len(query),
                         "retrieval_count": retrieval_count,
                         "prompt_id": _PROMPT_ID,
                         "prompt_version": _PROMPT_VERSION,
