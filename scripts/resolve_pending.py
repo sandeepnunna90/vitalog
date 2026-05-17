@@ -62,15 +62,15 @@ def cmd_confirm(args: argparse.Namespace) -> None:
         )
         sys.exit(1)
 
-    # Update biomarker records linked to this pending entry
-    updated = biomarker_repo.resolve_pending_records(pending_id, canonical)
-
-    # Add raw_name as alias in taxonomy file and rebuild Tier 1 index
+    # Validate canonical and update taxonomy file first — fails fast before any DB writes
     try:
         add_alias(canonical, entry.raw_name)
         print(f"Added alias {entry.raw_name!r} to {canonical!r} in biomarker_taxonomy.json")
     except ValueError as exc:
         print(f"Note: alias not added — {exc}")
+
+    # Update biomarker records linked to this pending entry
+    updated = biomarker_repo.resolve_pending_records(pending_id, canonical)
 
     # Mark pending entry confirmed
     taxonomy_repo.resolve_pending(pending_id, status="confirmed", resolved_by="admin")
