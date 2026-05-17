@@ -51,10 +51,15 @@ class ObservationGenerator:
         record = self._repo.get(record_id)
         if record is None:
             raise ValueError(f"BiomarkerRecord {record_id} not found")
+        if record.canonical_biomarker_id is None:
+            raise ValueError(
+                f"BiomarkerRecord {record_id} has no canonical_biomarker_id "
+                "(pending-taxonomy records cannot be observed)"
+            )
 
         trend = self._trend_engine.get_trend(
             record.patient_id,
-            record.canonical_biomarker_id or "",
+            record.canonical_biomarker_id,
             patient_conditions,
         )
         retrieval_set = _build_retrieval_set(record, trend.bands)
@@ -84,7 +89,8 @@ class ObservationGenerator:
             out = self._gateway.call(_PROMPT_ID, _PROMPT_VERSION, inputs, ObservationOutput)
             verify_mode_b(out.text, retrieval_set)
             return out
-        except (ModeBVerificationError, OutputValidationError):
+        except (ModeBVerificationError, OutputValidationError) as exc:
+            _audit_log.warning("observation attempt failed: %s: %s", type(exc).__name__, exc)
             return None
 
     def _log_audit(self, record_id: uuid.UUID) -> None:

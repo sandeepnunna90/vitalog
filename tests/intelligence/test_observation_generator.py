@@ -190,7 +190,7 @@ def test_generate_retry_succeeds_on_second_attempt() -> None:
     gen = _make_generator()
     call_count = 0
 
-    def _side_effect(**_kwargs: Any) -> tuple[dict[str, Any], int, int]:
+    def _side_effect(*_args: Any, **_kwargs: Any) -> tuple[dict[str, Any], int, int]:
         nonlocal call_count
         call_count += 1
         if call_count == 1:
@@ -231,12 +231,16 @@ def test_generate_logs_audit_event() -> None:
 
 def test_generate_record_not_found_raises() -> None:
     """generate() raises ValueError when the record does not exist."""
-    gen = _make_generator(record=None)
+    gen = _make_generator()
     gen._repo.get.return_value = None
 
     with pytest.raises(ValueError, match=str(_RECORD_ID)):
-        with patch(
-            "src.gateway.anthropic_adapter.AnthropicAdapter.call",
-            return_value=(_GOOD_RAW, 50, 20),
-        ):
-            gen.generate(_RECORD_ID)
+        gen.generate(_RECORD_ID)
+
+
+def test_generate_pending_taxonomy_raises() -> None:
+    """generate() raises ValueError when the record has no canonical_biomarker_id."""
+    gen = _make_generator(record=_make_record(canonical_biomarker_id=None))
+
+    with pytest.raises(ValueError, match="pending-taxonomy"):
+        gen.generate(_RECORD_ID)
