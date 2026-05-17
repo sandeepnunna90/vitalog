@@ -54,7 +54,7 @@ Storage policy (classification-gated, §7.6):
 | `src/ingestion/` | Upload validation, classification, Textract/vision OCR, structurer, composite confidence |
 | `src/gateway/` | AI Gateway chokepoint, guardrails (L1/L2/L3), prompt registry, eval logger, Mode A + Mode B citation verifiers |
 | `src/normalization/` | Tier 1 alias lookup, unit conversion, range validation, duplicate detection |
-| `src/intelligence/` | Trend engine (deterministic); Observation Generator (LLM, Mode B, F2 ✅); NLQ (WIP) |
+| `src/intelligence/` | Trend engine (F1 ✅); Observation Generator (F2 ✅); NLQ Handler + retrieval resolver (F3 ✅) |
 | `src/persistence/` | Repository pattern over Supabase; all DB entity models |
 | `src/eval/synthesis/` | Synthetic lab report generator; ground truth writer |
 | `src/reference_data/` | Taxonomy loader (cached); `biomarker_taxonomy.json` — 30-biomarker seed |
@@ -85,6 +85,10 @@ Storage policy (classification-gated, §7.6):
 - **ObservationCitation.record_id is `str | None`, not `uuid.UUID`.** Pydantic `strict=True` rejects automatic `str→UUID` coercion; the LLM always returns strings in JSON tool-use output. Changing this field to `uuid.UUID` causes `OutputValidationError` on every call.
 - **F2 guideline bounds must be in the retrieval set.** `_build_retrieval_set` adds a synthetic `BiomarkerRecordRow` per `band.lower`/`band.upper` value so Mode B accepts numbers like "7.0%" from "ADA target <7.0%". Without this, Mode B rejects the output even when the LLM follows the prompt correctly.
 - **F2 date format must be month-first.** `_build_inputs` formats `collection_date` as `f"{d.strftime('%B')} {d.day}, {d.year}"` (e.g., "March 12, 2026"). Day-first formats cause Mode B to extract the day number as an unmatched bare integer — the false-positive filter only skips day numbers when the month name precedes them.
+- **F3 retrieval token stripping is required.** `_direct_alias_matches` strips non-alphanumeric chars from each token before alias lookup so "HbA1c?" resolves correctly. Without this, trailing punctuation causes lookup to fail silently and the query falls through to the safe-refusal path.
+- **F3 condition matching uses significant-word threshold (>=8 chars).** `_condition_biomarker_matches` matches any display-name word ≥8 chars against the query so "diabetes" expands T2D biomarkers without requiring the full "Type 2 Diabetes" string. Words < 8 chars ("type", "chronic", "disease") are skipped to avoid false positives.
+- **F3 NLQ retrieval set has no synthetic guideline records.** Unlike F2 (which adds synthetic records for band bounds), F3's retrieval set contains only real patient records. NLQ must not cite guideline target values — Mode B correctly rejects them.
+- **`load_condition_biomarker_map` is now `@lru_cache`.** Added in the F3 review fix. All six reference-data loaders that are called in hot paths (`load_taxonomy`, `load_condition_biomarker_map`) are now cached after first read.
 
 ## Out of capstone scope
 

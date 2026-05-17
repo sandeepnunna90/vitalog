@@ -71,4 +71,27 @@ The hard constraint "answers ONLY from stored data, never general medical knowle
 
 ## Notes / changelog
 
-_(append after work is done)_
+### Implementation (2026-05-17)
+
+**Files created:**
+- `src/intelligence/nlq_schemas.py` — `NlqOutput(text)` (LLM tool-use), `NlqResponse(text, retrieval_count, prompt_version, is_fallback)` (public return).
+- `src/intelligence/retrieval.py` — `resolve_query` (n-gram alias lookup + condition keyword expansion), `canonical_name`. Punctuation stripping on tokens so "HbA1c?" resolves correctly. Condition word-level matching (≥8 chars) so "diabetes" expands T2D without full display name.
+- `src/intelligence/nlq_handler.py` — `NlqHandler.answer()` enforcing retrieval-first (AC5). Graceful templated fallback for missing data, safe-refusal for unrecognized queries, two-attempt Mode B retry then safe-refusal. AC6 audit logging with `query_length` (not raw query).
+- `prompts/nlq/v1.md` — 512-token `NlqOutput` prompt; no guideline-range citation (Mode B only checks patient values).
+- `tests/intelligence/test_nlq_handler.py` — 17 tests (8 handler + 1 partial-retrieval).
+- `tests/intelligence/test_retrieval.py` — 8 resolver unit tests.
+
+**Files modified:**
+- `prompts/_registry.yaml` — added `nlq / v1` entry.
+- `src/reference_data/__init__.py` — added `@lru_cache(maxsize=1)` to `load_condition_biomarker_map` (PR review fix).
+
+**Key design decisions:**
+- Retrieval set: real patient records only — no synthetic guideline records. NLQ must not cite guideline values; Mode B correctly rejects them.
+- Query parsing: pure deterministic (no inner LLM call). n-gram alias index + condition keyword expansion covers all capstone demo queries.
+- `patient_conditions` parameter removed (was dead code — not passed to `resolve_query`).
+
+**PR review fixes (PR #23, commit 1aad9cd):**
+1. Replaced `"query": query` with `"query_length": len(query)` in audit_repo payload (PII).
+2. Removed unused `patient_conditions` parameter from `answer()` signature.
+3. Added `@lru_cache(maxsize=1)` to `load_condition_biomarker_map` in `reference_data/__init__.py`.
+4. Added `test_answer_partial_retrieval_absent_text_in_prompt` to cover mixed retrieval path.
