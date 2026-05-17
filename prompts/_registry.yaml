@@ -11,3 +11,6 @@ prompts:
   - prompt_id: structurer
     version: v1
     path: structurer/v1.md
+  - prompt_id: observation
+    version: v1
+    path: observation/v1.md
