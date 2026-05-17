@@ -114,12 +114,8 @@ def _should_skip(prose: str, m: re.Match[str], v: float) -> bool:
     last_word = pre.split()[-1].rstrip(",.").lower() if pre.split() else ""
     if last_word in _MONTHS:
         return True
-    # Followed by a count word or age suffix?
-    post = prose[m.end() :]
-    first_post = post.lstrip()
-    first_word = first_post.split()[0].lower().strip(".,;") if first_post.split() else ""
-    if first_word in _COUNT_WORDS:
-        return True
+    # Followed by an age suffix? (count words are handled in parse() via the unit token check)
+    first_post = prose[m.end() :].lstrip()
     if first_post.startswith("-year") or first_post.startswith(" year"):
         return True
     return False

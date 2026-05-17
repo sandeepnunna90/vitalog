@@ -94,9 +94,9 @@ def test_count_word_not_extracted() -> None:
 
 def test_bp_range_with_year_not_extracted() -> None:
     """If one side of A/B is a 4-digit year, skip the whole BP match."""
-    # "12/2025" — right side is a year
+    # "12/2025" — right side has 4 digits so _BP_RE does not match; 2025 is filtered as a year.
+    # 12 is extracted as a bare integer (no preceding month name to filter it).
     nums = _nums("recorded on 12/2025")
-    # 2025 is a year so the BP pattern should be skipped; 12 may still appear via general pass
-    # but "12" in a date context without a preceding month name is ambiguous.
-    # Key assertion: 2025 must NOT appear as a value.
-    assert 2025.0 not in [n.value for n in nums]
+    values = [n.value for n in nums]
+    assert 2025.0 not in values
+    assert values == [12.0]

@@ -137,3 +137,16 @@ def test_decimal_matches_original_value() -> None:
     """AC5: canonical_value=None, matches via original_value string."""
     r = _make_record(None, "%", original_value="6.8")
     verify("HbA1c 6.8%.", _make_set(r))
+
+
+def test_zero_stored_exact_match_passes() -> None:
+    """_within_tol special-cases stored==0.0 to avoid divide-by-zero; cited 0.0 must pass."""
+    r = _make_record(0.0, "mmol/L", "0.0")
+    verify("Glucose 0.0 mmol/L.", _make_set(r))
+
+
+def test_zero_stored_nonzero_cited_raises() -> None:
+    """Any non-zero value cited against a stored 0.0 must be rejected."""
+    r = _make_record(0.0, "mmol/L", "0.0")
+    with pytest.raises(UnmatchedNumericError):
+        verify("Glucose 0.1 mmol/L.", _make_set(r))
