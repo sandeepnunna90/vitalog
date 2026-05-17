@@ -37,12 +37,13 @@ _BP_RE = re.compile(r"(?<!\d)(\d{2,3})/(\d{2,3})(?!\d)")
 
 # General numeric — decimal (with optional scientific exponent) or integer,
 # followed by an optional adjacent unit token.
-# Unit: starts with letter or %, may contain letters/digits/% and one embedded /,
-# optionally a second word (e.g. "mg/dL", "mmol/L", "IU/L").
+# Unit: single token starting with letter or %, may contain letters/digits/% and one embedded /
+# (e.g. "mg/dL", "mmol/L", "IU/L"). Two-word units are intentionally not captured — all real
+# clinical units are single tokens and the second-word group greedily picks up English verbs.
 _NUM_RE = re.compile(
     r"(?<!\w)"
     r"((?:\d+\.\d*|\.\d+)(?:[eE][+-]?\d+)?|\d+(?:[eE][+-]?\d+)?)"
-    r"(?:\s*((?:[a-zA-Z%][a-zA-Z\d%/]*(?:\s+[a-zA-Z%][a-zA-Z\d%/]*)?)))?"
+    r"(?:\s*((?:[a-zA-Z%][a-zA-Z\d%/]*)))?"
     r"(?![\d\w])"
 )
 
@@ -78,12 +79,27 @@ def parse(prose: str) -> list[ExtractedNumeric]:
         if _should_skip(prose, m, v):
             continue
         unit = raw_unit.strip() if raw_unit else None
-        # Count words may be captured as the unit token — treat them as false positives
-        if unit is not None and unit.lower() in _COUNT_WORDS:
-            continue
+        if unit is not None:
+            if unit.lower() in _COUNT_WORDS:
+                # The regex consumed the count word as the unit token (e.g. "9 results").
+                # Skip the entire numeric — it's a record count, not a biomarker value.
+                continue
+            if not _is_valid_unit(unit):
+                # English verbs/prepositions captured as the unit (e.g. "6.8 has improved").
+                # Keep the numeric value but discard the spurious unit token.
+                unit = None
         results.append(ExtractedNumeric(value=v, unit=unit, is_integer=is_int))
 
     return results
+
+
+def _is_valid_unit(unit: str) -> bool:
+    """Return True if `unit` looks like a real clinical unit rather than an English word.
+
+    Real units always contain %, /, a digit, or an uppercase letter.
+    Pure lowercase alphabetic tokens (e.g. "has", "was", "remained") are English words.
+    """
+    return "%" in unit or "/" in unit or any(c.isupper() or c.isdigit() for c in unit)
 
 
 def _is_year(v: float) -> bool:

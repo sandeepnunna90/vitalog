@@ -25,6 +25,8 @@ def verify(
 
     Raises UnmatchedNumericError or UnitMismatchError on first failure.
     Returns None on success. Zero I/O — pure deterministic.
+    AC6 retry-on-failure (retry once with stricter prompt, then safe refusal) is the caller's
+    responsibility (F2 Observation Generator, F3 NLQ Handler).
     """
     for numeric in parse(prose):
         _verify_one(numeric, retrieval_set)
