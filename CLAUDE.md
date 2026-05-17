@@ -52,7 +52,7 @@ Storage policy (classification-gated, §7.6):
 | Package | Purpose |
 |---|---|
 | `src/ingestion/` | Upload validation, classification, Textract/vision OCR, structurer, composite confidence |
-| `src/gateway/` | AI Gateway chokepoint, guardrails (L1/L2/L3), prompt registry, eval logger |
+| `src/gateway/` | AI Gateway chokepoint, guardrails (L1/L2/L3), prompt registry, eval logger, Mode A citation verifier |
 | `src/normalization/` | Tier 1 alias lookup, unit conversion, range validation, duplicate detection |
 | `src/intelligence/` | Trend engine (deterministic); Observation Generator + NLQ (LLM, WIP) |
 | `src/persistence/` | Repository pattern over Supabase; all DB entity models |
@@ -76,6 +76,8 @@ Storage policy (classification-gated, §7.6):
 - **Confidence thresholds live in `src/ingestion/structurer.py`** (`THRESHOLD_AUTO_ACCEPT`, `THRESHOLD_REJECT`). Never change without re-running `make calibrate` and reviewing `eval_corpus/calibration_report.md`.
 - **Mark's patient profile** is hardcoded in `reference_data/mark_profile.json`. Do not load from Supabase unless task 18 (if-time) has landed.
 - **L3 stores (pattern, phrase) tuples** — `BannedPhraseViolation.phrases` contains the original human-readable phrases, not the compiled regex patterns. The retry system prompt uses these to name the offending text explicitly.
+- **Mode A retrieval set is caller-supplied.** `verify_mode_a(citations, patient_id, retrieval_set)` does zero I/O — the caller (F5 Summary Generator) must build `retrieval_set: dict[uuid.UUID, BiomarkerRecordRow]` from the records it passed to the prompt. AC5 retry-on-failure logic lives in F5, not the verifier.
+- **MODE_A_NUMERIC_TOLERANCE = 0.005** (±0.5%) lives in `src/gateway/citation_verifier_mode_a.py`. Do not use floating-point boundary arithmetic in tests — use concrete literal values (e.g. `7.034`) to avoid IEEE 754 instability at the exact boundary.
 
 ## Out of capstone scope
 

@@ -65,4 +65,26 @@ Mode A is the load-bearing safety guarantee for the Summary Generator. A halluci
 
 ## Notes / changelog
 
-_(append after work is done)_
+### Implementation (2026-05-17)
+
+**Files created:**
+- `src/gateway/citation_schemas.py` — `Citation` Pydantic model (`value`, `unit`, `collection_date`, `source_record_id`)
+- `src/gateway/citation_verifier_mode_a.py` — `verify()` module-level function; `MODE_A_NUMERIC_TOLERANCE = 0.005`; `_security_log = logging.getLogger("verification.security")`
+- `tests/gateway/test_mode_a_verifier.py` — 12 unit tests covering all 6 ACs; inline helper functions only (no fixture files)
+
+**Files modified:**
+- `src/gateway/errors.py` — added `ModeAVerificationError` and `OwnershipLeakError`; used `TYPE_CHECKING` guard so `citation` parameter types as `Citation | None` without runtime circular import
+- `src/gateway/__init__.py` — re-exports all new symbols; `__all__` alphabetically sorted
+
+**Key design decisions:**
+- Retrieval set is caller-supplied (`dict[uuid.UUID, BiomarkerRecordRow]`) — verifier does zero I/O
+- `stored == 0.0` edge case handled explicitly to avoid divide-by-zero in pct_diff
+- Security events log only UUIDs — no PHI values/units in log payload
+- `OwnershipLeakError` is a subclass of `ModeAVerificationError` so F5 can catch either
+
+**PR review fixes:**
+- `citation: object = None` → `Citation | None = None` via `TYPE_CHECKING` guard (mypy fidelity)
+- `__all__` alphabetised
+- `test_valid_within_tolerance_passes` uses concrete `7.034` (+0.486%) instead of `stored * 1.005` to avoid IEEE 754 boundary instability; unused `MODE_A_NUMERIC_TOLERANCE` import removed from test file
+
+**AC5 note:** retry-then-refuse logic (retry once with stricter prompt → safe refusal) is NOT in this verifier — it is deferred to F5 (Summary Generator), which catches `ModeAVerificationError` and owns the retry loop.
