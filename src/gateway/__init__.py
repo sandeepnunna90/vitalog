@@ -14,16 +14,16 @@ from src.gateway.errors import SchemaValidationError as SchemaValidationError
 from src.gateway.gateway import Gateway as Gateway
 
 __all__ = [
+    "BannedPhraseViolation",
     "Citation",
     "Gateway",
     "GatewayError",
-    "ModeAVerificationError",
     "MODE_A_NUMERIC_TOLERANCE",
+    "ModeAVerificationError",
     "ModelError",
     "OutputValidationError",
     "OwnershipLeakError",
     "PromptNotFoundError",
     "SchemaValidationError",
-    "BannedPhraseViolation",
     "verify_mode_a",
 ]

@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from src.gateway.citation_schemas import Citation
 
 
 class GatewayError(Exception):
@@ -40,7 +43,7 @@ class SchemaValidationError(GatewayError):
 class ModeAVerificationError(GatewayError):
     """Raised when Mode A citation verification fails."""
 
-    def __init__(self, reason: str, citation: object = None) -> None:
+    def __init__(self, reason: str, citation: Citation | None = None) -> None:
         self.reason = reason
         self.citation = citation
         super().__init__(f"Mode A verification failed: {reason}")
