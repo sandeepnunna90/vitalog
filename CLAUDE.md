@@ -47,97 +47,19 @@ Storage policy (classification-gated, §7.6):
 - `recognized_unsupported` → retained permanently
 - `not_supported` → file discarded after classification; audit metadata only
 
-## Key files
+## Module map
 
-**Built (Epic A–D):**
-- `src/ingestion/errors.py` — `IngestionError` base + `UnsupportedFormatError(detected_mime)`, `FileTooLargeError(size_bytes, max_bytes)`, `CorruptOrEmptyError(reason)`
-- `src/ingestion/probes.py` — `probe_pdf(file_bytes) -> bool` (PyMuPDF text extractability); `probe_image(file_bytes, mime) -> str | None` (resolution warning if <600×600); both use deferred imports
-- `src/ingestion/upload_validator.py` — `ValidatedUpload` Pydantic model; `UploadValidator` with 6-step pipeline (empty → MIME → support → size → integrity → probes); `_detect_mime()` with puremagic + raw-byte HEIC fallback; `try/except/finally` audit pattern
-- `src/ingestion/__init__.py` — exports all ingestion public API
-- `tests/ingestion/conftest.py` — 10 programmatic fixtures (no committed binaries)
-- `src/ingestion/classification_schemas.py` — `Category` + `Subtype` StrEnums; `ClassificationResult` Pydantic model with `Field(ge=0.0, le=1.0)` on confidence and `Field(min_length=1)` on reasoning
-- `src/ingestion/classifier.py` — `DocumentClassifier`; PDF text via PyMuPDF (early-exit accumulator, 8k char limit); image via base64 vision block; conservative bias override at confidence < 0.70; defensive `fitz.open()` guard
-- `src/ingestion/user_messages.py` — `get_user_message()` returns §5.1 message templates by category/subtype
-- `prompts/classification/v1.md` — classification prompt (Haiku); full v1 subtype taxonomy; conservative bias rules verbatim in system prompt
-- `tests/ingestion/test_classifier_unit.py` + `test_classifier_messages.py` — 16 tests; all Gateway calls mocked
-- `src/ingestion/storage_router.py` — `StorageRouter` + `StorageRouteResult`; routes on `ClassificationResult.category`; `not_supported` → `discard_after_classification` (no doc row); reasoning truncated to 500 chars in audit; partial-failure gap documented as known capstone limitation
-- `src/ingestion/orchestration_hook.py` — `IngestionOrchestrator` + `IngestionResult`; wires validator → classifier → router; `textract_fn` slot for D4; short-circuit enforced via `should_continue_pipeline`; explicit `RuntimeError` guard on `document_id`
-- `tests/ingestion/test_storage_router.py` + `test_short_circuit.py` — 18 tests; all three routing branches + error paths + PRD Scenarios 9 & 10
-- `src/ingestion/textract_schemas.py` — `BoundingBox`, `Block`, `TableCell`, `Table`, `KVPair`, `TextractResult` Pydantic models; all confidence fields annotated as Textract-native 0–100 scale
-- `src/ingestion/textract_adapter.py` — `TextractAdapter`; calls `AnalyzeDocument(FORMS+TABLES)` synchronously; normalizes verbose Textract response into typed schemas; retries throttle/5xx with exp. backoff (0s/1s/2s); `NoCredentialsError` non-retryable; merged-cell silent overwrite documented as known capstone limitation; writes `textract_extracted` audit entry with latency + confidence stats
-- `src/ingestion/errors.py` — `TextractFailureError(reason, attempt_count)` added
-- `tests/ingestion/test_textract_adapter.py` — 12 unit tests (boto3 mocked via `client=` injection); 1 integration test (skips if `AWS_ACCESS_KEY_ID` unset); covers all 6 ACs + BotoCoreError retry path
-- `runs/cost_notes.md` — Textract free-tier cost note
-- `src/ingestion/textract_fallback.py` — `TextractFallbackAdapter`; compares `min_confidence` of `TextractResult` against `THRESHOLD_FALLBACK` (95.0); sends document image to Claude vision via `Gateway.call("extraction", "v1")`; PDF rendered to PNG with PyMuPDF; normalizes `FallbackExtractionResult` back to `TextractResult` (uniform interface for D6); writes `vision_fallback_skipped` or `vision_fallback_invoked` audit entry
-- `prompts/extraction/v1.md` — vision extraction prompt; instructs Claude to transcribe-only (no inference), report per-field confidence 0–100, use `[unreadable]` for unclear text
-- `tests/ingestion/test_textract_fallback.py` — 15 unit tests; Gateway and AuditLogRepository mocked; covers threshold boundary, all audit paths, result conversion, image content building (JPEG/PDF/HEIC), error propagation
-- `src/ingestion/structurer_schemas.py` — `Band` StrEnum; `RawBiomarkerCandidate` (LLM output); `StructuredReport` (Gateway schema); `BiomarkerCandidate` (public output with `composite_confidence` + `band`)
-- `src/ingestion/composite_confidence.py` — `compute_composite(textract, llm, classification)` scales classification 0-1→0-100; returns `min()` of three signals
-- `src/ingestion/band_router.py` — `assign_band(composite, threshold_auto_accept, threshold_reject) → Band`; thresholds passed in, not hard-coded
-- `src/ingestion/structurer.py` — `Structurer` + `THRESHOLD_AUTO_ACCEPT=95.0` / `THRESHOLD_REJECT=70.0` named constants; `_serialize_textract_result` flattens KV/tables/blocks; `_compute_textract_floor` uses global OCR min
-- `prompts/structurer/v1.md` — Sonnet, 4096 tokens, 3 in-prompt examples; "Structure ONLY what is visible" hard constraint
-- `tests/ingestion/test_structurer.py` + `test_composite_confidence.py` + `test_band_router.py` — 35 tests; Gateway and audit mocked; classification-as-floor scenarios covered
-
-**Built (Epic A–B):**
-- `src/gateway/gateway.py` — single LLM chokepoint; wires Layer 1 + Layer 2; renders templates with original inputs; logs only redacted inputs
-- `src/gateway/anthropic_adapter.py` — SDK adapter; exponential-backoff retry; catches `RateLimitError`, `APIStatusError`, `APIConnectionError`; one schema-enforcement retry per call
-- `src/gateway/guardrails/layer1.py` — PHI redactor (log-only, recurses into nested dicts) + heuristic injection detector (warns, never blocks)
-- `src/gateway/guardrails/layer2.py` — safety preamble + few-shot refusal loader; prepended to every system prompt via `Layer2.augment_system()`
-- `src/gateway/guardrails/layer3_deterministic.py` — schema validator (wraps Pydantic) + banned-phrase scanner; loaded from `prompts/_shared/banned_phrases.txt`; one retry on failure
-- `src/gateway/errors.py` — typed exception hierarchy: `BannedPhraseViolation(phrases)`, `SchemaValidationError(field_errors)`, `OutputValidationError`, `ModelError`
-- `prompts/_shared/banned_phrases.txt` — 25 banned clinical-advice phrases; case-insensitive `\b`-bounded match
-- `src/gateway/prompt_registry.py` — loads versioned prompt files; renders templates
-- `src/gateway/eval_logger.py` — writes per-call JSONL to `eval_corpus/runs/`; stores redacted inputs
-- `src/persistence/models.py` — Pydantic models for all DB entities; `ProcessingStatus` is a `Literal` type
-- `src/persistence/document_repository.py` — CRUD for lab documents; all mutations guard empty INSERT/UPDATE
-- `src/persistence/biomarker_repository.py` — CRUD for biomarker records
-- `src/persistence/taxonomy_repository.py` — taxonomy CRUD; all mutations guarded
-- `src/persistence/audit_log_repository.py` — append-only audit log with hash chain; INSERT guarded
-- `src/reference_data/__init__.py` — `load_taxonomy()` and `_get_alias_index()` are `lru_cache(maxsize=1)`
-- `reference_data/biomarker_taxonomy.json` — 30-entry taxonomy seed; source of truth for canonical names, UCUM units, guideline ranges
-- `prompts/_shared/safety_preamble.md` + `prompts/_shared/few_shot_refusals/` — Layer 2 prompt assets
-- `tests/gateway/conftest.py` — shared `prompts_dir` fixture for gateway test suite
-
-**Built (Epic E):**
-- `src/normalization/index_builder.py` — `_normalize_key()` (lowercase + whitespace collapse + parenthetical strip) + `build_index()` (raises ValueError on duplicate alias across entries)
-- `src/normalization/tier1.py` — `lookup(raw_name) -> str | None`; O(1) lru_cached index built from `load_taxonomy()`; only public entry point
-- `src/normalization/__init__.py` — exports `lookup`, `convert`, `validate_physiological_range`, `UnitConversionError`, `UnitMissingError`, `ConversionResult`, `RangeValidationResult`
-- `tests/normalization/test_tier1.py` — 303 tests; all 30 canonical names + all aliases (parametrized), case folding, whitespace, parentheticals, unknown→None, duplicate detection
-- `src/normalization/pending_queue.py` — `PendingQueue.enqueue(raw_name, document_id, raw_unit)` stages unrecognized names via `TaxonomyRepository.add_pending()`; empty loinc/similarity for capstone
-- `src/normalization/taxonomy_editor.py` — `add_alias(vitalog_id, alias)` only legitimate path to edit `biomarker_taxonomy.json`; validates no duplicate, writes file, clears Tier 1 `lru_cache`
-- `src/persistence/biomarker_repository.py` — added `resolve_pending_records(pending_taxonomy_id, canonical_biomarker_id)` bulk-updates canonical + `verified_by='admin'`
-- `scripts/resolve_pending.py` — admin CLI: `list` / `confirm <id> --canonical <vid>` / `reject <id>`; `add_alias` runs before DB writes to fail fast on invalid canonical
-- `Makefile` — `pre-demo-check` target: queue empty check + unit tests
-- `tests/normalization/test_pending_queue.py` + `tests/scripts/test_resolve_pending_cli.py` — 17 tests; all Supabase calls mocked
-- `src/normalization/errors.py` — `UnitConversionError(vitalog_id, raw_unit, detail)` + `UnitMissingError(vitalog_id)`
-- `src/normalization/unit_converter.py` — `convert(vitalog_id, raw_value_str, raw_unit) → ConversionResult`; linear formula + IFCC→NGSP for HbA1c; qualifier-prefix parsing (`<5.7` → value=5.7, qualifier="lt"); case-insensitive unit matching; zero LLM calls (P4)
-- `src/normalization/range_validator.py` — `validate_physiological_range(vitalog_id, canonical_value) → RangeValidationResult`; checks `physiological_min`/`physiological_max` from taxonomy
-- `reference_data/biomarker_taxonomy.json` — added `physiological_min` + `physiological_max` to all 30 entries
-- `tests/normalization/test_unit_converter.py` + `test_range_validator.py` — 27 tests; IFCC formula, identity, qualifier threading, unparseable value, missing unit, physiological bounds
-- `src/normalization/constants.py` — `MODE_B_NUMERIC_TOLERANCE = 0.005`; shared by duplicate detector (E4) and future Mode B citation verifier (B5)
-- `src/normalization/duplicate_detector.py` — `DuplicateCheckResult` (Literal status tagged union) + `DuplicateDetector.check()`; called after storage; accumulates tentative `conflict_prior` and iterates all priors so an exact duplicate is never missed behind an earlier conflict; writes `duplicate_detected` / `value_conflict` / `dedup_skipped_no_date` audit events
-- `src/persistence/biomarker_repository.py` — added `find_potential_duplicates(patient_id, canonical_id, collection_date)` querying by exact date
-- `tests/normalization/test_duplicate_detector.py` — 16 tests; all repos mocked; covers all 6 ACs + loop-priority fix + audit-not-called negative assertions
-
-**Built (Epic F — partial):**
-- `src/intelligence/trend_schemas.py` — `TrendPoint`, `TrendBand`, `TrendResult` (Pydantic v2 strict)
-- `src/intelligence/range_overlay.py` — `select_bands()` + `_parse_range()`; `_match_authority()` handles compound authority prefixes (ACC_AHA); condition-specific target band + normal band selection
-- `src/intelligence/trend_engine.py` — `TrendEngine.get_trend(patient_id, canonical_id, patient_conditions)`; pure deterministic, zero LLM calls; `pending_user` records excluded from points, counted in `pending_review_count`; bands from `lookup_guideline()`
-- `src/intelligence/__init__.py` — exports `TrendEngine`, `TrendBand`, `TrendPoint`, `TrendResult`
-- `tests/intelligence/test_trend_engine.py` + `test_range_overlay.py` — 19 tests; repo mocked; covers all 6 ACs + ACC_AHA citation fix
-
-**Built (Epic C):**
-- `src/eval/synthesis/content_generator.py` — 16-biomarker `BIOMARKER_RANGES` dict; `generate_readings(seed, overrides)` via `random.Random(seed)`; `overrides` kwarg for H1 hero dataset pins
-- `src/eval/synthesis/ground_truth_writer.py` — `write_ground_truth()` emits paired JSON with all AC3 fields
-- `src/eval/synthesis/vendor_templates/quest.py` — reportlab Quest-style PDF renderer; `_make_reproducible()` patches `/CreationDate`, `/ModDate`, `/Producer`, `/Creator`, `/ID` in raw bytes for byte-identical output; `generate_report(seed, out_dir, *, collection_date, lab_source, overrides)` creates `out_dir` if needed
-- `src/eval/synthesis/__init__.py` — exports `generate_report`
-- `scripts/generate_synthetic.py` — CLI `--vendor quest --count --seed --out`
-- `tests/eval/test_synthesis_reproducibility.py` + `test_ground_truth_invariants.py` — 18 tests; reproducibility, AC3 field invariants, custom params, overrides, filename format
-
-**Up next (Epic F/G):**
-- `src/intelligence/summary_generator.py` — Mode A citation-verified summary *(F5)*
-- `src/intelligence/observation_generator.py` — Mode B factual observations *(F2)*
-- `src/mcp_server/server.py` — stdio MCP server, 6 tools *(G1)*
+| Package | Purpose |
+|---|---|
+| `src/ingestion/` | Upload validation, classification, Textract/vision OCR, structurer, composite confidence |
+| `src/gateway/` | AI Gateway chokepoint, guardrails (L1/L2/L3), prompt registry, eval logger |
+| `src/normalization/` | Tier 1 alias lookup, unit conversion, range validation, duplicate detection |
+| `src/intelligence/` | Trend engine (deterministic); Observation Generator + NLQ (LLM, WIP) |
+| `src/persistence/` | Repository pattern over Supabase; all DB entity models |
+| `src/eval/synthesis/` | Synthetic lab report generator; ground truth writer |
+| `src/reference_data/` | Taxonomy loader (cached); `biomarker_taxonomy.json` — 30-biomarker seed |
+| `scripts/` | Admin CLI (`resolve_pending`, `generate_synthetic`) |
+| `prompts/` | Versioned prompt templates — bump version on every edit |
 
 ## Workflow
 
