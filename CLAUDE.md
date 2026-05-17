@@ -52,7 +52,7 @@ Storage policy (classification-gated, §7.6):
 | Package | Purpose |
 |---|---|
 | `src/ingestion/` | Upload validation, classification, Textract/vision OCR, structurer, composite confidence |
-| `src/gateway/` | AI Gateway chokepoint, guardrails (L1/L2/L3), prompt registry, eval logger, Mode A citation verifier |
+| `src/gateway/` | AI Gateway chokepoint, guardrails (L1/L2/L3), prompt registry, eval logger, Mode A + Mode B citation verifiers |
 | `src/normalization/` | Tier 1 alias lookup, unit conversion, range validation, duplicate detection |
 | `src/intelligence/` | Trend engine (deterministic); Observation Generator + NLQ (LLM, WIP) |
 | `src/persistence/` | Repository pattern over Supabase; all DB entity models |
@@ -78,6 +78,9 @@ Storage policy (classification-gated, §7.6):
 - **L3 stores (pattern, phrase) tuples** — `BannedPhraseViolation.phrases` contains the original human-readable phrases, not the compiled regex patterns. The retry system prompt uses these to name the offending text explicitly.
 - **Mode A retrieval set is caller-supplied.** `verify_mode_a(citations, patient_id, retrieval_set)` does zero I/O — the caller (F5 Summary Generator) must build `retrieval_set: dict[uuid.UUID, BiomarkerRecordRow]` from the records it passed to the prompt. AC5 retry-on-failure logic lives in F5, not the verifier.
 - **MODE_A_NUMERIC_TOLERANCE = 0.005** (±0.5%) lives in `src/gateway/citation_verifier_mode_a.py`. Do not use floating-point boundary arithmetic in tests — use concrete literal values (e.g. `7.034`) to avoid IEEE 754 instability at the exact boundary.
+- **Mode B retrieval set is caller-supplied.** `verify_mode_b(prose, retrieval_set)` does zero I/O — the caller (F2 Observation Generator, F3 NLQ Handler) builds `retrieval_set: dict[uuid.UUID, BiomarkerRecordRow]`. AC6 retry-on-failure logic lives in F2/F3, not the verifier.
+- **Mode B unit validity gate.** `_is_valid_unit(unit)` in `numeric_parser.py` rejects pure-lowercase-alpha tokens (English verbs like "has", "was") that the regex captures as adjacent units. Real clinical units always contain `%`, `/`, a digit, or an uppercase letter.
+- **Mode B integer vs decimal.** Presence of `.` in the original text determines tolerance: decimal → ±0.5%, integer → exact match. `"120"` must match stored `120.0` exactly; `"6.8"` may match stored `6.8` within tolerance.
 
 ## Out of capstone scope
 

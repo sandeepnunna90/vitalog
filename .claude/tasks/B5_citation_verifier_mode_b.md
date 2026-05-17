@@ -67,4 +67,29 @@ Mode A is too rigid for prose outputs (Observation Generator, NLQ Handler). Mode
 
 ## Notes / changelog
 
-_(append after work is done)_
+### Implementation (2026-05-17)
+
+**Files created:**
+- `src/gateway/numeric_parser.py` — `ExtractedNumeric` frozen dataclass; `parse()` two-pass extractor (BP ranges → general numerics); `_is_valid_unit()` gate rejects English verbs captured as unit tokens; false-positive filters for years, month-preceded dates, ages, and count words
+- `src/gateway/citation_verifier_mode_b.py` — `verify(prose, retrieval_set)` module-level function; `MODE_B_NUMERIC_TOLERANCE = 0.005`; `_eval_log = logging.getLogger("verification.eval")`; decimal ±0.5% tolerance, integer exact match; unit checked against `canonical_unit` OR `original_unit`; value matched against `canonical_value` OR `float(original_value)`
+- `tests/gateway/test_numeric_parser.py` — 13 unit tests (parser happy paths + 5 false-positive filters)
+- `tests/gateway/test_mode_b_verifier.py` — 14 unit tests covering all 6 ACs (AC6 caller-deferred)
+
+**Files modified:**
+- `src/gateway/errors.py` — added `ModeBVerificationError`, `UnmatchedNumericError`, `UnitMismatchError`
+- `src/gateway/__init__.py` — re-exports all new symbols; `__all__` alphabetically sorted
+
+**Key design decisions:**
+- Retrieval set is caller-supplied (`dict[uuid.UUID, BiomarkerRecordRow]`) — verifier does zero I/O
+- `_is_valid_unit()` distinguishes real clinical units (contain `%`, `/`, digit, or uppercase) from English words — fixes false `UnitMismatchError` on prose like "6.8 has improved"
+- Count words (`results`, `records`, etc.) captured as unit token → skip entire numeric; English verbs captured → keep numeric, drop unit
+- `stored == 0.0` edge case handled explicitly (exact match required) to avoid divide-by-zero
+- AC6 retry-then-refuse logic deferred to F2/F3 callers (same pattern as B4/AC5)
+
+**PR review fixes (3 commits):**
+- Two-word unit regex simplified to single-token only; `_is_valid_unit()` gate added
+- `"UnitMismatchError"` / `"UnmatchedNumericError"` swapped in `__all__` to restore alphabetical order
+- `verify()` docstring annotated with AC6 caller-defer note
+- Dead `first_word in _COUNT_WORDS` branch removed from `_should_skip` (count words always consumed into unit token, handled in `parse()`)
+- Added `test_zero_stored_exact_match_passes` / `test_zero_stored_nonzero_cited_raises` for `_within_tol` zero-guard
+- Tightened `test_bp_range_with_year_not_extracted` to assert exact extracted values

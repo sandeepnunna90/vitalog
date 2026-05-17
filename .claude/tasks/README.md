@@ -23,7 +23,7 @@ Status legend: ⬜ pending · 🟡 in progress · ✅ done · ⏸ blocked
 | [B2](B2_guardrails_layer1_2.md) | Layer 1 + Layer 2 guardrails | 3 | ✅ | B1 |
 | [B3](B3_guardrails_layer3_deterministic.md) | Layer 3 deterministic validators | 3 | ✅ | B1 |
 | [B4](B4_citation_verifier_mode_a.md) | Mode A citation verifier (structured) | 5 | ✅ | B1, A3 |
-| [B5](B5_citation_verifier_mode_b.md) | Mode B citation verifier (parse-and-match) | 5 | ⬜ | B1, A3 |
+| [B5](B5_citation_verifier_mode_b.md) | Mode B citation verifier (parse-and-match) | 5 | ✅ | B1, A3 |
 
 ### Epic C — Eval Corpus & Harness (20 pts)
 | ID | Title | Pts | Status | Depends on |
