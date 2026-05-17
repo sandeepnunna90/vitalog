@@ -70,3 +70,13 @@ def test_citation_in_band() -> None:
     bands = select_bands(ranges, citations, [])
     assert bands[0].citation is not None
     assert "ADA" in bands[0].citation or "American Diabetes" in bands[0].citation
+
+
+def test_acc_aha_compound_authority_citation_not_none() -> None:
+    # ACC_AHA is a compound authority prefix — key.split("_")[0] = "ACC" (wrong);
+    # _match_authority must find "ACC_AHA" as the longest matching prefix.
+    from src.intelligence.range_overlay import _make_band
+
+    citations = {"ACC_AHA": "American College of Cardiology/AHA Guideline"}
+    band = _make_band("ACC_AHA_optimal", "<100 mg/dL", citations)
+    assert band.citation is not None, "compound authority ACC_AHA should resolve citation"

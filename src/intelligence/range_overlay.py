@@ -35,10 +35,18 @@ def _make_label(key: str, raw_range: str) -> str:
     return f"{authority} {description}: {raw_range}"
 
 
+def _match_authority(key: str, guideline_citations: dict[str, Any]) -> str | None:
+    # Match longest citation key that is a prefix of the range key (handles "ACC_AHA" vs "ADA")
+    for k in sorted(guideline_citations, key=len, reverse=True):
+        if key.startswith(k + "_") or key == k:
+            return k
+    return None
+
+
 def _make_band(key: str, raw_range: str, guideline_citations: dict[str, Any]) -> TrendBand:
     lower, upper = _parse_range(raw_range)
-    authority = key.split("_")[0]
-    citation = guideline_citations.get(authority)
+    authority = _match_authority(key, guideline_citations)
+    citation = guideline_citations.get(authority) if authority else None
     return TrendBand(
         label=_make_label(key, raw_range),
         lower=lower,

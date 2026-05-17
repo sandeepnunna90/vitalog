@@ -5,11 +5,13 @@ from __future__ import annotations
 import subprocess
 import uuid
 from datetime import date, datetime
+from pathlib import Path
 from unittest.mock import MagicMock
 
 from src.intelligence.trend_engine import TrendEngine
 from src.persistence.models import BiomarkerRecordRow
 
+_PROJECT_ROOT = Path(__file__).parent.parent.parent
 _PATIENT_ID = uuid.uuid4()
 _CANONICAL_ID = "hba1c"
 
@@ -152,7 +154,7 @@ def test_no_anthropic_import() -> None:
         ["grep", "-r", r"anthropic\|Gateway", "src/intelligence/trend_engine.py"],
         capture_output=True,
         text=True,
-        cwd="/Users/sandeepnunna/workspace/100x-Engineers/applications/vitalog",
+        cwd=str(_PROJECT_ROOT),
     )
     assert completed.stdout.strip() == "", (
         f"Found LLM references in trend_engine.py: {completed.stdout}"
