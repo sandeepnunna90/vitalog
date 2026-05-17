@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import uuid
+from datetime import date
 from typing import Any
 
 from supabase import Client
@@ -62,6 +63,24 @@ class BiomarkerRepository:
             .select("*")
             .eq("patient_id", str(patient_id))
             .eq("verified_by", "pending_user")
+            .execute()
+            .data
+        )
+        return [BiomarkerRecordRow.model_validate(row) for row in data]
+
+    def find_potential_duplicates(
+        self,
+        patient_id: uuid.UUID,
+        canonical_id: str,
+        collection_date: date,
+    ) -> list[BiomarkerRecordRow]:
+        """Return all records matching patient + canonical_id + exact collection_date."""
+        data: Any = (
+            self._client.table(_TABLE)
+            .select("*")
+            .eq("patient_id", str(patient_id))
+            .eq("canonical_biomarker_id", canonical_id)
+            .eq("collection_date", collection_date.isoformat())
             .execute()
             .data
         )
