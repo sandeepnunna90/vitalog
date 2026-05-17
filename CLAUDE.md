@@ -104,6 +104,14 @@ Storage policy (classification-gated, §7.6):
 - `src/normalization/__init__.py` — exports `lookup`
 - `tests/normalization/test_tier1.py` — 303 tests; all 30 canonical names + all aliases (parametrized), case folding, whitespace, parentheticals, unknown→None, duplicate detection
 
+**Built (Epic C):**
+- `src/eval/synthesis/content_generator.py` — 16-biomarker `BIOMARKER_RANGES` dict; `generate_readings(seed, overrides)` via `random.Random(seed)`; `overrides` kwarg for H1 hero dataset pins
+- `src/eval/synthesis/ground_truth_writer.py` — `write_ground_truth()` emits paired JSON with all AC3 fields
+- `src/eval/synthesis/vendor_templates/quest.py` — reportlab Quest-style PDF renderer; `_make_reproducible()` patches `/CreationDate`, `/ModDate`, `/Producer`, `/Creator`, `/ID` in raw bytes for byte-identical output; `generate_report(seed, out_dir, *, collection_date, lab_source, overrides)` creates `out_dir` if needed
+- `src/eval/synthesis/__init__.py` — exports `generate_report`
+- `scripts/generate_synthetic.py` — CLI `--vendor quest --count --seed --out`
+- `tests/eval/test_synthesis_reproducibility.py` + `test_ground_truth_invariants.py` — 18 tests; reproducibility, AC3 field invariants, custom params, overrides, filename format
+
 **Up next (Epic E–F):**
 - `src/normalization/` — E2 pending queue, E3 unit conversion, E4 dedup
 - `src/intelligence/summary_generator.py` — Mode A citation-verified summary *(F5)*

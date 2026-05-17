@@ -67,7 +67,26 @@ ADR-07 is "templated synthesis + 3–5 redacted real". Templated synthesis is th
 
 ## Notes / changelog
 
-_(append after work is done)_
+### Implementation (2026-05-17)
+
+**Files created:**
+- `src/eval/synthesis/content_generator.py` — `BIOMARKER_RANGES` (16 biomarkers, hardcoded because taxonomy `guideline_ranges` are string labels not numeric bounds); `generate_readings(seed, overrides)` uses `random.Random(seed)` from stdlib (numpy not in deps); `overrides` kwarg for H1 hero dataset pins
+- `src/eval/synthesis/ground_truth_writer.py` — `write_ground_truth()` writes paired JSON with all AC3-required fields
+- `src/eval/synthesis/vendor_templates/quest.py` — reportlab `SimpleDocTemplate` renderer; `_make_reproducible()` regex-patches `/CreationDate`, `/ModDate`, `/Producer`, `/Creator`, and `/ID` trailer hash in raw bytes so output is byte-identical for same seed; `generate_report()` creates `out_dir` via `mkdir(parents=True, exist_ok=True)`
+- `src/eval/synthesis/__init__.py` — exports `generate_report`
+- `src/eval/__init__.py` — package marker
+- `scripts/generate_synthetic.py` — CLI `--vendor quest --count N --seed S --out DIR`
+- `tests/eval/test_synthesis_reproducibility.py` + `tests/eval/test_ground_truth_invariants.py` — 18 tests
+
+**Key design decisions:**
+- Used `random.Random(seed)` not numpy — numpy is not in `pyproject.toml`
+- Hardcoded `BIOMARKER_RANGES` rather than parsing taxonomy — taxonomy `guideline_ranges` are string labels (e.g. `"ADA_normal": "<5.7%"`), not numeric bounds
+- PDF reproducibility: build to `BytesIO`, then regex-replace all varying fields; discovered `/ID` trailer hash also varies (caught by test failure, fixed)
+- `generate_readings` called once in `generate_report` and passed into `_build_pdf` to avoid double RNG consumption (PR review fix)
+
+**PR review fixes:**
+- Refactored `_build_pdf` to accept `readings: list[BiomarkerReading]` instead of re-deriving them from seed
+- Added `out_dir.mkdir(parents=True, exist_ok=True)` inside `generate_report` so H1 callers don't need to pre-create the directory
 
 ---
 
