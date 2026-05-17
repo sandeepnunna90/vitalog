@@ -54,7 +54,7 @@ Storage policy (classification-gated, §7.6):
 | `src/ingestion/` | Upload validation, classification, Textract/vision OCR, structurer, composite confidence |
 | `src/gateway/` | AI Gateway chokepoint, guardrails (L1/L2/L3), prompt registry, eval logger, Mode A + Mode B citation verifiers |
 | `src/normalization/` | Tier 1 alias lookup, unit conversion, range validation, duplicate detection |
-| `src/intelligence/` | Trend engine (deterministic); Observation Generator + NLQ (LLM, WIP) |
+| `src/intelligence/` | Trend engine (deterministic); Observation Generator (LLM, Mode B, F2 ✅); NLQ (WIP) |
 | `src/persistence/` | Repository pattern over Supabase; all DB entity models |
 | `src/eval/synthesis/` | Synthetic lab report generator; ground truth writer |
 | `src/reference_data/` | Taxonomy loader (cached); `biomarker_taxonomy.json` — 30-biomarker seed |
@@ -81,6 +81,10 @@ Storage policy (classification-gated, §7.6):
 - **Mode B retrieval set is caller-supplied.** `verify_mode_b(prose, retrieval_set)` does zero I/O — the caller (F2 Observation Generator, F3 NLQ Handler) builds `retrieval_set: dict[uuid.UUID, BiomarkerRecordRow]`. AC6 retry-on-failure logic lives in F2/F3, not the verifier.
 - **Mode B unit validity gate.** `_is_valid_unit(unit)` in `numeric_parser.py` rejects pure-lowercase-alpha tokens (English verbs like "has", "was") that the regex captures as adjacent units. Real clinical units always contain `%`, `/`, a digit, or an uppercase letter.
 - **Mode B integer vs decimal.** Presence of `.` in the original text determines tolerance: decimal → ±0.5%, integer → exact match. `"120"` must match stored `120.0` exactly; `"6.8"` may match stored `6.8` within tolerance.
+- **F2 pending-taxonomy guard.** `ObservationGenerator.generate()` raises `ValueError` with `"pending-taxonomy"` in the message if `record.canonical_biomarker_id is None`. Do not silently pass `""` to `get_trend` — that would call the trend engine with an empty ID and corrupt the retrieval set.
+- **ObservationCitation.record_id is `str | None`, not `uuid.UUID`.** Pydantic `strict=True` rejects automatic `str→UUID` coercion; the LLM always returns strings in JSON tool-use output. Changing this field to `uuid.UUID` causes `OutputValidationError` on every call.
+- **F2 guideline bounds must be in the retrieval set.** `_build_retrieval_set` adds a synthetic `BiomarkerRecordRow` per `band.lower`/`band.upper` value so Mode B accepts numbers like "7.0%" from "ADA target <7.0%". Without this, Mode B rejects the output even when the LLM follows the prompt correctly.
+- **F2 date format must be month-first.** `_build_inputs` formats `collection_date` as `f"{d.strftime('%B')} {d.day}, {d.year}"` (e.g., "March 12, 2026"). Day-first formats cause Mode B to extract the day number as an unmatched bare integer — the false-positive filter only skips day numbers when the month name precedes them.
 
 ## Out of capstone scope
 

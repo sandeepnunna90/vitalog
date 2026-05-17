@@ -67,4 +67,28 @@ Observations are the bridge between raw numbers and patient understanding. The h
 
 ## Notes / changelog
 
-_(append after work is done)_
+### Implementation (2026-05-17)
+
+**Files created:**
+- `src/intelligence/observation_schemas.py` — `ObservationCitation`, `ObservationOutput`, `Observation` Pydantic models. Key: `record_id: str | None` (not UUID) because Pydantic strict=True rejects str→UUID coercion from LLM JSON output.
+- `src/intelligence/observation_generator.py` — `ObservationGenerator` class with `generate()`, `_attempt()` (retry-then-safe-refusal), `_log_audit()`. Module-level helpers: `_build_retrieval_set`, `_make_guideline_record`, `_build_inputs`.
+- `prompts/observation/v1.md` — embedded YAML frontmatter; system template with hard rules + correct/wrong examples (no curly braces to avoid `format_map` conflicts); user template with 6 inputs.
+- `tests/intelligence/test_observation_generator.py` — 16 tests, mocking `AnthropicAdapter.call` so L3 runs for real.
+- `tests/intelligence/test_observation_constraints.py` — 7 tests for L3 banned-phrase scanner (5 caught, 2 clean).
+
+**Files modified:**
+- `prompts/_registry.yaml` — added `observation / v1` entry.
+
+**Key design decisions:**
+- Mode B retrieval set includes synthetic `BiomarkerRecordRow` entries for each guideline band bound (`band.lower`, `band.upper`) so "7.0%" from "ADA target <7.0%" doesn't cause a false rejection.
+- Date format is month-first ("March 12, 2026") so Mode B's false-positive filter correctly skips the day number.
+- `_attempt` catches both `ModeBVerificationError` and `OutputValidationError`, logs a WARNING, returns `None` — two failures in a row yields `_SAFE_REFUSAL`.
+- Pending-taxonomy guard raises `ValueError` with "pending-taxonomy" in the message rather than silently passing `""` to `get_trend`.
+
+**PR review fixes (PR #22, commit f0c06ed):**
+1. Removed prior-record value from prompt CORRECT example (systematic Mode B rejection risk).
+2. Added `_audit_log.warning` in `_attempt` for swallowed exceptions.
+3. Added explicit pending-taxonomy guard (was silently passing `or ""`).
+4. Corrected prompt doc date format ("Month D, YYYY").
+5. Cleaned up `test_generate_record_not_found_raises`; added `test_generate_pending_taxonomy_raises`.
+6. Widened `_side_effect(*_args, **_kwargs)` signature in retry test.
