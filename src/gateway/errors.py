@@ -35,3 +35,16 @@ class SchemaValidationError(GatewayError):
     def __init__(self, field_errors: list[Any]) -> None:
         self.field_errors = field_errors
         super().__init__(f"Schema validation failed: {field_errors}")
+
+
+class ModeAVerificationError(GatewayError):
+    """Raised when Mode A citation verification fails."""
+
+    def __init__(self, reason: str, citation: object = None) -> None:
+        self.reason = reason
+        self.citation = citation
+        super().__init__(f"Mode A verification failed: {reason}")
+
+
+class OwnershipLeakError(ModeAVerificationError):
+    """Raised when a citation references a record belonging to a different patient."""
