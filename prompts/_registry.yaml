@@ -14,3 +14,6 @@ prompts:
   - prompt_id: observation
     version: v1
     path: observation/v1.md
+  - prompt_id: nlq
+    version: v1
+    path: nlq/v1.md
