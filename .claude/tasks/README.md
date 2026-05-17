@@ -55,7 +55,7 @@ Status legend: ⬜ pending · 🟡 in progress · ✅ done · ⏸ blocked
 ### Epic F — Intelligence (30 pts)
 | ID | Title | Pts | Status | Depends on |
 |---|---|---|---|---|
-| [F1](F1_trend_engine.md) | Trend Engine (deterministic) | 3 | ⬜ | A3, E1 |
+| [F1](F1_trend_engine.md) | Trend Engine (deterministic) | 3 | ✅ | A3, E1 |
 | [F2](F2_observation_generator.md) | Observation Generator (Mode B) | 5 | ⬜ | B1, B3, B5, F1 |
 | [F3](F3_nlq_handler.md) | NLQ Handler | 5 | ⬜ | B1, B3, B5, A3 |
 | [F4](F4_context_cards.md) | Context cards | 3 | ⬜ | A2, F1 |

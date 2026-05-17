@@ -119,6 +119,13 @@ Storage policy (classification-gated, §7.6):
 - `src/persistence/biomarker_repository.py` — added `find_potential_duplicates(patient_id, canonical_id, collection_date)` querying by exact date
 - `tests/normalization/test_duplicate_detector.py` — 16 tests; all repos mocked; covers all 6 ACs + loop-priority fix + audit-not-called negative assertions
 
+**Built (Epic F — partial):**
+- `src/intelligence/trend_schemas.py` — `TrendPoint`, `TrendBand`, `TrendResult` (Pydantic v2 strict)
+- `src/intelligence/range_overlay.py` — `select_bands()` + `_parse_range()`; `_match_authority()` handles compound authority prefixes (ACC_AHA); condition-specific target band + normal band selection
+- `src/intelligence/trend_engine.py` — `TrendEngine.get_trend(patient_id, canonical_id, patient_conditions)`; pure deterministic, zero LLM calls; `pending_user` records excluded from points, counted in `pending_review_count`; bands from `lookup_guideline()`
+- `src/intelligence/__init__.py` — exports `TrendEngine`, `TrendBand`, `TrendPoint`, `TrendResult`
+- `tests/intelligence/test_trend_engine.py` + `test_range_overlay.py` — 19 tests; repo mocked; covers all 6 ACs + ACC_AHA citation fix
+
 **Built (Epic C):**
 - `src/eval/synthesis/content_generator.py` — 16-biomarker `BIOMARKER_RANGES` dict; `generate_readings(seed, overrides)` via `random.Random(seed)`; `overrides` kwarg for H1 hero dataset pins
 - `src/eval/synthesis/ground_truth_writer.py` — `write_ground_truth()` emits paired JSON with all AC3 fields
@@ -127,7 +134,7 @@ Storage policy (classification-gated, §7.6):
 - `scripts/generate_synthetic.py` — CLI `--vendor quest --count --seed --out`
 - `tests/eval/test_synthesis_reproducibility.py` + `test_ground_truth_invariants.py` — 18 tests; reproducibility, AC3 field invariants, custom params, overrides, filename format
 
-**Up next (Epic F):**
+**Up next (Epic F/G):**
 - `src/intelligence/summary_generator.py` — Mode A citation-verified summary *(F5)*
 - `src/intelligence/observation_generator.py` — Mode B factual observations *(F2)*
 - `src/mcp_server/server.py` — stdio MCP server, 6 tools *(G1)*

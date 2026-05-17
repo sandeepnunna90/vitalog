@@ -67,4 +67,26 @@ This is the headline demo moment. P4 (determinism where possible) and the archit
 
 ## Notes / changelog
 
-_(append after work is done)_
+### Implementation (2026-05-17)
+
+**Files created:**
+- `src/intelligence/trend_schemas.py` — `TrendPoint`, `TrendBand`, `TrendResult` Pydantic v2 strict models
+- `src/intelligence/range_overlay.py` — `select_bands()`, `_parse_range()`, `_match_authority()`; condition → band selection via `_CONDITION_PREFERRED_SUFFIXES`
+- `src/intelligence/trend_engine.py` — `TrendEngine.get_trend(patient_id, canonical_id, patient_conditions=None)`; pure deterministic; `patient_conditions` param decouples from G2
+- `tests/intelligence/test_trend_engine.py` — 10 unit tests; repo mocked
+- `tests/intelligence/test_range_overlay.py` — 9 unit tests (8 original + 1 from PR review fix); uses real `lookup_guideline("hba1c")`
+
+**Files modified:**
+- `src/intelligence/__init__.py` — exports `TrendEngine`, `TrendBand`, `TrendPoint`, `TrendResult`
+
+**Key design decisions:**
+- `patient_conditions` param (not loading `mark_profile.json`) — G2 hasn't landed; decouples F1 from profile store
+- `find_by_canonical_id()` used as-is (no new repo method) — already exists, in-memory `pending_user` filter appropriate for <100 points
+- Both `_normal` band AND condition-specific `_target_*` band returned (AC1 explicitly names both for T2D)
+- `_match_authority()` finds longest matching citation key prefix — handles compound authorities like `ACC_AHA` where `key.split("_")[0]` would return `"ACC"` (bug caught in PR review)
+- `TrendBand.raw_range` preserves original taxonomy string for downstream consumers
+
+**PR review fixes (PR #19):**
+- Fixed `_make_band` authority extraction: `key.split("_")[0]` → `_match_authority()` helper; `band.citation` was always `None` for ACC_AHA biomarkers (LDL, HDL, total cholesterol, triglycerides)
+- Fixed `test_no_anthropic_import` hardcoded `cwd`: replaced `/Users/sandeepnunna/...` with `Path(__file__).parent.parent.parent`; this caused the CI test to raise `FileNotFoundError` on GitHub Actions
+- Added `test_acc_aha_compound_authority_citation_not_none` to cover the citation fix
