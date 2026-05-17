@@ -5,13 +5,33 @@
     "loinc_code": "4548-4",
     "ucum_unit": "%",
     "unit_conversions": [
-      {"from_unit": "mmol/mol", "to_unit": "%", "formula": "ifcc_to_ngsp", "factor": null}
+      {
+        "from_unit": "mmol/mol",
+        "to_unit": "%",
+        "formula": "ifcc_to_ngsp",
+        "factor": null
+      }
     ],
+    "physiological_min": 3.0,
+    "physiological_max": 18.0,
     "aliases": [
-      "HbA1c", "hba1c", "hemoglobin a1c", "Hemoglobin A1c", "glycated hemoglobin",
-      "glycosylated hemoglobin", "A1C", "a1c", "HbA1C", "Hgb A1c", "HgbA1c"
+      "HbA1c",
+      "hba1c",
+      "hemoglobin a1c",
+      "Hemoglobin A1c",
+      "glycated hemoglobin",
+      "glycosylated hemoglobin",
+      "A1C",
+      "a1c",
+      "HbA1C",
+      "Hgb A1c",
+      "HgbA1c"
     ],
-    "conditions": ["T2D", "T1D", "prediabetes"],
+    "conditions": [
+      "T2D",
+      "T1D",
+      "prediabetes"
+    ],
     "guideline_ranges": {
       "ADA_normal": "<5.7%",
       "ADA_prediabetes": "5.7-6.4%",
@@ -36,13 +56,32 @@
     "loinc_code": "1558-6",
     "ucum_unit": "mg/dL",
     "unit_conversions": [
-      {"from_unit": "mmol/L", "to_unit": "mg/dL", "formula": "linear", "factor": 18.0182}
+      {
+        "from_unit": "mmol/L",
+        "to_unit": "mg/dL",
+        "formula": "linear",
+        "factor": 18.0182
+      }
     ],
+    "physiological_min": 20.0,
+    "physiological_max": 600.0,
     "aliases": [
-      "fasting glucose", "Fasting Glucose", "FPG", "fasting blood glucose", "FBG",
-      "fasting plasma glucose", "glucose fasting", "Fasting Blood Sugar", "FBS"
+      "fasting glucose",
+      "Fasting Glucose",
+      "FPG",
+      "fasting blood glucose",
+      "FBG",
+      "fasting plasma glucose",
+      "glucose fasting",
+      "Fasting Blood Sugar",
+      "FBS"
     ],
-    "conditions": ["T2D", "T1D", "prediabetes", "metabolic_syndrome"],
+    "conditions": [
+      "T2D",
+      "T1D",
+      "prediabetes",
+      "metabolic_syndrome"
+    ],
     "guideline_ranges": {
       "ADA_normal": "<100 mg/dL",
       "ADA_prediabetes": "100-125 mg/dL",
@@ -66,13 +105,30 @@
     "loinc_code": "1521-4",
     "ucum_unit": "mg/dL",
     "unit_conversions": [
-      {"from_unit": "mmol/L", "to_unit": "mg/dL", "formula": "linear", "factor": 18.0182}
+      {
+        "from_unit": "mmol/L",
+        "to_unit": "mg/dL",
+        "formula": "linear",
+        "factor": 18.0182
+      }
     ],
+    "physiological_min": 50.0,
+    "physiological_max": 600.0,
     "aliases": [
-      "postprandial glucose", "Postprandial Glucose", "2h glucose", "2-hour glucose",
-      "post-meal glucose", "PPG", "2hPG", "OGTT 2h"
+      "postprandial glucose",
+      "Postprandial Glucose",
+      "2h glucose",
+      "2-hour glucose",
+      "post-meal glucose",
+      "PPG",
+      "2hPG",
+      "OGTT 2h"
     ],
-    "conditions": ["T2D", "T1D", "prediabetes"],
+    "conditions": [
+      "T2D",
+      "T1D",
+      "prediabetes"
+    ],
     "guideline_ranges": {
       "ADA_normal": "<140 mg/dL",
       "ADA_prediabetes": "140-199 mg/dL",
@@ -96,13 +152,30 @@
     "loinc_code": "2093-3",
     "ucum_unit": "mg/dL",
     "unit_conversions": [
-      {"from_unit": "mmol/L", "to_unit": "mg/dL", "formula": "linear", "factor": 38.6659}
+      {
+        "from_unit": "mmol/L",
+        "to_unit": "mg/dL",
+        "formula": "linear",
+        "factor": 38.6659
+      }
     ],
+    "physiological_min": 50.0,
+    "physiological_max": 500.0,
     "aliases": [
-      "total cholesterol", "Total Cholesterol", "TC", "cholesterol total",
-      "cholesterol", "Cholesterol", "CHOL"
+      "total cholesterol",
+      "Total Cholesterol",
+      "TC",
+      "cholesterol total",
+      "cholesterol",
+      "Cholesterol",
+      "CHOL"
     ],
-    "conditions": ["CVD", "dyslipidemia", "T2D", "HTN"],
+    "conditions": [
+      "CVD",
+      "dyslipidemia",
+      "T2D",
+      "HTN"
+    ],
     "guideline_ranges": {
       "ACC_AHA_desirable": "<200 mg/dL",
       "ACC_AHA_borderline_high": "200-239 mg/dL",
@@ -125,13 +198,31 @@
     "loinc_code": "13457-7",
     "ucum_unit": "mg/dL",
     "unit_conversions": [
-      {"from_unit": "mmol/L", "to_unit": "mg/dL", "formula": "linear", "factor": 38.6659}
+      {
+        "from_unit": "mmol/L",
+        "to_unit": "mg/dL",
+        "formula": "linear",
+        "factor": 38.6659
+      }
     ],
+    "physiological_min": 10.0,
+    "physiological_max": 400.0,
     "aliases": [
-      "LDL", "LDL-C", "ldl cholesterol", "LDL cholesterol", "LDL-Cholesterol",
-      "low density lipoprotein", "Low Density Lipoprotein Cholesterol", "LDL Chol"
+      "LDL",
+      "LDL-C",
+      "ldl cholesterol",
+      "LDL cholesterol",
+      "LDL-Cholesterol",
+      "low density lipoprotein",
+      "Low Density Lipoprotein Cholesterol",
+      "LDL Chol"
     ],
-    "conditions": ["CVD", "dyslipidemia", "T2D", "HTN"],
+    "conditions": [
+      "CVD",
+      "dyslipidemia",
+      "T2D",
+      "HTN"
+    ],
     "guideline_ranges": {
       "ACC_AHA_optimal": "<100 mg/dL",
       "ACC_AHA_near_optimal": "100-129 mg/dL",
@@ -158,13 +249,31 @@
     "loinc_code": "2085-9",
     "ucum_unit": "mg/dL",
     "unit_conversions": [
-      {"from_unit": "mmol/L", "to_unit": "mg/dL", "formula": "linear", "factor": 38.6659}
+      {
+        "from_unit": "mmol/L",
+        "to_unit": "mg/dL",
+        "formula": "linear",
+        "factor": 38.6659
+      }
     ],
+    "physiological_min": 5.0,
+    "physiological_max": 150.0,
     "aliases": [
-      "HDL", "HDL-C", "hdl cholesterol", "HDL cholesterol", "HDL-Cholesterol",
-      "high density lipoprotein", "High Density Lipoprotein Cholesterol", "HDL Chol"
+      "HDL",
+      "HDL-C",
+      "hdl cholesterol",
+      "HDL cholesterol",
+      "HDL-Cholesterol",
+      "high density lipoprotein",
+      "High Density Lipoprotein Cholesterol",
+      "HDL Chol"
     ],
-    "conditions": ["CVD", "dyslipidemia", "T2D", "HTN"],
+    "conditions": [
+      "CVD",
+      "dyslipidemia",
+      "T2D",
+      "HTN"
+    ],
     "guideline_ranges": {
       "ACC_AHA_low_men": "<40 mg/dL",
       "ACC_AHA_low_women": "<50 mg/dL",
@@ -187,13 +296,31 @@
     "loinc_code": "2571-8",
     "ucum_unit": "mg/dL",
     "unit_conversions": [
-      {"from_unit": "mmol/L", "to_unit": "mg/dL", "formula": "linear", "factor": 88.5742}
+      {
+        "from_unit": "mmol/L",
+        "to_unit": "mg/dL",
+        "formula": "linear",
+        "factor": 88.5742
+      }
     ],
+    "physiological_min": 20.0,
+    "physiological_max": 2000.0,
     "aliases": [
-      "triglycerides", "Triglycerides", "TG", "TRIG", "trigs",
-      "Triglyceride", "triglyceride", "serum triglycerides"
+      "triglycerides",
+      "Triglycerides",
+      "TG",
+      "TRIG",
+      "trigs",
+      "Triglyceride",
+      "triglyceride",
+      "serum triglycerides"
     ],
-    "conditions": ["CVD", "dyslipidemia", "T2D", "metabolic_syndrome"],
+    "conditions": [
+      "CVD",
+      "dyslipidemia",
+      "T2D",
+      "metabolic_syndrome"
+    ],
     "guideline_ranges": {
       "ACC_AHA_normal": "<150 mg/dL",
       "ACC_AHA_borderline_high": "150-199 mg/dL",
@@ -217,13 +344,28 @@
     "loinc_code": "43396-1",
     "ucum_unit": "mg/dL",
     "unit_conversions": [
-      {"from_unit": "mmol/L", "to_unit": "mg/dL", "formula": "linear", "factor": 38.6659}
+      {
+        "from_unit": "mmol/L",
+        "to_unit": "mg/dL",
+        "formula": "linear",
+        "factor": 38.6659
+      }
     ],
+    "physiological_min": 20.0,
+    "physiological_max": 450.0,
     "aliases": [
-      "Non-HDL", "non-HDL cholesterol", "Non-HDL Cholesterol", "nonHDL",
-      "non HDL cholesterol", "non-HDL-C"
+      "Non-HDL",
+      "non-HDL cholesterol",
+      "Non-HDL Cholesterol",
+      "nonHDL",
+      "non HDL cholesterol",
+      "non-HDL-C"
     ],
-    "conditions": ["CVD", "dyslipidemia", "T2D"],
+    "conditions": [
+      "CVD",
+      "dyslipidemia",
+      "T2D"
+    ],
     "guideline_ranges": {
       "ACC_AHA_optimal": "<130 mg/dL",
       "ACC_AHA_target_very_high_risk": "<100 mg/dL",
@@ -246,11 +388,24 @@
     "loinc_code": "62238-1",
     "ucum_unit": "mL/min/1.73m2",
     "unit_conversions": [],
+    "physiological_min": 1.0,
+    "physiological_max": 140.0,
     "aliases": [
-      "eGFR", "egfr", "Estimated GFR", "GFR", "estimated glomerular filtration rate",
-      "eGFR (CKD-EPI)", "kidney function", "glomerular filtration rate"
+      "eGFR",
+      "egfr",
+      "Estimated GFR",
+      "GFR",
+      "estimated glomerular filtration rate",
+      "eGFR (CKD-EPI)",
+      "kidney function",
+      "glomerular filtration rate"
     ],
-    "conditions": ["CKD", "T2D", "HTN", "T1D"],
+    "conditions": [
+      "CKD",
+      "T2D",
+      "HTN",
+      "T1D"
+    ],
     "guideline_ranges": {
       "KDIGO_G1_normal": ">=90 mL/min/1.73m2",
       "KDIGO_G2_mildly_decreased": "60-89 mL/min/1.73m2",
@@ -278,13 +433,30 @@
     "loinc_code": "2160-0",
     "ucum_unit": "mg/dL",
     "unit_conversions": [
-      {"from_unit": "umol/L", "to_unit": "mg/dL", "formula": "linear", "factor": 0.011312}
+      {
+        "from_unit": "umol/L",
+        "to_unit": "mg/dL",
+        "formula": "linear",
+        "factor": 0.011312
+      }
     ],
+    "physiological_min": 0.2,
+    "physiological_max": 15.0,
     "aliases": [
-      "creatinine", "Creatinine", "serum creatinine", "Serum Creatinine", "SCr",
-      "Cr", "CREA", "creat"
+      "creatinine",
+      "Creatinine",
+      "serum creatinine",
+      "Serum Creatinine",
+      "SCr",
+      "Cr",
+      "CREA",
+      "creat"
     ],
-    "conditions": ["CKD", "T2D", "HTN"],
+    "conditions": [
+      "CKD",
+      "T2D",
+      "HTN"
+    ],
     "guideline_ranges": {
       "normal_male": "0.74-1.35 mg/dL",
       "normal_female": "0.59-1.04 mg/dL"
@@ -306,14 +478,32 @@
     "loinc_code": "9318-7",
     "ucum_unit": "mg/g",
     "unit_conversions": [
-      {"from_unit": "mg/mmol", "to_unit": "mg/g", "formula": "linear", "factor": 8.84}
+      {
+        "from_unit": "mg/mmol",
+        "to_unit": "mg/g",
+        "formula": "linear",
+        "factor": 8.84
+      }
     ],
+    "physiological_min": 0.0,
+    "physiological_max": 5000.0,
     "aliases": [
-      "ACR", "urine ACR", "Urine ACR", "albumin creatinine ratio",
-      "Albumin-Creatinine Ratio", "urine albumin", "microalbumin creatinine ratio",
-      "UACR", "spot urine ACR"
+      "ACR",
+      "urine ACR",
+      "Urine ACR",
+      "albumin creatinine ratio",
+      "Albumin-Creatinine Ratio",
+      "urine albumin",
+      "microalbumin creatinine ratio",
+      "UACR",
+      "spot urine ACR"
     ],
-    "conditions": ["CKD", "T2D", "HTN", "T1D"],
+    "conditions": [
+      "CKD",
+      "T2D",
+      "HTN",
+      "T1D"
+    ],
     "guideline_ranges": {
       "KDIGO_A1_normal": "<30 mg/g",
       "KDIGO_A2_moderately_increased": "30-300 mg/g",
@@ -338,11 +528,23 @@
     "loinc_code": "8480-6",
     "ucum_unit": "mm[Hg]",
     "unit_conversions": [],
+    "physiological_min": 50.0,
+    "physiological_max": 250.0,
     "aliases": [
-      "systolic blood pressure", "Systolic Blood Pressure", "SBP", "systolic BP",
-      "systolic", "Systolic", "BP systolic"
+      "systolic blood pressure",
+      "Systolic Blood Pressure",
+      "SBP",
+      "systolic BP",
+      "systolic",
+      "Systolic",
+      "BP systolic"
     ],
-    "conditions": ["HTN", "CVD", "T2D", "CKD"],
+    "conditions": [
+      "HTN",
+      "CVD",
+      "T2D",
+      "CKD"
+    ],
     "guideline_ranges": {
       "ACC_AHA_normal": "<120 mm[Hg]",
       "ACC_AHA_elevated": "120-129 mm[Hg]",
@@ -369,11 +571,23 @@
     "loinc_code": "8462-4",
     "ucum_unit": "mm[Hg]",
     "unit_conversions": [],
+    "physiological_min": 30.0,
+    "physiological_max": 150.0,
     "aliases": [
-      "diastolic blood pressure", "Diastolic Blood Pressure", "DBP", "diastolic BP",
-      "diastolic", "Diastolic", "BP diastolic"
+      "diastolic blood pressure",
+      "Diastolic Blood Pressure",
+      "DBP",
+      "diastolic BP",
+      "diastolic",
+      "Diastolic",
+      "BP diastolic"
     ],
-    "conditions": ["HTN", "CVD", "T2D", "CKD"],
+    "conditions": [
+      "HTN",
+      "CVD",
+      "T2D",
+      "CKD"
+    ],
     "guideline_ranges": {
       "ACC_AHA_normal": "<80 mm[Hg]",
       "ACC_AHA_stage1_hypertension": "80-89 mm[Hg]",
@@ -397,13 +611,29 @@
     "loinc_code": "3016-3",
     "ucum_unit": "mIU/L",
     "unit_conversions": [
-      {"from_unit": "uIU/mL", "to_unit": "mIU/L", "formula": "linear", "factor": 1.0}
+      {
+        "from_unit": "uIU/mL",
+        "to_unit": "mIU/L",
+        "formula": "linear",
+        "factor": 1.0
+      }
     ],
+    "physiological_min": 0.001,
+    "physiological_max": 100.0,
     "aliases": [
-      "TSH", "tsh", "thyroid stimulating hormone", "Thyroid Stimulating Hormone",
-      "thyrotropin", "Thyrotropin", "thyroid-stimulating hormone"
+      "TSH",
+      "tsh",
+      "thyroid stimulating hormone",
+      "Thyroid Stimulating Hormone",
+      "thyrotropin",
+      "Thyrotropin",
+      "thyroid-stimulating hormone"
     ],
-    "conditions": ["hypothyroidism", "hyperthyroidism", "thyroid_disease"],
+    "conditions": [
+      "hypothyroidism",
+      "hyperthyroidism",
+      "thyroid_disease"
+    ],
     "guideline_ranges": {
       "ATA_normal": "0.5-4.5 mIU/L",
       "ATA_subclinical_hypothyroid": "4.5-10.0 mIU/L",
@@ -429,13 +659,30 @@
     "loinc_code": "3024-7",
     "ucum_unit": "ng/dL",
     "unit_conversions": [
-      {"from_unit": "pmol/L", "to_unit": "ng/dL", "formula": "linear", "factor": 0.07775}
+      {
+        "from_unit": "pmol/L",
+        "to_unit": "ng/dL",
+        "formula": "linear",
+        "factor": 0.07775
+      }
     ],
+    "physiological_min": 0.1,
+    "physiological_max": 6.0,
     "aliases": [
-      "free T4", "Free T4", "FT4", "fT4", "free thyroxine", "Free Thyroxine",
-      "T4 free", "thyroxine free"
+      "free T4",
+      "Free T4",
+      "FT4",
+      "fT4",
+      "free thyroxine",
+      "Free Thyroxine",
+      "T4 free",
+      "thyroxine free"
     ],
-    "conditions": ["hypothyroidism", "hyperthyroidism", "thyroid_disease"],
+    "conditions": [
+      "hypothyroidism",
+      "hyperthyroidism",
+      "thyroid_disease"
+    ],
     "guideline_ranges": {
       "ATA_normal": "0.8-1.8 ng/dL",
       "ATA_low_hypothyroid": "<0.8 ng/dL",
@@ -458,11 +705,22 @@
     "loinc_code": "1742-6",
     "ucum_unit": "U/L",
     "unit_conversions": [],
+    "physiological_min": 1.0,
+    "physiological_max": 3000.0,
     "aliases": [
-      "ALT", "alt", "alanine aminotransferase", "Alanine Aminotransferase",
-      "SGPT", "sgpt", "alanine transaminase"
+      "ALT",
+      "alt",
+      "alanine aminotransferase",
+      "Alanine Aminotransferase",
+      "SGPT",
+      "sgpt",
+      "alanine transaminase"
     ],
-    "conditions": ["T2D", "NAFLD", "liver_disease"],
+    "conditions": [
+      "T2D",
+      "NAFLD",
+      "liver_disease"
+    ],
     "guideline_ranges": {
       "normal_male": "7-56 U/L",
       "normal_female": "7-45 U/L",
@@ -485,11 +743,23 @@
     "loinc_code": "1920-8",
     "ucum_unit": "U/L",
     "unit_conversions": [],
+    "physiological_min": 1.0,
+    "physiological_max": 3000.0,
     "aliases": [
-      "AST", "ast", "aspartate aminotransferase", "Aspartate Aminotransferase",
-      "SGOT", "sgot", "aspartate transaminase"
+      "AST",
+      "ast",
+      "aspartate aminotransferase",
+      "Aspartate Aminotransferase",
+      "SGOT",
+      "sgot",
+      "aspartate transaminase"
     ],
-    "conditions": ["T2D", "NAFLD", "liver_disease", "CVD"],
+    "conditions": [
+      "T2D",
+      "NAFLD",
+      "liver_disease",
+      "CVD"
+    ],
     "guideline_ranges": {
       "normal_male": "10-40 U/L",
       "normal_female": "10-35 U/L"
@@ -511,14 +781,31 @@
     "loinc_code": "30522-7",
     "ucum_unit": "mg/L",
     "unit_conversions": [
-      {"from_unit": "nmol/L", "to_unit": "mg/L", "formula": "linear", "factor": 0.10516}
+      {
+        "from_unit": "nmol/L",
+        "to_unit": "mg/L",
+        "formula": "linear",
+        "factor": 0.10516
+      }
     ],
+    "physiological_min": 0.0,
+    "physiological_max": 200.0,
     "aliases": [
-      "hsCRP", "hs-CRP", "high sensitivity CRP", "High-Sensitivity CRP",
-      "high-sensitivity C-reactive protein", "CRP high sensitivity",
-      "cardiac CRP", "hs CRP"
+      "hsCRP",
+      "hs-CRP",
+      "high sensitivity CRP",
+      "High-Sensitivity CRP",
+      "high-sensitivity C-reactive protein",
+      "CRP high sensitivity",
+      "cardiac CRP",
+      "hs CRP"
     ],
-    "conditions": ["CVD", "T2D", "HTN", "metabolic_syndrome"],
+    "conditions": [
+      "CVD",
+      "T2D",
+      "HTN",
+      "metabolic_syndrome"
+    ],
     "guideline_ranges": {
       "ACC_AHA_low_risk": "<1.0 mg/L",
       "ACC_AHA_average_risk": "1.0-3.0 mg/L",
@@ -542,13 +829,30 @@
     "loinc_code": "1989-3",
     "ucum_unit": "ng/mL",
     "unit_conversions": [
-      {"from_unit": "nmol/L", "to_unit": "ng/mL", "formula": "linear", "factor": 0.4006}
+      {
+        "from_unit": "nmol/L",
+        "to_unit": "ng/mL",
+        "formula": "linear",
+        "factor": 0.4006
+      }
     ],
+    "physiological_min": 4.0,
+    "physiological_max": 150.0,
     "aliases": [
-      "vitamin D", "Vitamin D", "25-OH Vitamin D", "25-hydroxyvitamin D",
-      "25(OH)D", "vitamin D3", "calcidiol", "25-OHD"
+      "vitamin D",
+      "Vitamin D",
+      "25-OH Vitamin D",
+      "25-hydroxyvitamin D",
+      "25(OH)D",
+      "vitamin D3",
+      "calcidiol",
+      "25-OHD"
     ],
-    "conditions": ["T2D", "osteoporosis", "general_health"],
+    "conditions": [
+      "T2D",
+      "osteoporosis",
+      "general_health"
+    ],
     "guideline_ranges": {
       "Endocrine_Society_deficient": "<20 ng/mL",
       "Endocrine_Society_insufficient": "20-29 ng/mL",
@@ -572,13 +876,30 @@
     "loinc_code": "2132-9",
     "ucum_unit": "pg/mL",
     "unit_conversions": [
-      {"from_unit": "pmol/L", "to_unit": "pg/mL", "formula": "linear", "factor": 1.3548}
+      {
+        "from_unit": "pmol/L",
+        "to_unit": "pg/mL",
+        "formula": "linear",
+        "factor": 1.3548
+      }
     ],
+    "physiological_min": 100.0,
+    "physiological_max": 2000.0,
     "aliases": [
-      "vitamin B12", "Vitamin B12", "B12", "cobalamin", "Cobalamin",
-      "cyanocobalamin", "serum B12", "VitB12"
+      "vitamin B12",
+      "Vitamin B12",
+      "B12",
+      "cobalamin",
+      "Cobalamin",
+      "cyanocobalamin",
+      "serum B12",
+      "VitB12"
     ],
-    "conditions": ["T2D", "anemia", "neuropathy"],
+    "conditions": [
+      "T2D",
+      "anemia",
+      "neuropathy"
+    ],
     "guideline_ranges": {
       "normal": "200-900 pg/mL",
       "deficient": "<200 pg/mL",
@@ -602,13 +923,29 @@
     "loinc_code": "2276-4",
     "ucum_unit": "ng/mL",
     "unit_conversions": [
-      {"from_unit": "pmol/L", "to_unit": "ng/mL", "formula": "linear", "factor": 0.44}
+      {
+        "from_unit": "pmol/L",
+        "to_unit": "ng/mL",
+        "formula": "linear",
+        "factor": 0.44
+      }
     ],
+    "physiological_min": 1.0,
+    "physiological_max": 10000.0,
     "aliases": [
-      "ferritin", "Ferritin", "serum ferritin", "Serum Ferritin",
-      "iron stores", "FERR"
+      "ferritin",
+      "Ferritin",
+      "serum ferritin",
+      "Serum Ferritin",
+      "iron stores",
+      "FERR"
     ],
-    "conditions": ["anemia", "T2D", "NAFLD", "iron_deficiency"],
+    "conditions": [
+      "anemia",
+      "T2D",
+      "NAFLD",
+      "iron_deficiency"
+    ],
     "guideline_ranges": {
       "normal_male": "24-336 ng/mL",
       "normal_female_premenopausal": "11-307 ng/mL",
@@ -632,14 +969,35 @@
     "loinc_code": "718-7",
     "ucum_unit": "g/dL",
     "unit_conversions": [
-      {"from_unit": "g/L", "to_unit": "g/dL", "formula": "linear", "factor": 0.1},
-      {"from_unit": "mmol/L", "to_unit": "g/dL", "formula": "linear", "factor": 1.6113}
+      {
+        "from_unit": "g/L",
+        "to_unit": "g/dL",
+        "formula": "linear",
+        "factor": 0.1
+      },
+      {
+        "from_unit": "mmol/L",
+        "to_unit": "g/dL",
+        "formula": "linear",
+        "factor": 1.6113
+      }
     ],
+    "physiological_min": 3.0,
+    "physiological_max": 25.0,
     "aliases": [
-      "hemoglobin", "Hemoglobin", "Hgb", "HGB", "Hb", "haemoglobin",
+      "hemoglobin",
+      "Hemoglobin",
+      "Hgb",
+      "HGB",
+      "Hb",
+      "haemoglobin",
       "blood hemoglobin"
     ],
-    "conditions": ["anemia", "CKD", "T2D"],
+    "conditions": [
+      "anemia",
+      "CKD",
+      "T2D"
+    ],
     "guideline_ranges": {
       "normal_male": "13.5-17.5 g/dL",
       "normal_female": "12.0-15.5 g/dL",
@@ -665,13 +1023,29 @@
     "loinc_code": "6690-2",
     "ucum_unit": "10*3/uL",
     "unit_conversions": [
-      {"from_unit": "10*9/L", "to_unit": "10*3/uL", "formula": "linear", "factor": 1.0}
+      {
+        "from_unit": "10*9/L",
+        "to_unit": "10*3/uL",
+        "formula": "linear",
+        "factor": 1.0
+      }
     ],
+    "physiological_min": 0.1,
+    "physiological_max": 100.0,
     "aliases": [
-      "WBC", "wbc", "white blood cell count", "White Blood Cell Count",
-      "leukocyte count", "Leukocyte Count", "white cells"
+      "WBC",
+      "wbc",
+      "white blood cell count",
+      "White Blood Cell Count",
+      "leukocyte count",
+      "Leukocyte Count",
+      "white cells"
     ],
-    "conditions": ["infection", "immune_disorders", "T2D"],
+    "conditions": [
+      "infection",
+      "immune_disorders",
+      "T2D"
+    ],
     "guideline_ranges": {
       "normal": "4.5-11.0 10*3/uL",
       "leukopenia": "<4.5 10*3/uL",
@@ -694,13 +1068,29 @@
     "loinc_code": "777-3",
     "ucum_unit": "10*3/uL",
     "unit_conversions": [
-      {"from_unit": "10*9/L", "to_unit": "10*3/uL", "formula": "linear", "factor": 1.0}
+      {
+        "from_unit": "10*9/L",
+        "to_unit": "10*3/uL",
+        "formula": "linear",
+        "factor": 1.0
+      }
     ],
+    "physiological_min": 10.0,
+    "physiological_max": 1500.0,
     "aliases": [
-      "platelets", "Platelets", "platelet count", "Platelet Count", "PLT",
-      "thrombocytes", "Thrombocytes"
+      "platelets",
+      "Platelets",
+      "platelet count",
+      "Platelet Count",
+      "PLT",
+      "thrombocytes",
+      "Thrombocytes"
     ],
-    "conditions": ["bleeding_disorders", "CKD", "NAFLD"],
+    "conditions": [
+      "bleeding_disorders",
+      "CKD",
+      "NAFLD"
+    ],
     "guideline_ranges": {
       "normal": "150-400 10*3/uL",
       "thrombocytopenia": "<150 10*3/uL",
@@ -723,13 +1113,29 @@
     "loinc_code": "2951-2",
     "ucum_unit": "mEq/L",
     "unit_conversions": [
-      {"from_unit": "mmol/L", "to_unit": "mEq/L", "formula": "linear", "factor": 1.0}
+      {
+        "from_unit": "mmol/L",
+        "to_unit": "mEq/L",
+        "formula": "linear",
+        "factor": 1.0
+      }
     ],
+    "physiological_min": 100.0,
+    "physiological_max": 180.0,
     "aliases": [
-      "sodium", "Sodium", "serum sodium", "Serum Sodium", "Na", "Na+",
+      "sodium",
+      "Sodium",
+      "serum sodium",
+      "Serum Sodium",
+      "Na",
+      "Na+",
       "sodium serum"
     ],
-    "conditions": ["CKD", "HTN", "heart_failure"],
+    "conditions": [
+      "CKD",
+      "HTN",
+      "heart_failure"
+    ],
     "guideline_ranges": {
       "normal": "136-145 mEq/L",
       "hyponatremia": "<136 mEq/L",
@@ -752,13 +1158,30 @@
     "loinc_code": "2823-3",
     "ucum_unit": "mEq/L",
     "unit_conversions": [
-      {"from_unit": "mmol/L", "to_unit": "mEq/L", "formula": "linear", "factor": 1.0}
+      {
+        "from_unit": "mmol/L",
+        "to_unit": "mEq/L",
+        "formula": "linear",
+        "factor": 1.0
+      }
     ],
+    "physiological_min": 1.5,
+    "physiological_max": 9.0,
     "aliases": [
-      "potassium", "Potassium", "serum potassium", "Serum Potassium", "K", "K+",
+      "potassium",
+      "Potassium",
+      "serum potassium",
+      "Serum Potassium",
+      "K",
+      "K+",
       "potassium serum"
     ],
-    "conditions": ["CKD", "HTN", "heart_failure", "T2D"],
+    "conditions": [
+      "CKD",
+      "HTN",
+      "heart_failure",
+      "T2D"
+    ],
     "guideline_ranges": {
       "normal": "3.5-5.0 mEq/L",
       "hypokalemia": "<3.5 mEq/L",
@@ -783,13 +1206,28 @@
     "loinc_code": "2075-0",
     "ucum_unit": "mEq/L",
     "unit_conversions": [
-      {"from_unit": "mmol/L", "to_unit": "mEq/L", "formula": "linear", "factor": 1.0}
+      {
+        "from_unit": "mmol/L",
+        "to_unit": "mEq/L",
+        "formula": "linear",
+        "factor": 1.0
+      }
     ],
+    "physiological_min": 70.0,
+    "physiological_max": 130.0,
     "aliases": [
-      "chloride", "Chloride", "serum chloride", "Serum Chloride", "Cl", "Cl-",
+      "chloride",
+      "Chloride",
+      "serum chloride",
+      "Serum Chloride",
+      "Cl",
+      "Cl-",
       "chloride serum"
     ],
-    "conditions": ["CKD", "metabolic_disorders"],
+    "conditions": [
+      "CKD",
+      "metabolic_disorders"
+    ],
     "guideline_ranges": {
       "normal": "98-106 mEq/L",
       "hypochloremia": "<98 mEq/L",
@@ -812,13 +1250,29 @@
     "loinc_code": "3094-0",
     "ucum_unit": "mg/dL",
     "unit_conversions": [
-      {"from_unit": "mmol/L", "to_unit": "mg/dL", "formula": "linear", "factor": 2.8014}
+      {
+        "from_unit": "mmol/L",
+        "to_unit": "mg/dL",
+        "formula": "linear",
+        "factor": 2.8014
+      }
     ],
+    "physiological_min": 1.0,
+    "physiological_max": 200.0,
     "aliases": [
-      "BUN", "bun", "blood urea nitrogen", "Blood Urea Nitrogen",
-      "urea nitrogen", "serum urea", "SUN"
+      "BUN",
+      "bun",
+      "blood urea nitrogen",
+      "Blood Urea Nitrogen",
+      "urea nitrogen",
+      "serum urea",
+      "SUN"
     ],
-    "conditions": ["CKD", "T2D", "HTN"],
+    "conditions": [
+      "CKD",
+      "T2D",
+      "HTN"
+    ],
     "guideline_ranges": {
       "normal": "7-20 mg/dL",
       "elevated": ">20 mg/dL"
@@ -840,13 +1294,31 @@
     "loinc_code": "2345-7",
     "ucum_unit": "mg/dL",
     "unit_conversions": [
-      {"from_unit": "mmol/L", "to_unit": "mg/dL", "formula": "linear", "factor": 18.0182}
+      {
+        "from_unit": "mmol/L",
+        "to_unit": "mg/dL",
+        "formula": "linear",
+        "factor": 18.0182
+      }
     ],
+    "physiological_min": 20.0,
+    "physiological_max": 600.0,
     "aliases": [
-      "glucose", "Glucose", "serum glucose", "Serum Glucose", "random glucose",
-      "blood glucose", "blood sugar", "GLU"
+      "glucose",
+      "Glucose",
+      "serum glucose",
+      "Serum Glucose",
+      "random glucose",
+      "blood glucose",
+      "blood sugar",
+      "GLU"
     ],
-    "conditions": ["T2D", "T1D", "prediabetes", "hypoglycemia"],
+    "conditions": [
+      "T2D",
+      "T1D",
+      "prediabetes",
+      "hypoglycemia"
+    ],
     "guideline_ranges": {
       "ADA_normal_random": "<140 mg/dL",
       "ADA_diabetes_diagnosis_random": ">=200 mg/dL with symptoms",
@@ -870,11 +1342,19 @@
     "loinc_code": "1592-5",
     "ucum_unit": "umol/L",
     "unit_conversions": [],
+    "physiological_min": 100.0,
+    "physiological_max": 700.0,
     "aliases": [
-      "fructosamine", "Fructosamine", "glycated protein", "glycated albumin",
+      "fructosamine",
+      "Fructosamine",
+      "glycated protein",
+      "glycated albumin",
       "serum fructosamine"
     ],
-    "conditions": ["T2D", "T1D"],
+    "conditions": [
+      "T2D",
+      "T1D"
+    ],
     "guideline_ranges": {
       "normal": "174-286 umol/L",
       "elevated_indicates_poor_control": ">286 umol/L"

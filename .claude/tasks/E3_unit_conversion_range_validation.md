@@ -64,6 +64,117 @@ P4 (determinism where possible) puts unit conversion on the "must be determinist
 - Compound units (e.g., `count × 10^9 / L`) — handled inline; full compound parser is v1+
 - LLM-assisted unit normalization for novel units — v1+
 
+## Implementation plan
+
+### New files
+
+**`src/normalization/errors.py`**
+```python
+class UnitConversionError(Exception):
+    vitalog_id: str
+    raw_unit: str
+
+class UnitMissingError(Exception):
+    vitalog_id: str
+```
+
+**`src/normalization/unit_converter.py`**
+
+Public API: `convert(vitalog_id, raw_value_str, raw_unit) → ConversionResult`
+
+`ConversionResult` dataclass fields:
+- `canonical_value: float`
+- `canonical_unit: str`
+- `range_qualifier: str` — `"eq"` | `"lt"` | `"lte"` | `"gt"` | `"gte"`
+
+Logic:
+1. `raw_unit` is None/empty → raise `UnitMissing`
+2. Load taxonomy via `load_taxonomy()` (lru_cached); find entry by `vitalog_id` or raise `UnitConversionError`
+3. Parse `raw_value_str` with `_parse_value()`: handles `<5.7`, `>=6.5`, plain `6.8`
+4. If `raw_unit` matches `ucum_unit` (case-insensitive, stripped) → identity (no conversion)
+5. Find matching rule in `entry["unit_conversions"]` where `from_unit` == `raw_unit`; if none → raise `UnitConversionError`
+6. Apply formula:
+   - `"linear"`: `canonical = rule["factor"] * raw`
+   - `"ifcc_to_ngsp"`: `canonical = 0.0915 * raw + 2.15` (IFCC→NGSP, mmol/mol → %)
+7. Return `ConversionResult`
+
+**`src/normalization/range_validator.py`**
+
+Public API: `validate_physiological_range(vitalog_id, canonical_value) → RangeValidationResult`
+
+`RangeValidationResult` dataclass fields:
+- `in_physiological_range: bool`
+- `physiological_min: float`
+- `physiological_max: float`
+
+Logic: load taxonomy, find entry, compare `physiological_min <= canonical_value <= physiological_max`.
+
+### Modified files
+
+**`reference_data/biomarker_taxonomy.json`** — add `physiological_min` and `physiological_max` to all 30 entries:
+
+| vitalog_id | phys_min | phys_max | unit |
+|---|---|---|---|
+| hba1c | 3.0 | 18.0 | % |
+| fasting_glucose | 20.0 | 600.0 | mg/dL |
+| postprandial_glucose | 50.0 | 600.0 | mg/dL |
+| total_cholesterol | 50.0 | 500.0 | mg/dL |
+| ldl_cholesterol | 10.0 | 400.0 | mg/dL |
+| hdl_cholesterol | 5.0 | 150.0 | mg/dL |
+| triglycerides | 20.0 | 2000.0 | mg/dL |
+| non_hdl_cholesterol | 20.0 | 450.0 | mg/dL |
+| egfr | 1.0 | 140.0 | mL/min/1.73m² |
+| creatinine | 0.2 | 15.0 | mg/dL |
+| urine_acr | 0.0 | 5000.0 | mg/g |
+| bp_systolic | 50.0 | 250.0 | mmHg |
+| bp_diastolic | 30.0 | 150.0 | mmHg |
+| tsh | 0.001 | 100.0 | mIU/L |
+| free_t4 | 0.1 | 6.0 | ng/dL |
+| alt | 1.0 | 3000.0 | U/L |
+| ast | 1.0 | 3000.0 | U/L |
+| hs_crp | 0.0 | 200.0 | mg/L |
+| vitamin_d | 4.0 | 150.0 | ng/mL |
+| vitamin_b12 | 100.0 | 2000.0 | pg/mL |
+| ferritin | 1.0 | 10000.0 | ng/mL |
+| hemoglobin | 3.0 | 25.0 | g/dL |
+| wbc | 0.1 | 100.0 | K/uL |
+| platelets | 10.0 | 1500.0 | K/uL |
+| sodium | 100.0 | 180.0 | mEq/L |
+| potassium | 1.5 | 9.0 | mEq/L |
+| chloride | 70.0 | 130.0 | mEq/L |
+| bun | 1.0 | 200.0 | mg/dL |
+| serum_glucose | 20.0 | 600.0 | mg/dL |
+| fructosamine | 100.0 | 700.0 | umol/L |
+
+### Tests
+
+**`tests/normalization/test_unit_converter.py`** (~10 tests):
+- `test_hba1c_mmol_mol_to_percent` — 48 mmol/mol → ≈6.54% (IFCC: 0.0915×48+2.15)
+- `test_identity_no_conversion_needed` — HbA1c already in % → same value
+- `test_glucose_mmol_l_to_mg_dl` — 5.5 mmol/L → 5.5×18.0182 ≈ 99.1 mg/dL
+- `test_cholesterol_mmol_l_to_mg_dl` — cholesterol conversion
+- `test_unknown_unit_raises` — raw_unit not in conversions → `UnitConversionError`
+- `test_missing_unit_none_raises` — None → `UnitMissing`
+- `test_missing_unit_empty_raises` — "" → `UnitMissing`
+- `test_qualifier_lt_preserved` — "<5.7" → canonical_value=5.7, qualifier="lt"
+- `test_qualifier_gte_preserved` — ">=6.5" → canonical_value=6.5, qualifier="gte"
+- `test_unknown_vitalog_id_raises` — raises `UnitConversionError`
+
+**`tests/normalization/test_range_validator.py`** (~6 tests):
+- `test_in_range_returns_true` — HbA1c 6.5% in [3.0, 18.0] → True
+- `test_below_min_returns_false` — HbA1c 1.0% → False
+- `test_above_max_returns_false` — HbA1c 25.0% → False
+- `test_boundary_min_included` — exactly 3.0 → True
+- `test_boundary_max_included` — exactly 18.0 → True
+- `test_unknown_vitalog_id_raises` — ValueError
+
+### Verification
+```bash
+pytest tests/normalization/test_unit_converter.py -q
+pytest tests/normalization/test_range_validator.py -q
+make lint && make typecheck
+```
+
 ## Notes / changelog
 
 _(append after work is done)_
