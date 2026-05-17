@@ -1,4 +1,4 @@
-.PHONY: setup lint format typecheck test migrate calibrate eval
+.PHONY: setup lint format typecheck test migrate calibrate eval pre-demo-check
 
 setup:
 	uv sync --group dev
@@ -26,3 +26,19 @@ calibrate:
 
 eval:
 	pytest -q tests/eval/
+
+pre-demo-check:
+	@echo "=== 1/2  Pending taxonomy queue ===" && \
+	uv run python -c "
+import os, sys
+from supabase import create_client
+from src.persistence.taxonomy_repository import TaxonomyRepository
+client = create_client(os.environ['SUPABASE_URL'], os.environ['SUPABASE_SERVICE_ROLE_KEY'])
+pending = TaxonomyRepository(client).list_pending(status='pending')
+if pending:
+    print(f'FAIL: {len(pending)} unresolved pending entries'); sys.exit(1)
+print('OK: queue is empty')
+" && \
+	echo "=== 2/2  Unit tests ===" && \
+	uv run pytest -q -m "not integration" && \
+	echo "" && echo "pre-demo-check PASSED"
