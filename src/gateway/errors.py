@@ -51,3 +51,25 @@ class ModeAVerificationError(GatewayError):
 
 class OwnershipLeakError(ModeAVerificationError):
     """Raised when a citation references a record belonging to a different patient."""
+
+
+class ModeBVerificationError(GatewayError):
+    """Base class for Mode B prose verification failures."""
+
+
+class UnmatchedNumericError(ModeBVerificationError):
+    """Raised when a numeric value in prose has no matching record in the retrieval set."""
+
+    def __init__(self, value: float, unit: str | None) -> None:
+        self.value = value
+        self.unit = unit
+        super().__init__(f"Mode B: no retrieval-set match for value={value} unit={unit!r}")
+
+
+class UnitMismatchError(ModeBVerificationError):
+    """Raised when a numeric's adjacent unit does not match any value-matching record."""
+
+    def __init__(self, value: float, cited_unit: str) -> None:
+        self.value = value
+        self.cited_unit = cited_unit
+        super().__init__(f"Mode B: unit mismatch for value={value}, cited={cited_unit!r}")
