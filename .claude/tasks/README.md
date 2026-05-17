@@ -48,7 +48,7 @@ Status legend: ⬜ pending · 🟡 in progress · ✅ done · ⏸ blocked
 | ID | Title | Pts | Status | Depends on |
 |---|---|---|---|---|
 | [E1](E1_normalization_tier1_alias.md) | Tier 1 LOINC-aware alias lookup | 3 | ✅ | A2, A3 |
-| [E2](E2_pending_taxonomy_queue.md) | Tier 4 pending taxonomy queue + admin CLI | 5 | ⬜ | E1, A3 |
+| [E2](E2_pending_taxonomy_queue.md) | Tier 4 pending taxonomy queue + admin CLI | 5 | ✅ | E1, A3 |
 | [E3](E3_unit_conversion_range_validation.md) | Unit conversion + range validation | 3 | ⬜ | A2, E1 |
 | [E4](E4_duplicate_detection.md) | Duplicate detection | 3 | ⬜ | E1, E3 |
 

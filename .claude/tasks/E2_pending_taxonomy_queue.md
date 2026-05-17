@@ -67,4 +67,27 @@ Tier 4 is the safety valve for capstone — when the 30-entry seed inevitably mi
 
 ## Notes / changelog
 
-_(append after work is done)_
+### Implementation (2026-05-16)
+
+**Files created:**
+- `src/normalization/pending_queue.py` — `PendingQueue.enqueue(raw_name, document_id, raw_unit)` thin wrapper around `TaxonomyRepository.add_pending()`; `candidate_loinc_codes` and `similarity_to_existing` intentionally empty for capstone
+- `src/normalization/taxonomy_editor.py` — `add_alias(vitalog_id, alias, taxonomy_path)` is the only legitimate path to edit `biomarker_taxonomy.json`; validates no duplicate alias or canonical name collision, appends alias, writes file with `ensure_ascii=False`, calls `_index.cache_clear()` to rebuild Tier 1 index
+- `scripts/resolve_pending.py` — admin CLI with three subcommands: `list` (prints table of pending entries), `confirm <id> --canonical <vid>` (add alias + bulk-update biomarker records + mark entry confirmed), `reject <id>` (mark entry rejected); uses `SUPABASE_SERVICE_ROLE_KEY` to bypass RLS
+- `tests/normalization/test_pending_queue.py` — 5 unit tests covering `enqueue()` contract (raw_name, document_id, raw_unit passthrough, empty loinc/similarity, status=pending)
+- `tests/scripts/test_resolve_pending_cli.py` — 12 unit tests covering `cmd_list`, `cmd_confirm`, `cmd_reject`; all Supabase and file I/O mocked
+
+**Files modified:**
+- `src/persistence/biomarker_repository.py` — added `resolve_pending_records(pending_taxonomy_id, canonical_biomarker_id) -> int`; bulk-updates canonical and `verified_by='admin'` for all records linked to a pending entry; returns count updated
+- `Makefile` — added `pre-demo-check` target: (1) query Supabase for pending=0, (2) run unit tests; skips C3/C5 accuracy gates (deferred)
+
+**Key design decisions:**
+- Operation ordering in `cmd_confirm`: `add_alias` runs before `resolve_pending_records` so an invalid `--canonical` id fails fast (ValueError) before any DB writes, avoiding FK violations mid-operation
+- `TaxonomyEditor` clears Tier 1's `lru_cache` after every write so the in-memory alias index stays consistent with the file; cache is rebuilt lazily on the next `lookup()` call
+- CLI intentionally exits with `SystemExit(1)` (via `sys.exit`) when a pending_id is not found — fail-loud rather than silently continue
+- Duplicate alias during `confirm` is tolerated with a warning (not a hard error) since the alias may already exist legitimately (e.g., confirming a second pending entry for the same raw_name)
+
+**PR review fixes:**
+- Swapped operation order in `cmd_confirm`: moved `add_alias` block before `resolve_pending_records` to ensure taxonomy validation precedes any DB mutation
+- Fixed ruff N806 (variable names that shadowed class names), F841 (unused mock variables), F821 (undefined mock_index reference)
+
+**PR:** #16 (merged)

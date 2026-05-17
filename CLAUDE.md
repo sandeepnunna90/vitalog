@@ -103,6 +103,12 @@ Storage policy (classification-gated, §7.6):
 - `src/normalization/tier1.py` — `lookup(raw_name) -> str | None`; O(1) lru_cached index built from `load_taxonomy()`; only public entry point
 - `src/normalization/__init__.py` — exports `lookup`
 - `tests/normalization/test_tier1.py` — 303 tests; all 30 canonical names + all aliases (parametrized), case folding, whitespace, parentheticals, unknown→None, duplicate detection
+- `src/normalization/pending_queue.py` — `PendingQueue.enqueue(raw_name, document_id, raw_unit)` stages unrecognized names via `TaxonomyRepository.add_pending()`; empty loinc/similarity for capstone
+- `src/normalization/taxonomy_editor.py` — `add_alias(vitalog_id, alias)` only legitimate path to edit `biomarker_taxonomy.json`; validates no duplicate, writes file, clears Tier 1 `lru_cache`
+- `src/persistence/biomarker_repository.py` — added `resolve_pending_records(pending_taxonomy_id, canonical_biomarker_id)` bulk-updates canonical + `verified_by='admin'`
+- `scripts/resolve_pending.py` — admin CLI: `list` / `confirm <id> --canonical <vid>` / `reject <id>`; `add_alias` runs before DB writes to fail fast on invalid canonical
+- `Makefile` — `pre-demo-check` target: queue empty check + unit tests
+- `tests/normalization/test_pending_queue.py` + `tests/scripts/test_resolve_pending_cli.py` — 17 tests; all Supabase calls mocked
 
 **Built (Epic C):**
 - `src/eval/synthesis/content_generator.py` — 16-biomarker `BIOMARKER_RANGES` dict; `generate_readings(seed, overrides)` via `random.Random(seed)`; `overrides` kwarg for H1 hero dataset pins
