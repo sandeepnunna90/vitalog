@@ -30,8 +30,11 @@ def validate_physiological_range(vitalog_id: str, canonical_value: float) -> Ran
     if entry is None:
         raise ValueError(f"vitalog_id {vitalog_id!r} not found in taxonomy")
 
-    phys_min: float = entry["physiological_min"]
-    phys_max: float = entry["physiological_max"]
+    if "physiological_min" not in entry or "physiological_max" not in entry:
+        raise ValueError(f"vitalog_id {vitalog_id!r} missing physiological bounds in taxonomy")
+
+    phys_min: float = float(entry["physiological_min"])
+    phys_max: float = float(entry["physiological_max"])
     return RangeValidationResult(
         in_physiological_range=phys_min <= canonical_value <= phys_max,
         physiological_min=phys_min,

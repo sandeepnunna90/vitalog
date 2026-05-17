@@ -74,7 +74,7 @@ class UnitConversionError(Exception):
     vitalog_id: str
     raw_unit: str
 
-class UnitMissing(Exception):
+class UnitMissingError(Exception):
     vitalog_id: str
 ```
 

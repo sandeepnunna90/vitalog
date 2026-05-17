@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import dataclasses
+
 import pytest
 
 from src.normalization.errors import UnitConversionError, UnitMissingError
@@ -118,8 +120,19 @@ def test_cholesterol_mmol_l_to_mg_dl() -> None:
     assert result.canonical_unit == "mg/dL"
 
 
+def test_qualifier_preserved_through_conversion() -> None:
+    result = convert("hba1c", "<48", "mmol/mol")
+    assert result.range_qualifier == "lt"
+    assert abs(result.canonical_value - 6.542) < 0.001
+
+
+def test_unparseable_value_raises_value_error() -> None:
+    with pytest.raises(ValueError):
+        convert("hba1c", "abc", "%")
+
+
 def test_result_is_frozen_dataclass() -> None:
     result = convert("hba1c", "7.0", "%")
     assert isinstance(result, ConversionResult)
-    with pytest.raises(Exception):
+    with pytest.raises(dataclasses.FrozenInstanceError):
         result.canonical_value = 0.0  # type: ignore[misc]

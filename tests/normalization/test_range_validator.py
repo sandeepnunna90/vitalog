@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import dataclasses
+
 import pytest
 
 from src.normalization.range_validator import RangeValidationResult, validate_physiological_range
@@ -52,7 +54,7 @@ def test_glucose_extreme_high_out_of_range() -> None:
 def test_result_is_frozen_dataclass() -> None:
     result = validate_physiological_range("hba1c", 6.5)
     assert isinstance(result, RangeValidationResult)
-    with pytest.raises(Exception):
+    with pytest.raises(dataclasses.FrozenInstanceError):
         result.in_physiological_range = False  # type: ignore[misc]
 
 

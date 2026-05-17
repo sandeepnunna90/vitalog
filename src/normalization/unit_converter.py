@@ -74,6 +74,8 @@ def _find_entry(taxonomy: list[dict[str, Any]], vitalog_id: str) -> dict[str, An
 
 
 def _units_equal(a: str, b: str) -> bool:
+    # Case-fold intentionally: UCUM is case-significant in strict mode, but real-world
+    # lab reports routinely emit "MG/DL", "Mg/dL", etc. Pragmatic relaxation for capstone.
     return a.strip().lower() == b.strip().lower()
 
 
