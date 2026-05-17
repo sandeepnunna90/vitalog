@@ -101,7 +101,7 @@ Storage policy (classification-gated, §7.6):
 **Built (Epic E):**
 - `src/normalization/index_builder.py` — `_normalize_key()` (lowercase + whitespace collapse + parenthetical strip) + `build_index()` (raises ValueError on duplicate alias across entries)
 - `src/normalization/tier1.py` — `lookup(raw_name) -> str | None`; O(1) lru_cached index built from `load_taxonomy()`; only public entry point
-- `src/normalization/__init__.py` — exports `lookup`
+- `src/normalization/__init__.py` — exports `lookup`, `convert`, `validate_physiological_range`, `UnitConversionError`, `UnitMissingError`, `ConversionResult`, `RangeValidationResult`
 - `tests/normalization/test_tier1.py` — 303 tests; all 30 canonical names + all aliases (parametrized), case folding, whitespace, parentheticals, unknown→None, duplicate detection
 - `src/normalization/pending_queue.py` — `PendingQueue.enqueue(raw_name, document_id, raw_unit)` stages unrecognized names via `TaxonomyRepository.add_pending()`; empty loinc/similarity for capstone
 - `src/normalization/taxonomy_editor.py` — `add_alias(vitalog_id, alias)` only legitimate path to edit `biomarker_taxonomy.json`; validates no duplicate, writes file, clears Tier 1 `lru_cache`
@@ -109,6 +109,11 @@ Storage policy (classification-gated, §7.6):
 - `scripts/resolve_pending.py` — admin CLI: `list` / `confirm <id> --canonical <vid>` / `reject <id>`; `add_alias` runs before DB writes to fail fast on invalid canonical
 - `Makefile` — `pre-demo-check` target: queue empty check + unit tests
 - `tests/normalization/test_pending_queue.py` + `tests/scripts/test_resolve_pending_cli.py` — 17 tests; all Supabase calls mocked
+- `src/normalization/errors.py` — `UnitConversionError(vitalog_id, raw_unit, detail)` + `UnitMissingError(vitalog_id)`
+- `src/normalization/unit_converter.py` — `convert(vitalog_id, raw_value_str, raw_unit) → ConversionResult`; linear formula + IFCC→NGSP for HbA1c; qualifier-prefix parsing (`<5.7` → value=5.7, qualifier="lt"); case-insensitive unit matching; zero LLM calls (P4)
+- `src/normalization/range_validator.py` — `validate_physiological_range(vitalog_id, canonical_value) → RangeValidationResult`; checks `physiological_min`/`physiological_max` from taxonomy
+- `reference_data/biomarker_taxonomy.json` — added `physiological_min` + `physiological_max` to all 30 entries
+- `tests/normalization/test_unit_converter.py` + `test_range_validator.py` — 27 tests; IFCC formula, identity, qualifier threading, unparseable value, missing unit, physiological bounds
 
 **Built (Epic C):**
 - `src/eval/synthesis/content_generator.py` — 16-biomarker `BIOMARKER_RANGES` dict; `generate_readings(seed, overrides)` via `random.Random(seed)`; `overrides` kwarg for H1 hero dataset pins
@@ -119,7 +124,7 @@ Storage policy (classification-gated, §7.6):
 - `tests/eval/test_synthesis_reproducibility.py` + `test_ground_truth_invariants.py` — 18 tests; reproducibility, AC3 field invariants, custom params, overrides, filename format
 
 **Up next (Epic E–F):**
-- `src/normalization/` — E2 pending queue, E3 unit conversion, E4 dedup
+- `src/normalization/` — E4 dedup
 - `src/intelligence/summary_generator.py` — Mode A citation-verified summary *(F5)*
 - `src/intelligence/observation_generator.py` — Mode B factual observations *(F2)*
 - `src/mcp_server/server.py` — stdio MCP server, 6 tools *(G1)*

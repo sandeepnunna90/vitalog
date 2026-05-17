@@ -177,4 +177,31 @@ make lint && make typecheck
 
 ## Notes / changelog
 
-_(append after work is done)_
+### Implementation (2026-05-16)
+
+**Files created:**
+- `src/normalization/errors.py` — `UnitConversionError(vitalog_id, raw_unit, detail="")` + `UnitMissingError(vitalog_id)`; `UnitMissingError` uses `Error` suffix (ruff N818)
+- `src/normalization/unit_converter.py` — `convert(vitalog_id, raw_value_str, raw_unit) → ConversionResult`; `_parse_value()` handles qualifier prefixes (`<`, `<=`, `>`, `>=`) plus plain numerics and trailing text; `_units_equal()` case-folds (intentional UCUM relaxation for real-world lab data); `_apply_formula()` dispatches `linear` (factor×raw) and `ifcc_to_ngsp` (0.0915×raw+2.15)
+- `src/normalization/range_validator.py` — `validate_physiological_range(vitalog_id, canonical_value) → RangeValidationResult`; guards missing physiological fields with explicit `ValueError`; uses `float()` cast for type safety
+- `tests/normalization/test_unit_converter.py` — 18 tests: IFCC formula (48 mmol/mol → 6.542%), identity, case-insensitive unit match, unknown unit/vitalog_id, missing/empty/whitespace unit, all four qualifier types, qualifier through IFCC conversion, unparseable value, frozen dataclass
+- `tests/normalization/test_range_validator.py` — 9 tests: in-range, below min, above max, both boundaries, cross-biomarker, frozen dataclass, unknown vitalog_id
+
+**Files modified:**
+- `reference_data/biomarker_taxonomy.json` — added `physiological_min` and `physiological_max` to all 30 entries; fields inserted after `unit_conversions` via Python script
+- `src/normalization/__init__.py` — added exports for `convert`, `validate_physiological_range`, `UnitConversionError`, `UnitMissingError`, `ConversionResult`, `RangeValidationResult`
+
+**Key design decisions:**
+- Qualifier prefix is preserved in `ConversionResult.range_qualifier` ("lt", "lte", "gt", "gte", "eq") so the caller can store and display `<5.7%` rather than `5.7%`; qualifier is threaded through formula application unchanged
+- `_units_equal` folds to lowercase for comparison — UCUM is case-significant in strict mode but real-world lab reports emit `MG/DL`, `Mg/dL`, etc.; pragmatic relaxation documented in inline comment
+- Physiological bounds are wider than guideline ranges (e.g., HbA1c physiological 3.0–18.0% vs guideline normal <5.7%); out-of-physiological-range signals likely parser error, not clinical significance
+- `UnitMissingError` replaces the plan's `UnitMissing` to satisfy ruff N818 (exception names must end in `Error`)
+
+**PR review fixes:**
+- Added explicit guard for missing `physiological_min`/`physiological_max` keys in `range_validator.py` + `float()` cast
+- Added inline comment on `_units_equal` explaining intentional UCUM case-fold relaxation
+- Fixed frozen dataclass tests to use `dataclasses.FrozenInstanceError` instead of bare `Exception`
+- Added `test_qualifier_preserved_through_conversion` (qualifier via IFCC formula, not just identity path)
+- Added `test_unparseable_value_raises_value_error`
+- Exported all new public symbols from `src/normalization/__init__.py`
+
+**PR:** #17 (merged)
