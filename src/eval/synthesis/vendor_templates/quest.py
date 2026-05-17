@@ -18,7 +18,7 @@ from reportlab.platypus import (
     TableStyle,
 )
 
-from src.eval.synthesis.content_generator import generate_readings
+from src.eval.synthesis.content_generator import BiomarkerReading, generate_readings
 from src.eval.synthesis.ground_truth_writer import write_ground_truth
 
 _CREATION_DATE_RE = re.compile(rb"/CreationDate\s*\(D:[^)]+\)")
@@ -42,10 +42,10 @@ def _make_reproducible(pdf_bytes: bytes) -> bytes:
 
 
 def _build_pdf(
+    readings: list[BiomarkerReading],
     seed: int,
     collection_date: str,
     lab_source: str,
-    overrides: dict[str, str] | None,
 ) -> bytes:
     buf = io.BytesIO()
     doc = SimpleDocTemplate(
@@ -59,8 +59,6 @@ def _build_pdf(
     styles = getSampleStyleSheet()
     normal = styles["Normal"]
     bold = styles["h2"]
-
-    readings = generate_readings(seed, overrides)
 
     elements = []
 
@@ -136,15 +134,16 @@ def generate_report(
 
     Returns (pdf_path, ground_truth_path).
     overrides maps vitalog_id → value string for H1 hero dataset pins.
+    out_dir must exist before calling; created with mkdir if needed.
     """
+    out_dir.mkdir(parents=True, exist_ok=True)
     date = collection_date or "1970-01-01"
     pdf_path = out_dir / f"synthetic_{seed:06d}.pdf"
     gt_path = out_dir / f"synthetic_{seed:06d}.ground_truth.json"
 
-    pdf_bytes = _build_pdf(seed, date, lab_source, overrides)
-    pdf_path.write_bytes(pdf_bytes)
-
     readings = generate_readings(seed, overrides)
+    pdf_bytes = _build_pdf(readings, seed, date, lab_source)
+    pdf_path.write_bytes(pdf_bytes)
     write_ground_truth(gt_path, readings, date, lab_source)
 
     return pdf_path, gt_path
