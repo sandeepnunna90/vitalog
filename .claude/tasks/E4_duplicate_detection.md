@@ -62,4 +62,27 @@ The architecture choice "Both records stored if ambiguous; user/admin notified" 
 
 ## Notes / changelog
 
-_(append after work is done)_
+### Implementation (2026-05-17)
+
+**Files created:**
+- `src/normalization/constants.py` — `MODE_B_NUMERIC_TOLERANCE = 0.005` as shared constant; decouples future Mode B (B5) from the detector module
+- `src/normalization/duplicate_detector.py` — `DuplicateCheckResult` (Pydantic, Literal status) + `DuplicateDetector.check()`; `audit_repo` required injection; `_build_notification()` private helper
+- `tests/normalization/test_duplicate_detector.py` — 16 unit tests (14 original + 2 from PR review fixes)
+
+**Files modified:**
+- `src/persistence/biomarker_repository.py` — added `find_potential_duplicates(patient_id, canonical_id, collection_date)`
+- `src/normalization/__init__.py` — exports `DuplicateDetector`, `DuplicateCheckResult`, `MODE_B_NUMERIC_TOLERANCE`
+
+**Key design decisions:**
+- Tolerance constant in `constants.py` (not `duplicate_detector.py`) so Mode B can import it without coupling to the detector
+- Literal status string (`"duplicate"/"value_conflict"/"no_match"/"skipped_no_date"`) rather than boolean flags — tagged union with no impossible states
+- `audit_repo` required (not optional) — consistent with codebase pattern; optional would silently drop events in production
+- `check()` called after storage so both `record_id`s are available for the AC6 audit event
+- Prior records with `canonical_value=None` are skipped (can't compare)
+- Zero-value guard: `if ref == 0.0: within_tolerance = canonical_value == 0.0` prevents `ZeroDivisionError`
+
+**PR review fixes (PR #18):**
+- Fixed first-match-only bug: original `else: return` inside loop short-circuited on first value_conflict, missing any exact duplicate later in the list. Restructured to accumulate `conflict_prior` and continue iterating; duplicate always takes priority.
+- Added `dedup_skipped_no_date` audit event when `collection_date is None` — surfaces skipped dedup in analytics
+- Added 2 new tests: `test_duplicate_wins_over_earlier_conflict` (covers loop fix) and `test_audit_event_on_skipped_no_date`; added negative assertion to `test_no_existing_records_returns_no_match`
+- Added comment on `%-d` strftime portability

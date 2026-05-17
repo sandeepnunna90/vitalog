@@ -114,6 +114,10 @@ Storage policy (classification-gated, §7.6):
 - `src/normalization/range_validator.py` — `validate_physiological_range(vitalog_id, canonical_value) → RangeValidationResult`; checks `physiological_min`/`physiological_max` from taxonomy
 - `reference_data/biomarker_taxonomy.json` — added `physiological_min` + `physiological_max` to all 30 entries
 - `tests/normalization/test_unit_converter.py` + `test_range_validator.py` — 27 tests; IFCC formula, identity, qualifier threading, unparseable value, missing unit, physiological bounds
+- `src/normalization/constants.py` — `MODE_B_NUMERIC_TOLERANCE = 0.005`; shared by duplicate detector (E4) and future Mode B citation verifier (B5)
+- `src/normalization/duplicate_detector.py` — `DuplicateCheckResult` (Literal status tagged union) + `DuplicateDetector.check()`; called after storage; accumulates tentative `conflict_prior` and iterates all priors so an exact duplicate is never missed behind an earlier conflict; writes `duplicate_detected` / `value_conflict` / `dedup_skipped_no_date` audit events
+- `src/persistence/biomarker_repository.py` — added `find_potential_duplicates(patient_id, canonical_id, collection_date)` querying by exact date
+- `tests/normalization/test_duplicate_detector.py` — 16 tests; all repos mocked; covers all 6 ACs + loop-priority fix + audit-not-called negative assertions
 
 **Built (Epic C):**
 - `src/eval/synthesis/content_generator.py` — 16-biomarker `BIOMARKER_RANGES` dict; `generate_readings(seed, overrides)` via `random.Random(seed)`; `overrides` kwarg for H1 hero dataset pins
@@ -123,8 +127,7 @@ Storage policy (classification-gated, §7.6):
 - `scripts/generate_synthetic.py` — CLI `--vendor quest --count --seed --out`
 - `tests/eval/test_synthesis_reproducibility.py` + `test_ground_truth_invariants.py` — 18 tests; reproducibility, AC3 field invariants, custom params, overrides, filename format
 
-**Up next (Epic E–F):**
-- `src/normalization/` — E4 dedup
+**Up next (Epic F):**
 - `src/intelligence/summary_generator.py` — Mode A citation-verified summary *(F5)*
 - `src/intelligence/observation_generator.py` — Mode B factual observations *(F2)*
 - `src/mcp_server/server.py` — stdio MCP server, 6 tools *(G1)*
