@@ -503,6 +503,23 @@ Some capabilities don't live in a single phase — they evolve across all of the
 | v2 | ~300 biomarkers; auto-promote logic on N confirmations; admin dashboard |
 | Scale | Multi-tenant taxonomy; possible community curation; possible per-tenant overrides |
 
+### Taxonomy DB Migration (v1 prerequisite)
+
+The `canonical_biomarker` table already exists in the Supabase schema (`migrations/001_initial_schema.sql`) with all required columns: `vitalog_id`, `canonical_name`, `loinc_code`, `ucum_unit`, `aliases` (JSONB), `conditions` (JSONB), `guideline_ranges` (JSONB), `guideline_citations` (JSONB), `verification_tier`, `verified`. The table is seeded but **not queried at runtime during capstone** — Tier 1 normalization and context cards read from the JSON files in `src/reference_data/` via `@lru_cache` loaders.
+
+**Why flip to DB in v1** (not a performance concern — 10K entries in JSON ≈ 5 MB in memory, fine):
+- Dynamic taxonomy updates without a redeploy
+- Non-engineer admin UI for curation (simple web form can add/edit entries)
+- Auto-promote pipeline (N independent confirmations trigger promotion from `pending` → `canonical`)
+- Per-tenant taxonomy overrides at Scale phase
+
+**3-step migration story for v1:**
+1. **Step A — Seed script.** One-time script loads `biomarker_taxonomy.json` into the `canonical_biomarker` table. Idempotent; safe to re-run.
+2. **Step B — Flip loaders.** Change `load_taxonomy()` in `src/reference_data/__init__.py` and `Tier1.lookup()` in `src/normalization/tier1.py` to query Supabase instead of reading the JSON file. No other call sites change.
+3. **Step C — Keep JSON as dev/test fallback.** JSON file remains source-of-truth for local dev and `pytest` unit tests (no live DB required). An env flag (`TAXONOMY_SOURCE=db|json`) selects the path.
+
+**Context cards (F4) are unaffected by the migration.** `get_context_card()` reads through `load_taxonomy()` — when the loader flips to DB, context cards automatically benefit with no changes to card logic or schema.
+
 ### Guardrails
 
 | Phase | State |
