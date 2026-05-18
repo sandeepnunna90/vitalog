@@ -57,10 +57,10 @@ def test_load_is_cached() -> None:
 
 def test_no_supabase_or_anthropic_in_loader() -> None:
     import importlib.util
-    import pathlib
+    from pathlib import Path
 
-    src = pathlib.Path("src/reference_data/patient_profile.py").read_text()
+    loader_path = Path(__file__).parent.parent.parent / "src/reference_data/patient_profile.py"
+    src = loader_path.read_text()
     assert "supabase" not in src
     assert "anthropic" not in src
-    # make sure importlib resolved it (sanity)
     assert importlib.util.find_spec("src.reference_data.patient_profile") is not None

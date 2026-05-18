@@ -29,6 +29,7 @@ class PatientProfile(_Base):
     dob: date
     profile_version: str
     profile_version_hash: str  # SHA-256 of raw JSON bytes, injected by loader
+    note: str  # human-readable label (e.g. "DEMO PROFILE — synthetic data")
     conditions: list[str]  # condition codes matching condition_biomarker_map keys
     medications: list[Medication]
     allergies: list[Allergy]
