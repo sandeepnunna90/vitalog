@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import io
 from typing import Any
+from xml.sax.saxutils import escape
 
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
@@ -78,9 +79,9 @@ def export_pdf(row: SummaryRow) -> bytes:
         label = _SECTION_LABELS[section_key]
         content = row.content_json.get(section_key, "")
         story.append(Paragraph(label, style_h2))
-        story.append(Paragraph(content or "None", style_body))
+        story.append(Paragraph(escape(content) or "None", style_body))
         for note_text in annotations_by_section.get(section_key, []):
-            story.append(Paragraph(f"Patient note: {note_text}", style_italic))
+            story.append(Paragraph(f"Patient note: {escape(note_text)}", style_italic))
         story.append(Spacer(1, 6))
 
     citations: list[dict[str, Any]] = row.content_json.get("citations", [])

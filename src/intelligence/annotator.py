@@ -42,7 +42,24 @@ class SummaryAnnotator:
             patient_id=summary.patient_id,
             content_json=summary.model_dump(mode="json"),
         )
-        return self._repo.add(create)
+        row = self._repo.add(create)
+        _audit_log.info(
+            "summary_persisted",
+            extra={"patient_id": str(summary.patient_id), "summary_id": str(row.summary_id)},
+        )
+        if self._audit is not None:
+            try:
+                self._audit.record(
+                    actor="system",
+                    event_type="summary_persisted",
+                    payload={
+                        "patient_id": str(summary.patient_id),
+                        "summary_id": str(row.summary_id),
+                    },
+                )
+            except Exception:  # noqa: BLE001
+                pass  # audit failure must never break the caller
+        return row
 
     def add_note(self, summary_id: uuid.UUID, section: str, text: str) -> SummaryRow:
         """Append a patient annotation to a summary section.

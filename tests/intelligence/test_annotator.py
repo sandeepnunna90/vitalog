@@ -90,6 +90,20 @@ def test_persist_returns_row_with_summary_id() -> None:
     assert row.summary_id == _SUMMARY_ID
 
 
+def test_persist_emits_audit_event() -> None:
+    """persist() calls audit_repo.record with event_type='summary_persisted'."""
+    summary = _make_summary()
+    repo = _make_repo()
+    audit_repo = MagicMock()
+    annotator = SummaryAnnotator(summary_repo=repo, audit_repo=audit_repo)
+
+    annotator.persist(summary)
+
+    audit_repo.record.assert_called_once()
+    kwargs = audit_repo.record.call_args.kwargs
+    assert kwargs["event_type"] == "summary_persisted"
+
+
 def test_add_note_appends_annotation() -> None:
     """add_note() fetches the row, appends annotation, and calls update_annotations()."""
     existing_row = _make_row(patient_annotations=None)
