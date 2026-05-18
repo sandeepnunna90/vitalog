@@ -50,7 +50,12 @@ class ModeAVerificationError(GatewayError):
 
 
 class OwnershipLeakError(ModeAVerificationError):
-    """Raised when a citation references a record belonging to a different patient."""
+    """Raised when a citation references a record belonging to a different patient.
+
+    Kept as a distinct subclass (rather than a flag on ModeAVerificationError) so
+    callers and tests can distinguish a security violation from a numeric mismatch
+    without inspecting the reason string.
+    """
 
 
 class ModeBVerificationError(GatewayError):
