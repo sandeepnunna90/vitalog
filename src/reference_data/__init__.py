@@ -91,6 +91,12 @@ def _get_alias_index() -> dict[str, str]:
     return _build_alias_index(load_taxonomy())
 
 
+def invalidate_taxonomy_caches() -> None:
+    """Clear all taxonomy-derived lru_caches. Call after any taxonomy mutation."""
+    load_taxonomy.cache_clear()
+    _get_alias_index.cache_clear()
+
+
 def lookup_alias(raw_name: str) -> str | None:
     """Return the vitalog_id for a raw biomarker name, or None if not found.
 

@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from src.normalization.tier1 import _index
+from src.reference_data import invalidate_taxonomy_caches
 
 _DEFAULT_TAXONOMY_PATH = (
     Path(__file__).parent.parent.parent / "reference_data" / "biomarker_taxonomy.json"
@@ -40,5 +41,6 @@ def add_alias(
         encoding="utf-8",
     )
 
-    # Invalidate the cached index so the next lookup rebuilds from the updated file
+    # Invalidate all taxonomy-derived caches (Tier 1 index + reference_data alias index)
     _index.cache_clear()
+    invalidate_taxonomy_caches()
