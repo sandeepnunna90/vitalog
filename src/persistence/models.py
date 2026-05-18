@@ -171,8 +171,8 @@ class BiomarkerRecordCreate(_Base):
 class SummaryRow(_Base):
     summary_id: uuid.UUID
     patient_id: uuid.UUID
-    specialist_type: str
-    visit_type: str
+    specialist_type: str | None = None
+    visit_type: str | None = None
     generated_at: datetime
     content_json: dict[str, Any]
     patient_annotations: str | None
@@ -181,8 +181,8 @@ class SummaryRow(_Base):
 
 class SummaryCreate(_Base):
     patient_id: uuid.UUID
-    specialist_type: str
-    visit_type: str
+    specialist_type: str | None = None
+    visit_type: str | None = None
     content_json: dict[str, Any]
     patient_annotations: str | None = None
     exported_formats: list[Any] = []
