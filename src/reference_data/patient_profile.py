@@ -2,6 +2,10 @@
 
 The profile lives in reference_data/mark_profile.json and is never read from
 Supabase at capstone scope — see CLAUDE.md Gotchas and architecture §6.1.
+
+Task 18 (if-time): replace the hardcoded JSON with a Supabase lookup so that
+arbitrary patients can be loaded. Until then, MARK_PATIENT_ID is the only valid
+patient in the system.
 """
 
 from __future__ import annotations
