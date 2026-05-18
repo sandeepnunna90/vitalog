@@ -1,0 +1,2 @@
+timestamp,git_sha,prompt_versions_json,name_f1,value_f1,unit_f1,range_f1,date_f1,overall_f1
+20260518T132958Z,608082a23d16d560aa6ab7177d12a864f3f14d6a,"{""_shared"": ""safety_preamble"", ""classification"": ""v1"", ""extraction"": ""v1"", ""hello"": ""v1"", ""nlq"": ""v1"", ""observation"": ""v1"", ""structurer"": ""v1""}",1.0,1.0,1.0,1.0,1.0,1.0
