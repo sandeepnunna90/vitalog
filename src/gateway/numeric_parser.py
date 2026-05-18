@@ -111,7 +111,8 @@ def _should_skip(prose: str, m: re.Match[str], v: float) -> bool:
         return True
     # Preceded by a month name?
     pre = prose[: m.start()].rstrip()
-    last_word = pre.split()[-1].rstrip(",.").lower() if pre.split() else ""
+    pre_words = pre.split()
+    last_word = pre_words[-1].rstrip(",.").lower() if pre_words else ""
     if last_word in _MONTHS:
         return True
     # Followed by an age suffix? (count words are handled in parse() via the unit token check)
