@@ -48,10 +48,11 @@ class Gateway:
         prompts_dir: Path | None = None,
         audit_repo: Any | None = None,  # AuditLogRepository or None
         api_key: str | None = None,
+        eval_logger: EvalLogger | None = None,
     ) -> None:
         self._registry = PromptRegistry(prompts_dir)
         self._adapter = AnthropicAdapter(api_key)
-        self._logger = EvalLogger()
+        self._logger = eval_logger or EvalLogger()
         self._audit = audit_repo
         self._layer2 = Layer2(prompts_dir)
         self._layer3 = Layer3(prompts_dir)
@@ -285,9 +286,9 @@ class Gateway:
             return retry_raw, validated, in_tok + ri, out_tok + ro
         except (BannedPhraseViolation, SchemaValidationError) as retry_exc:
             # Attach accounting data so gateway.call() can log the real raw/tokens.
-            setattr(retry_exc, "_retry_raw", retry_raw)
-            setattr(retry_exc, "_retry_in_tok", in_tok + ri)
-            setattr(retry_exc, "_retry_out_tok", out_tok + ro)
+            retry_exc._retry_raw = retry_raw  # type: ignore[union-attr]
+            retry_exc._retry_in_tok = in_tok + ri  # type: ignore[union-attr]
+            retry_exc._retry_out_tok = out_tok + ro  # type: ignore[union-attr]
             raise
 
     # ── Private helpers ───────────────────────────────────────────────────────
