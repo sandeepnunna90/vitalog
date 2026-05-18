@@ -27,21 +27,76 @@ The corpus is the substrate for every quantitative claim Vitalog makes about its
 
 ## Files to create / modify
 
-- `eval_corpus/synthetic/` — populated by running C1
-- `eval_corpus/redacted_real/` — manually populated (this is the manual labor of the story)
-- `eval_corpus/adversarial/` — manually populated
-- `eval_corpus/manifest.json` — corpus manifest with hashes
-- `eval_corpus/redaction_checklist.md` — the checklist the founder followed
+- `src/eval/synthesis/vendor_templates/quest.py` — **improve** existing template with correct labels, panel grouping, column widths
+- `src/eval/synthesis/vendor_templates/labcorp.py` — **new** LabCorp template (based on user's real reports; placeholder until PDFs provided)
+- `src/eval/synthesis/vendor_templates/hospital.py` — **new** hospital/Epic 4-column format
+- `src/eval/synthesis/__init__.py` — export all 3 `generate_report` variants
+- `scripts/generate_synthetic.py` — add `--vendor labcorp` and `--vendor hospital`
+- `scripts/redact_real.py` — **new** PyMuPDF helper to redact HIPAA Safe Harbor identifiers from user-provided PDFs
 - `scripts/build_manifest.py` — hashes every PDF + ground_truth.json, writes manifest
+- `eval_corpus/synthetic/` — 10 PDFs + 10 ground_truth.json (generated)
+- `eval_corpus/redacted_real/` — 3–5 LabCorp PDFs (user-provided, redacted) + ground_truth.json + redaction_notes.md
+- `eval_corpus/adversarial/` — 3 PDFs + ground_truth.json + failure_mode_under_test.md
+- `eval_corpus/manifest.json` — corpus manifest with hashes
+- `eval_corpus/redaction_checklist.md` — the HIPAA Safe Harbor checklist followed during redaction
 - `tests/eval/test_corpus_integrity.py` — fails if any file's hash diverges from the manifest
 
 ## Implementation notes
 
-- Synthetic 10: 7 Quest-style + 3 variations using same template with different value distributions (one "all in range", one "T2D-typical", one "mixed normal/abnormal"). Include the 9-point HbA1c history Mark needs — those nine docs count toward the 10 (one extra is a non-HbA1c control).
-- Redacted real 3–5: founder sources from personal records, redacts manually per Safe Harbor checklist. Capstone explicitly does NOT have a full Safe Harbor pipeline; this is a one-time manual redaction step.
-- Adversarial 3: (a) photograph-of-paper with mild glare; (b) multi-page PDF where second page is a discharge summary (tests classification on the leading page); (c) report using `mmol/mol` for HbA1c instead of `%` (tests unit conversion).
-- Manifest hashes are SHA-256. Tampering with any corpus file fails the integrity test.
-- The manifest also stores expected classification (`lab_report` / `recognized_unsupported` / `not_supported`) for the adversarial mixed-content doc — used by classification accuracy eval.
+### Synthesizer improvements (expanded from original)
+
+C1 built one developer-approximated Quest template. C2 improves it and adds two more based on real formats:
+
+**Quest template fixes** (based on CLSI EP28-A3c and Quest patient education materials):
+- Column 5 header: "Reference Interval" (not "Reference Range") — Quest standardized on this post-2018
+- Patient block: "Specimen ID" (not "Accession #"), "Ordering Physician", "Patient ID"
+- Date block: three rows — Collected / Received / Reported (MM/DD/YYYY HH:MM)
+- Panel grouping: bold all-caps panel header rows; test rows indented
+  - METABOLIC PANEL: fasting_glucose, egfr, creatinine, bun, sodium, potassium
+  - LIPID PANEL: total_cholesterol, ldl_cholesterol, hdl_cholesterol, triglycerides
+  - ADDITIONAL TESTS: hba1c, tsh, vitamin_d, hemoglobin, wbc, platelets
+- Column widths (7.5in usable): TestName 3.0in / Result 0.9in / Flag 0.4in / Units 0.8in / RefInterval 1.4in
+
+**Hospital/Epic template** (new — 4-column format):
+- Columns: Test / Result / Reference Range / Units
+- Flag embedded in Result cell ("7.2 H") — no separate flag column
+- Header uses: "MRN", "Age", "Ordering Provider", "Accession"
+- Panel headers: bold with light gray background band
+- Lab name default: "Memorial Hospital Laboratory"
+
+**LabCorp template** (new — deferred until user provides real PDFs):
+- Placeholder `NotImplementedError` until layout is confirmed from real reports
+- User provides personal LabCorp reports → `scripts/redact_real.py` redacts PII → layout inspected → template built
+
+### Redacted real split
+
+- User provides personal LabCorp PDFs (3–5 reports)
+- `scripts/redact_real.py` uses PyMuPDF (`page.search_for()` + `page.add_redact_annot()` + `page.apply_redactions()`) to strip the 18 HIPAA Safe Harbor identifiers: name, DOB details, address, phone, MRN, accession number, ordering physician, NPI
+- Ground truth JSON curated manually after redaction (exact field values as printed)
+- `redaction_notes.md` documents what was removed from each doc
+- `redaction_checklist.md` is the Safe Harbor checklist
+
+### Synthetic 10
+
+Distribution across vendors: 4 × Quest (seed 100–103), 3 × LabCorp (seed 200–202, deferred), 3 × hospital (seed 300–302).
+Three value profiles: "all in range", "T2D-typical" (HbA1c 7.5, fasting_glucose 145, etc.), "mixed" (default random).
+Note: H1's 9-point HbA1c hero dataset is separate — generated by `scripts/build_hero_data.py`, not counted here.
+
+### Adversarial 3
+
+- (a) **Photo-of-paper**: Quest PDF → PyMuPDF render to image (150 dpi) → PIL effects (±2° rotation, Gaussian blur r=0.8, glare overlay) → image-only PDF. Tests vision-LLM fallback when Textract can't extract structured text.
+- (b) **Multi-page mixed**: Page 1 = Quest lab report (seed 999), Page 2 = discharge summary paragraphs. Tests classifier identifies `lab_report` from leading page.
+- (c) **mmol/mol HbA1c**: Quest report with HbA1c unit overridden to `"mmol/mol"`, value `"48"`, range `"20-42 mmol/mol"`. Tests E3 unit conversion path.
+
+### Manifest
+
+SHA-256 hashes of every PDF + ground_truth.json. Stores split, vendor, expected_classification per document. Integrity test fails if any file is modified without re-running `build_manifest.py`.
+
+### Sequencing
+
+1. Improve Quest + add hospital template → synthetic (Quest + hospital) + adversarial docs
+2. User provides LabCorp PDFs → redact → inspect layout → build LabCorp template → synthetic (LabCorp)
+3. Finalize corpus → `build_manifest.py` → integrity test
 
 ## Verification
 
