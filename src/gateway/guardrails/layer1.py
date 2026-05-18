@@ -73,7 +73,7 @@ def _collect_text(inputs: dict[str, Any]) -> str:
             parts.append(value)
         elif isinstance(value, dict):
             parts.append(_collect_text(value))
-    return " ".join(parts)
+    return "\n".join(parts)
 
 
 def detect_injection(inputs: dict[str, Any]) -> str | None:
