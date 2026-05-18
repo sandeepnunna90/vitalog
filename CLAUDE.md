@@ -54,7 +54,7 @@ Storage policy (classification-gated, §7.6):
 | `src/ingestion/` | Upload validation, classification, Textract/vision OCR, structurer, composite confidence |
 | `src/gateway/` | AI Gateway chokepoint, guardrails (L1/L2/L3), prompt registry, eval logger, Mode A + Mode B citation verifiers |
 | `src/normalization/` | Tier 1 alias lookup, unit conversion, range validation, duplicate detection |
-| `src/intelligence/` | Trend engine (F1 ✅); Observation Generator (F2 ✅); NLQ Handler + retrieval resolver (F3 ✅); Context cards (F4 ✅) — `context_cards.py` + `context_card_schemas.py`; Summary Generator (F5 ✅) — `summary_generator.py` + `summary_schemas.py` |
+| `src/intelligence/` | Trend engine (F1 ✅); Observation Generator (F2 ✅); NLQ Handler + retrieval resolver (F3 ✅); Context cards (F4 ✅) — `context_cards.py` + `context_card_schemas.py`; Summary Generator (F5 ✅) — `summary_generator.py` + `summary_schemas.py`; Annotation + Export (F6 ✅) — `annotator.py`, `export_schemas.py`, `exporter.py`, `exporters/pdf_exporter.py`, `exporters/markdown_exporter.py`, `exporters/json_exporter.py` |
 | `src/persistence/` | Repository pattern over Supabase; all DB entity models |
 | `src/eval/synthesis/` | Synthetic lab report generator (C1 ✅); Quest/hospital/LabCorp vendor templates (C2 ✅); ground truth writer |
 | `src/eval/harness/` | Extraction accuracy harness (C3 ✅): `comparator.py` (per-field comparison, ±0.5% decimal tolerance, rapidfuzz name matching), `aggregator.py` (precision/recall/F1 by field/split/band), `runner.py` (dry-run + live pipeline dispatch), `reporter.py` (accuracy.json + accuracy.md + history.csv) |
