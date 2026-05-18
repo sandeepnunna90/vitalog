@@ -58,7 +58,7 @@ Status legend: ⬜ pending · 🟡 in progress · ✅ done · ⏸ blocked
 | [F1](F1_trend_engine.md) | Trend Engine (deterministic) | 3 | ✅ | A3, E1 |
 | [F2](F2_observation_generator.md) | Observation Generator (Mode B) | 5 | ✅ | B1, B3, B5, F1 |
 | [F3](F3_nlq_handler.md) | NLQ Handler | 5 | ✅ | B1, B3, B5, A3 |
-| [F4](F4_context_cards.md) | Context cards | 3 | ⬜ | A2, F1 |
+| [F4](F4_context_cards.md) | Context cards | 3 | ✅ | A2, F1 |
 | [F5](F5_summary_generator_cardiology.md) | Summary Generator (cardiology, Mode A) | 8 | ⬜ | B1, B2, B3, B4, A3, A2 |
 | [F6](F6_annotation_and_export.md) | Annotation + export (PDF/MD/JSON) | 6 | ⬜ | F5, A3 |
 

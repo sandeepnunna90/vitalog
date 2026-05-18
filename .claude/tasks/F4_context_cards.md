@@ -61,4 +61,24 @@ Context cards turn "a number on a chart" into "a number I understand". They're e
 
 ## Notes / changelog
 
-_(append after work is done)_
+### Implementation (2026-05-18)
+
+**Files created:**
+- `reference_data/biomarker_taxonomy.json` — added `definition` field to all 30 entries (was missing; plain-language 1–2 sentence descriptions inserted after `canonical_name`)
+- `src/intelligence/context_card_schemas.py` — `RangeWithCitation`, `ContextCard`, `CardNotAvailable` Pydantic v2 models with `ConfigDict(strict=True)`
+- `src/intelligence/context_cards.py` — `get_context_card(vitalog_id, conditions)` pure function; two-tier range lookup (primary: `guideline_ranges.json` rich structured data; fallback: `taxonomy.guideline_ranges` simple strings with taxonomy citations); `DISCLAIMER` constant
+- `tests/intelligence/test_context_cards.py` — 99 unit tests covering all ACs
+
+**Key design decisions:**
+- **Two-tier range source:** 16 biomarkers appear in `guideline_ranges.json` (rich `label/value/unit/source_section` structure with DOI citations); 14 fall back to `taxonomy.guideline_ranges` simple strings — every card always has at least one cited range (AC3)
+- **Relevance bullet:** intersects `taxonomy.conditions` with caller-supplied patient conditions; looks up `display_name` from `condition_biomarker_map.json`. `taxonomy.conditions` is intentionally broader than the 9 capstone cbm conditions — out-of-scope codes (NAFLD, anemia, hyperthyroidism, etc.) are silently skipped by design
+- **No LLM:** zero `anthropic`/`Gateway` imports; enforced by source-scan test (AC4)
+- **Data-integrity tests:** two new tests guard that all cbm entries have `display_name` and that any condition code in both taxonomy and cbm always resolves correctly
+
+**PR review fixes:**
+- Added `test_all_cards_have_cited_ranges` — parametrized across all 30 IDs, asserts `r.source != ""` for every range (closes AC3 gap for fallback-path biomarkers)
+- Added `test_cbm_conditions_have_display_names` and `test_taxonomy_cbm_intersection_always_has_display_name` — guards `_build_relevance` invariant
+- Added comment on `next(iter(citations.values()), "")` documenting the single-citation fallback assumption
+- Data-integrity test initially discovered real inconsistency: 15 taxonomy condition codes (NAFLD, anemia, hyperthyroidism, etc.) are absent from cbm — intentional capstone scope gap, documented with a comment in `_build_relevance`
+
+**PR:** #25
