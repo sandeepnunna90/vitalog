@@ -76,7 +76,7 @@ def select_bands(
 ) -> list[TrendBand]:
     bands: list[TrendBand] = []
 
-    normal_key = next((k for k in guideline_ranges if "_normal" in k.lower()), None)
+    normal_key = next((k for k in guideline_ranges if k.lower().endswith("_normal")), None)
     if normal_key:
         bands.append(_make_band(normal_key, guideline_ranges[normal_key], guideline_citations))
 

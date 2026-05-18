@@ -97,7 +97,7 @@ class DuplicateDetector:
         if conflict_prior is not None:
             self._audit_repo.record(
                 actor="normalization",
-                event_type="value_conflict",
+                event_type="dedup_value_conflict",
                 payload={
                     "prior_record_id": str(conflict_prior.record_id),
                     "new_record_id": str(new_record_id),

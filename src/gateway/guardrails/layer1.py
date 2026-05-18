@@ -52,7 +52,7 @@ def _redact_str(text: str) -> str:
 def redact_for_log(inputs: dict[str, Any]) -> dict[str, Any]:
     """Return a new dict with PHI tokens replaced by stable tags.
 
-    Does not mutate the original dict. Recurses into nested dicts.
+    Does not mutate the original dict. Recurses into nested dicts and lists.
     Non-string values pass through unchanged.
     """
     result: dict[str, Any] = {}
@@ -61,6 +61,13 @@ def redact_for_log(inputs: dict[str, Any]) -> dict[str, Any]:
             result[key] = _redact_str(value)
         elif isinstance(value, dict):
             result[key] = redact_for_log(value)
+        elif isinstance(value, list):
+            result[key] = [
+                _redact_str(v)
+                if isinstance(v, str)
+                else (redact_for_log(v) if isinstance(v, dict) else v)
+                for v in value
+            ]
         else:
             result[key] = value
     return result
@@ -73,6 +80,12 @@ def _collect_text(inputs: dict[str, Any]) -> str:
             parts.append(value)
         elif isinstance(value, dict):
             parts.append(_collect_text(value))
+        elif isinstance(value, list):
+            for item in value:
+                if isinstance(item, str):
+                    parts.append(item)
+                elif isinstance(item, dict):
+                    parts.append(_collect_text(item))
     return "\n".join(parts)
 
 
