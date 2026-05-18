@@ -46,8 +46,9 @@ class SummaryGenerator:
     def generate(self, patient_id: uuid.UUID) -> Summary:
         """Produce a one-page health summary for the patient from all stored records.
 
-        All numeric values are citation-verified (Mode A). If both attempts fail,
-        returns a safe-refusal Summary with is_fallback=True and empty sections.
+        All numeric values are citation-verified (Mode A). Mode A verification is
+        retried once on failure. If both attempts fail, returns a safe-refusal Summary
+        with is_fallback=True and empty sections.
         Disclaimer is always appended by code — never LLM-generated.
         """
         profile = load_patient_profile()
@@ -82,6 +83,8 @@ class SummaryGenerator:
         inputs = _build_inputs(profile, accepted, gaps)
 
         result = self._attempt(inputs, retrieval_set, patient_id)
+        if result is None:
+            result = self._attempt(inputs, retrieval_set, patient_id)
         is_fallback = result is None
         out, citations = result if result is not None else (None, [])
         citation_count = len(citations)

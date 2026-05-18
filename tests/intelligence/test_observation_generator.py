@@ -185,6 +185,19 @@ def test_generate_safe_refusal_when_mode_b_fails_twice() -> None:
     assert obs.citations == []
 
 
+def test_generate_retry_succeeds_on_second_attempt() -> None:
+    """AC6: first attempt returns Mode B-rejected output; second attempt succeeds."""
+    gen = _make_generator()
+    with patch(
+        "src.gateway.anthropic_adapter.AnthropicAdapter.call",
+        side_effect=[(_BAD_RAW, 50, 20), (_GOOD_RAW, 50, 20)],
+    ):
+        obs = gen.generate(_RECORD_ID)
+
+    assert _SAFE_REFUSAL not in obs.text
+    assert "6.8" in obs.text
+
+
 # ── AC6: audit log ────────────────────────────────────────────────────────────
 
 

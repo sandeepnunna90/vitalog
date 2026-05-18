@@ -209,6 +209,19 @@ def test_answer_mode_b_rejects_hallucinated_value() -> None:
     assert resp.is_fallback is True
 
 
+def test_answer_mode_b_retry_succeeds_on_second_attempt() -> None:
+    """AC6: first attempt is Mode B-rejected; second attempt succeeds."""
+    handler = _make_handler()
+    with patch(
+        "src.gateway.anthropic_adapter.AnthropicAdapter.call",
+        side_effect=[(_BAD_RAW, 50, 20), (_GOOD_RAW, 50, 20)],
+    ):
+        resp = handler.answer("what's my HbA1c?", _PATIENT_ID)
+
+    assert resp.is_fallback is False
+    assert resp.text != _SAFE_REFUSAL
+
+
 # ── Partial retrieval: some found, some missing ───────────────────────────────
 
 

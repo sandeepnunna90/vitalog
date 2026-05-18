@@ -41,7 +41,8 @@ class NlqHandler:
         """Answer a natural-language query using only the patient's stored records.
 
         AC5: retrieval always runs before the LLM is called — no path skips this step.
-        AC3/AC6: if Mode B verification fails on both attempts, returns safe-refusal text.
+        AC3/AC6: Mode B verification is retried once on failure. If both attempts fail,
+        returns safe-refusal text.
         """
         result = resolve_query(query, patient_id, self._repo)
 
@@ -71,6 +72,8 @@ class NlqHandler:
         inputs = _build_inputs(query, result.retrieval_set, result.missing_canonical_ids)
 
         output = self._attempt(inputs, result.retrieval_set)
+        if output is None:
+            output = self._attempt(inputs, result.retrieval_set)
         text = output.text if output is not None else _SAFE_REFUSAL
         if result.matched_condition_names and output is not None:
             text = text + _condition_group_disclaimer(result.matched_condition_names)

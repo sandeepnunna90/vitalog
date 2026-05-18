@@ -45,8 +45,8 @@ class ObservationGenerator:
     ) -> Observation:
         """Generate a factual 1-3 sentence observation for a single biomarker record.
 
-        AC6: if Mode B verification fails on both attempts, returns a safe-refusal
-        observation rather than raising — the caller always receives a complete Observation.
+        AC6: Mode B verification is retried once on failure. If both attempts fail,
+        returns a safe-refusal observation — the caller always receives a complete Observation.
         """
         record = self._repo.get(record_id)
         if record is None:
@@ -66,6 +66,8 @@ class ObservationGenerator:
         inputs = _build_inputs(record, trend)
 
         output = self._attempt(inputs, retrieval_set)
+        if output is None:
+            output = self._attempt(inputs, retrieval_set)
         text = output.text if output is not None else _SAFE_REFUSAL
         citations: list[ObservationCitation] = output.citations if output is not None else []
 

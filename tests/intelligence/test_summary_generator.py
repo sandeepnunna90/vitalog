@@ -165,7 +165,28 @@ def test_safe_refusal_on_failure(mock_verify: MagicMock, mock_profile: MagicMock
     assert summary.conditions_section == ""
     assert summary.citations == []
     assert summary.disclaimer == DISCLAIMER
-    assert gateway.call.call_count == 1
+    assert gateway.call.call_count == 2  # two attempts before fallback
+
+
+@patch("src.intelligence.summary_generator.load_patient_profile")
+@patch("src.intelligence.summary_generator.verify_mode_a")
+def test_retry_succeeds_on_second_attempt(mock_verify: MagicMock, mock_profile: MagicMock) -> None:
+    """First attempt fails (Mode A rejects); second attempt succeeds → is_fallback=False."""
+    from src.gateway.errors import ModeAVerificationError
+
+    mock_profile.return_value = MagicMock(
+        conditions=["T2D"], medications=[], allergies=[]
+    )
+    repo = _mock_repo([_make_record()])
+    gateway = MagicMock()
+    gateway.call.return_value = _good_output()
+    mock_verify.side_effect = [ModeAVerificationError("bad cite"), None]
+
+    gen = _make_generator(gateway, repo)
+    summary = gen.generate(_PATIENT_ID)
+
+    assert summary.is_fallback is False
+    assert gateway.call.call_count == 2
 
 
 @patch("src.intelligence.summary_generator.load_biomarker_groups")
