@@ -20,3 +20,6 @@ prompts:
   - prompt_id: grader
     version: v1
     path: grader/v1.md
+  - prompt_id: summary
+    version: v1
+    path: summary/v1.md

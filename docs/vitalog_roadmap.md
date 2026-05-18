@@ -419,6 +419,7 @@ This phase is intentionally less detailed than earlier ones. Detail will come wh
 - Auto-promote logic for canonical taxonomy entries (N independent confirmations or time-based promotion) — was deferred from v1.5
 - Admin dashboard for taxonomy curation
 - Expanded biomarker library to ~300 entries
+- **Guideline monitoring agent** — background agent that detects new versions of named clinical guidelines (ADA, ACC/AHA, KDIGO, AACE/ATA, AHA/NHLBI) and flags stale entries in `biomarker_groups` for human review; agent detects and extracts, human approves before any change lands (was deferred from capstone F5)
 
 **Possibly:**
 - AWS migration from Supabase, if any of the documented triggers have fired
@@ -747,6 +748,7 @@ For when you're mid-build and need to look up "what did we decide to do with X?"
 - Support for unstructured medical content (visit notes, discharge summaries)
 - RAG for unstructured patient documents
 - Contextual health tips feature
+- Guideline monitoring agent (detects new guideline versions, flags stale `biomarker_groups` entries for human review)
 - Possibly: AWS migration (trigger-dependent)
 
 ### Items deferred to Scale

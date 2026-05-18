@@ -8,7 +8,7 @@ from __future__ import annotations
 import re
 from datetime import date
 
-from src.reference_data import load_condition_biomarker_map
+from src.reference_data import load_biomarker_groups
 from src.reference_data.patient_profile import MARK_PATIENT_ID, load_patient_profile
 from src.reference_data.patient_profile_schemas import PatientProfile
 
@@ -23,12 +23,12 @@ def test_patient_id_matches_constant() -> None:
     assert profile.patient_id == MARK_PATIENT_ID
 
 
-def test_conditions_are_exact_and_in_map() -> None:
+def test_conditions_are_exact_and_in_groups() -> None:
     profile = load_patient_profile()
     assert profile.conditions == ["T2D", "HTN", "hypothyroidism"]
-    condition_map = load_condition_biomarker_map()["conditions"]
+    groups = load_biomarker_groups()["conditions"]
     for code in profile.conditions:
-        assert code in condition_map, f"{code!r} not in condition_biomarker_map.json"
+        assert code in groups, f"{code!r} not in biomarker_groups.json"
 
 
 def test_rosuvastatin_present_with_correct_start_date() -> None:

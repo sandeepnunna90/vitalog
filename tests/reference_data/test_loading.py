@@ -2,23 +2,21 @@
 
 from src.reference_data import (
     load_all,
-    load_condition_biomarker_map,
+    load_biomarker_groups,
     load_guideline_ranges,
     load_loinc_subset,
-    load_specialist_templates,
     load_taxonomy,
     load_ucum_units,
 )
 
 
-def test_load_all_returns_six_keys() -> None:
+def test_load_all_returns_expected_keys() -> None:
     data = load_all()
     assert set(data.keys()) == {
         "taxonomy",
         "loinc_subset",
         "ucum_units",
-        "condition_biomarker_map",
-        "specialist_templates",
+        "biomarker_groups",
         "guideline_ranges",
     }
 
@@ -41,29 +39,15 @@ def test_ucum_units_loads() -> None:
     assert "conversions" in data
 
 
-def test_condition_biomarker_map_t2d_markers() -> None:
-    # AC5: T2D lookup returns expected primary biomarkers
-    data = load_condition_biomarker_map()
+def test_biomarker_groups_t2d_markers() -> None:
+    # AC5: T2D lookup returns expected biomarkers
+    data = load_biomarker_groups()
     t2d = data["conditions"]["T2D"]
-    primary = t2d["primary_biomarkers"]
-    monitoring = t2d["monitoring_biomarkers"]
-    all_markers = set(primary) | set(monitoring)
-    assert "hba1c" in all_markers
-    assert "fasting_glucose" in all_markers
-    assert "egfr" in all_markers
-    # lipid markers
-    assert "ldl_cholesterol" in all_markers or "total_cholesterol" in all_markers
-
-
-def test_specialist_templates_cardiology_first_visit() -> None:
-    # AC6: cardiology first_visit section list is present
-    data = load_specialist_templates()
-    template = data["templates"]["cardiology"]["first_visit"]
-    assert "sections" in template
-    section_ids = [s["id"] for s in template["sections"]]
-    assert "lipid_panel" in section_ids
-    assert "blood_pressure_trend" in section_ids
-    assert "disclaimer" in section_ids
+    markers = set(t2d["biomarkers"])
+    assert "hba1c" in markers
+    assert "fasting_glucose" in markers
+    assert "egfr" in markers
+    assert "ldl_cholesterol" in markers or "total_cholesterol" in markers
 
 
 def test_guideline_ranges_loads_all_organizations() -> None:
