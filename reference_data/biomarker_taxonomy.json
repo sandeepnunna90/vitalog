@@ -2,6 +2,7 @@
   {
     "vitalog_id": "hba1c",
     "canonical_name": "Hemoglobin A1c",
+    "definition": "Hemoglobin A1c measures the percentage of hemoglobin coated with sugar, reflecting average blood glucose over the past 2–3 months.",
     "loinc_code": "4548-4",
     "ucum_unit": "%",
     "unit_conversions": [
@@ -53,6 +54,7 @@
   {
     "vitalog_id": "fasting_glucose",
     "canonical_name": "Fasting Plasma Glucose",
+    "definition": "Fasting blood glucose measures blood sugar after ≥8 hours without eating, used to screen for and monitor diabetes and prediabetes.",
     "loinc_code": "1558-6",
     "ucum_unit": "mg/dL",
     "unit_conversions": [
@@ -102,6 +104,7 @@
   {
     "vitalog_id": "postprandial_glucose",
     "canonical_name": "2-Hour Postprandial Glucose",
+    "definition": "Postprandial glucose measures blood sugar 1–2 hours after a meal, reflecting how well your body processes carbohydrates.",
     "loinc_code": "1521-4",
     "ucum_unit": "mg/dL",
     "unit_conversions": [
@@ -149,6 +152,7 @@
   {
     "vitalog_id": "total_cholesterol",
     "canonical_name": "Total Cholesterol",
+    "definition": "Total cholesterol is the combined amount of LDL, HDL, and VLDL in your blood; used as an initial cardiovascular risk screening value.",
     "loinc_code": "2093-3",
     "ucum_unit": "mg/dL",
     "unit_conversions": [
@@ -195,6 +199,7 @@
   {
     "vitalog_id": "ldl_cholesterol",
     "canonical_name": "LDL Cholesterol",
+    "definition": "LDL (“bad”) cholesterol drives arterial plaque buildup; lowering it is the primary goal of cholesterol-lowering therapy.",
     "loinc_code": "13457-7",
     "ucum_unit": "mg/dL",
     "unit_conversions": [
@@ -246,6 +251,7 @@
   {
     "vitalog_id": "hdl_cholesterol",
     "canonical_name": "HDL Cholesterol",
+    "definition": "HDL (“good”) cholesterol transports excess cholesterol back to the liver; higher levels are generally protective against heart disease.",
     "loinc_code": "2085-9",
     "ucum_unit": "mg/dL",
     "unit_conversions": [
@@ -293,6 +299,7 @@
   {
     "vitalog_id": "triglycerides",
     "canonical_name": "Triglycerides",
+    "definition": "Triglycerides are blood fats stored from unused calories; elevated levels are linked to metabolic syndrome and cardiovascular risk.",
     "loinc_code": "2571-8",
     "ucum_unit": "mg/dL",
     "unit_conversions": [
@@ -341,6 +348,7 @@
   {
     "vitalog_id": "non_hdl_cholesterol",
     "canonical_name": "Non-HDL Cholesterol",
+    "definition": "Non-HDL cholesterol (total minus HDL) captures all atherogenic lipoproteins and is a more comprehensive cardiovascular risk marker than LDL alone.",
     "loinc_code": "43396-1",
     "ucum_unit": "mg/dL",
     "unit_conversions": [
@@ -385,6 +393,7 @@
   {
     "vitalog_id": "egfr",
     "canonical_name": "Estimated Glomerular Filtration Rate",
+    "definition": "eGFR (estimated Glomerular Filtration Rate) estimates how much blood your kidneys filter per minute — the primary measure of kidney function.",
     "loinc_code": "62238-1",
     "ucum_unit": "mL/min/1.73m2",
     "unit_conversions": [],
@@ -430,6 +439,7 @@
   {
     "vitalog_id": "creatinine",
     "canonical_name": "Serum Creatinine",
+    "definition": "Creatinine is a muscle-metabolism waste product filtered by the kidneys; elevated blood levels signal reduced kidney function.",
     "loinc_code": "2160-0",
     "ucum_unit": "mg/dL",
     "unit_conversions": [
@@ -475,6 +485,7 @@
   {
     "vitalog_id": "urine_acr",
     "canonical_name": "Urine Albumin-to-Creatinine Ratio",
+    "definition": "Urine Albumin-to-Creatinine Ratio measures albumin leaking into urine — an early indicator of kidney damage from diabetes or hypertension.",
     "loinc_code": "9318-7",
     "ucum_unit": "mg/g",
     "unit_conversions": [
@@ -525,6 +536,7 @@
   {
     "vitalog_id": "bp_systolic",
     "canonical_name": "Systolic Blood Pressure",
+    "definition": "Systolic blood pressure is the peak arterial pressure when your heart contracts; it is the top number in a blood pressure reading.",
     "loinc_code": "8480-6",
     "ucum_unit": "mm[Hg]",
     "unit_conversions": [],
@@ -568,6 +580,7 @@
   {
     "vitalog_id": "bp_diastolic",
     "canonical_name": "Diastolic Blood Pressure",
+    "definition": "Diastolic blood pressure is the arterial pressure between heartbeats; it is the bottom number in a blood pressure reading.",
     "loinc_code": "8462-4",
     "ucum_unit": "mm[Hg]",
     "unit_conversions": [],
@@ -608,6 +621,7 @@
   {
     "vitalog_id": "tsh",
     "canonical_name": "Thyroid Stimulating Hormone",
+    "definition": "TSH (Thyroid-Stimulating Hormone) signals the thyroid to produce hormones; it is the primary screening test for thyroid disorders.",
     "loinc_code": "3016-3",
     "ucum_unit": "mIU/L",
     "unit_conversions": [
@@ -656,6 +670,7 @@
   {
     "vitalog_id": "free_t4",
     "canonical_name": "Free Thyroxine",
+    "definition": "Free T4 (free thyroxine) is the active thyroid hormone in the blood; measured with TSH to confirm and characterize thyroid conditions.",
     "loinc_code": "3024-7",
     "ucum_unit": "ng/dL",
     "unit_conversions": [
@@ -702,6 +717,7 @@
   {
     "vitalog_id": "alt",
     "canonical_name": "Alanine Aminotransferase",
+    "definition": "ALT (Alanine Aminotransferase) is a liver enzyme released when liver cells are damaged; it is the most liver-specific routine marker.",
     "loinc_code": "1742-6",
     "ucum_unit": "U/L",
     "unit_conversions": [],
@@ -740,6 +756,7 @@
   {
     "vitalog_id": "ast",
     "canonical_name": "Aspartate Aminotransferase",
+    "definition": "AST (Aspartate Aminotransferase) is an enzyme in liver, heart, and muscle; elevated levels can indicate liver damage but are less liver-specific than ALT.",
     "loinc_code": "1920-8",
     "ucum_unit": "U/L",
     "unit_conversions": [],
@@ -778,6 +795,7 @@
   {
     "vitalog_id": "hs_crp",
     "canonical_name": "High-Sensitivity C-Reactive Protein",
+    "definition": "High-sensitivity CRP measures low-grade systemic inflammation; levels above 2 mg/L signal elevated cardiovascular risk even within conventional normal ranges.",
     "loinc_code": "30522-7",
     "ucum_unit": "mg/L",
     "unit_conversions": [
@@ -826,6 +844,7 @@
   {
     "vitalog_id": "vitamin_d",
     "canonical_name": "25-Hydroxyvitamin D",
+    "definition": "Vitamin D (25-hydroxyvitamin D) is the storage form measured in blood; deficiency is common and linked to poor bone health, immune function, and cardiovascular risk.",
     "loinc_code": "1989-3",
     "ucum_unit": "ng/mL",
     "unit_conversions": [
@@ -873,6 +892,7 @@
   {
     "vitalog_id": "vitamin_b12",
     "canonical_name": "Vitamin B12",
+    "definition": "Vitamin B12 is essential for nerve function and red blood cell production; deficiency can occur with metformin use or inadequate dietary intake.",
     "loinc_code": "2132-9",
     "ucum_unit": "pg/mL",
     "unit_conversions": [
@@ -920,6 +940,7 @@
   {
     "vitalog_id": "ferritin",
     "canonical_name": "Serum Ferritin",
+    "definition": "Ferritin is the primary iron-storage protein; low levels indicate iron deficiency, while high levels may reflect inflammation or iron overload.",
     "loinc_code": "2276-4",
     "ucum_unit": "ng/mL",
     "unit_conversions": [
@@ -966,6 +987,7 @@
   {
     "vitalog_id": "hemoglobin",
     "canonical_name": "Hemoglobin",
+    "definition": "Hemoglobin is the protein in red blood cells that carries oxygen; low levels indicate anemia.",
     "loinc_code": "718-7",
     "ucum_unit": "g/dL",
     "unit_conversions": [
@@ -1020,6 +1042,7 @@
   {
     "vitalog_id": "wbc",
     "canonical_name": "White Blood Cell Count",
+    "definition": "White blood cell count measures total immune cells in your blood; abnormal levels can signal infection, inflammation, or bone marrow disorders.",
     "loinc_code": "6690-2",
     "ucum_unit": "10*3/uL",
     "unit_conversions": [
@@ -1065,6 +1088,7 @@
   {
     "vitalog_id": "platelets",
     "canonical_name": "Platelet Count",
+    "definition": "Platelets are small blood cells that clump together to stop bleeding; abnormal counts can indicate bleeding disorders or other conditions.",
     "loinc_code": "777-3",
     "ucum_unit": "10*3/uL",
     "unit_conversions": [
@@ -1110,6 +1134,7 @@
   {
     "vitalog_id": "sodium",
     "canonical_name": "Serum Sodium",
+    "definition": "Sodium is the primary blood electrolyte that regulates fluid balance and supports normal nerve and muscle function.",
     "loinc_code": "2951-2",
     "ucum_unit": "mEq/L",
     "unit_conversions": [
@@ -1155,6 +1180,7 @@
   {
     "vitalog_id": "potassium",
     "canonical_name": "Serum Potassium",
+    "definition": "Potassium is an electrolyte critical for heart rhythm and muscle contraction; abnormal levels — common with kidney disease or diuretics — can be dangerous.",
     "loinc_code": "2823-3",
     "ucum_unit": "mEq/L",
     "unit_conversions": [
@@ -1203,6 +1229,7 @@
   {
     "vitalog_id": "chloride",
     "canonical_name": "Serum Chloride",
+    "definition": "Chloride is an electrolyte that maintains fluid balance and blood acid-base equilibrium; measured as part of a metabolic panel.",
     "loinc_code": "2075-0",
     "ucum_unit": "mEq/L",
     "unit_conversions": [
@@ -1247,6 +1274,7 @@
   {
     "vitalog_id": "bun",
     "canonical_name": "Blood Urea Nitrogen",
+    "definition": "BUN (Blood Urea Nitrogen) is a protein-metabolism waste product filtered by the kidneys; elevated levels may indicate reduced kidney function or dehydration.",
     "loinc_code": "3094-0",
     "ucum_unit": "mg/dL",
     "unit_conversions": [
@@ -1291,6 +1319,7 @@
   {
     "vitalog_id": "serum_glucose",
     "canonical_name": "Serum Glucose (Random)",
+    "definition": "Serum glucose is a random blood sugar measurement taken at any time of day, used to assess glucose status without requiring fasting.",
     "loinc_code": "2345-7",
     "ucum_unit": "mg/dL",
     "unit_conversions": [
@@ -1339,6 +1368,7 @@
   {
     "vitalog_id": "fructosamine",
     "canonical_name": "Fructosamine",
+    "definition": "Fructosamine reflects average blood glucose over the past 2–3 weeks — a shorter window than HbA1c, useful for faster glycemic assessment.",
     "loinc_code": "1592-5",
     "ucum_unit": "umol/L",
     "unit_conversions": [],
