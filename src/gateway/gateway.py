@@ -66,6 +66,7 @@ class Gateway:
         output_schema: type[_T],
         *,
         image_content: list[dict[str, Any]] | None = None,
+        session_id: str | None = None,
     ) -> _T:
         """Invoke a registered prompt and return a validated Pydantic model.
 
@@ -137,6 +138,7 @@ class Gateway:
                 0,
                 success=False,
                 error=str(exc),
+                session_id=session_id,
             )
             raise
         except (BannedPhraseViolation, SchemaValidationError) as exc:
@@ -154,6 +156,7 @@ class Gateway:
                 getattr(exc, "_retry_out_tok", out_tok),
                 success=False,
                 error=str(exc),
+                session_id=session_id,
             )
             raise OutputValidationError(f"Output validation failed after retry: {exc}") from exc
 
@@ -171,6 +174,7 @@ class Gateway:
             out_tok,
             success=True,
             error=None,
+            session_id=session_id,
         )
 
         # 11. Audit log (optional — not required for unit tests without Supabase)
@@ -300,6 +304,7 @@ class Gateway:
         out_tok: int,
         success: bool,
         error: str | None,
+        session_id: str | None = None,
     ) -> None:
         entry: EvalLogEntry = make_entry(
             prompt_id=prompt_id,
@@ -312,6 +317,7 @@ class Gateway:
             output_tokens=out_tok,
             success=success,
             error=error,
+            session_id=session_id,
         )
         try:
             self._logger.log(entry)

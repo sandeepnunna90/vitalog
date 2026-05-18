@@ -164,7 +164,8 @@ def _compute_min_confidence(result: TextractResult) -> float:
 
     Empty result returns 0.0, which guarantees the fallback triggers — a
     document that produced nothing from Textract should always be re-attempted
-    with vision.
+    with vision. Mirrors _compute_textract_floor in structurer.py; kept
+    separate to avoid cross-module coupling between two independent adapters.
     """
     all_confs: list[float] = (
         [b.confidence for b in result.blocks]

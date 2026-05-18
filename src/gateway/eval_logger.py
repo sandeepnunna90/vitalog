@@ -32,6 +32,7 @@ class EvalLogEntry:
     success: bool
     error: str | None
     timestamp: str  # ISO 8601 UTC
+    session_id: str | None = None  # caller-supplied correlation ID across multiple gateway calls
 
 
 def make_entry(
@@ -46,6 +47,7 @@ def make_entry(
     output_tokens: int,
     success: bool,
     error: str | None,
+    session_id: str | None = None,
 ) -> EvalLogEntry:
     return EvalLogEntry(
         run_id=str(uuid.uuid4()),
@@ -60,6 +62,7 @@ def make_entry(
         success=success,
         error=error,
         timestamp=datetime.now(UTC).isoformat(),
+        session_id=session_id,
     )
 
 
@@ -72,6 +75,8 @@ class EvalLogger:
         day_dir = self._runs_dir / date_str
         day_dir.mkdir(parents=True, exist_ok=True)
 
+        # One file per call (not a multi-entry JSONL). Each call is independently
+        # addressable via run_id; session_id can correlate calls from the same operation.
         log_path = day_dir / f"{entry.run_id}.jsonl"
         with log_path.open("w", encoding="utf-8") as fh:
             fh.write(json.dumps(asdict(entry)) + "\n")
