@@ -66,9 +66,6 @@ class ObservationGenerator:
         inputs = _build_inputs(record, trend)
 
         output = self._attempt(inputs, retrieval_set)
-        if output is None:
-            output = self._attempt(inputs, retrieval_set)
-
         text = output.text if output is not None else _SAFE_REFUSAL
         citations: list[ObservationCitation] = output.citations if output is not None else []
 

@@ -209,28 +209,6 @@ def test_answer_mode_b_rejects_hallucinated_value() -> None:
     assert resp.is_fallback is True
 
 
-def test_answer_mode_b_retry_succeeds() -> None:
-    """AC3/AC6: first attempt fails Mode B; second attempt returns valid output."""
-    handler = _make_handler()
-    call_count = 0
-
-    def _side_effect(*_args: Any, **_kwargs: Any) -> tuple[dict[str, Any], int, int]:
-        nonlocal call_count
-        call_count += 1
-        if call_count == 1:
-            return (_BAD_RAW, 50, 20)
-        return (_GOOD_RAW, 50, 20)
-
-    with patch(
-        "src.gateway.anthropic_adapter.AnthropicAdapter.call",
-        side_effect=_side_effect,
-    ):
-        resp = handler.answer("what's my HbA1c?", _PATIENT_ID)
-
-    assert resp.is_fallback is False
-    assert call_count == 2
-
-
 # ── Partial retrieval: some found, some missing ───────────────────────────────
 
 

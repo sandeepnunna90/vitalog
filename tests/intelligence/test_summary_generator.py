@@ -7,7 +7,7 @@ from datetime import date, datetime
 from typing import Any
 from unittest.mock import MagicMock, patch
 
-from src.gateway.errors import BannedPhraseViolation, ModeAVerificationError, OutputValidationError
+from src.gateway.errors import OutputValidationError
 from src.intelligence.summary_generator import (
     DISCLAIMER,
     SummaryGenerator,
@@ -131,30 +131,8 @@ def test_disclaimer_not_in_llm_schema() -> None:
 
 @patch("src.intelligence.summary_generator.load_patient_profile")
 @patch("src.intelligence.summary_generator.verify_mode_a")
-def test_retry_on_banned_phrase(mock_verify: MagicMock, mock_profile: MagicMock) -> None:
-    """First attempt raises BannedPhraseViolation; second succeeds → not fallback."""
-    mock_profile.return_value = MagicMock(
-        conditions=["T2D"],
-        medications=[],
-        allergies=[],
-    )
-    record = _make_record()
-    repo = _mock_repo([record])
-    gateway = MagicMock()
-    good = _good_output()
-    gateway.call.side_effect = [BannedPhraseViolation(["you should"]), good]
-
-    gen = _make_generator(gateway, repo)
-    summary = gen.generate(_PATIENT_ID)
-
-    assert summary.is_fallback is False
-    assert gateway.call.call_count == 2
-
-
-@patch("src.intelligence.summary_generator.load_patient_profile")
-@patch("src.intelligence.summary_generator.verify_mode_a")
-def test_safe_refusal_on_double_failure(mock_verify: MagicMock, mock_profile: MagicMock) -> None:
-    """Both attempts fail → is_fallback=True with empty sections and disclaimer."""
+def test_safe_refusal_on_failure(mock_verify: MagicMock, mock_profile: MagicMock) -> None:
+    """Single attempt fails → is_fallback=True with empty sections and disclaimer."""
     mock_profile.return_value = MagicMock(conditions=[], medications=[], allergies=[])
     repo = _mock_repo([])
     gateway = MagicMock()
@@ -167,41 +145,7 @@ def test_safe_refusal_on_double_failure(mock_verify: MagicMock, mock_profile: Ma
     assert summary.conditions_section == ""
     assert summary.citations == []
     assert summary.disclaimer == DISCLAIMER
-    assert gateway.call.call_count == 2
-
-
-@patch("src.intelligence.summary_generator.load_patient_profile")
-@patch("src.intelligence.summary_generator.verify_mode_a")
-def test_mode_a_rejection_triggers_retry(mock_verify: MagicMock, mock_profile: MagicMock) -> None:
-    """ModeAVerificationError on first attempt → second attempt is made."""
-    mock_profile.return_value = MagicMock(
-        conditions=["T2D"],
-        medications=[],
-        allergies=[],
-    )
-    record = _make_record()
-    repo = _mock_repo([record])
-    gateway = MagicMock()
-    good = _good_output()
-    gateway.call.return_value = good
-    from src.gateway.citation_schemas import Citation
-
-    bad_citation = Citation(
-        value=6.8,
-        unit="mmol/L",
-        collection_date=date(2026, 3, 12),
-        source_record_id=_RECORD_ID_1,
-    )
-    mock_verify.side_effect = [
-        ModeAVerificationError("unit mismatch", bad_citation),
-        None,
-    ]
-
-    gen = _make_generator(gateway, repo)
-    summary = gen.generate(_PATIENT_ID)
-
-    assert summary.is_fallback is False
-    assert gateway.call.call_count == 2
+    assert gateway.call.call_count == 1
 
 
 @patch("src.intelligence.summary_generator.load_biomarker_groups")

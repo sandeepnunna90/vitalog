@@ -64,9 +64,6 @@ class SummaryGenerator:
         inputs = _build_inputs(profile, accepted, gaps)
 
         result = self._attempt(inputs, retrieval_set, patient_id)
-        if result is None:
-            result = self._attempt(inputs, retrieval_set, patient_id)
-
         is_fallback = result is None
         out, citations = result if result is not None else (None, [])
         citation_count = len(citations)

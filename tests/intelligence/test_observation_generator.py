@@ -185,28 +185,6 @@ def test_generate_safe_refusal_when_mode_b_fails_twice() -> None:
     assert obs.citations == []
 
 
-def test_generate_retry_succeeds_on_second_attempt() -> None:
-    """AC6: first attempt fails Mode B; second attempt returns valid output."""
-    gen = _make_generator()
-    call_count = 0
-
-    def _side_effect(*_args: Any, **_kwargs: Any) -> tuple[dict[str, Any], int, int]:
-        nonlocal call_count
-        call_count += 1
-        if call_count == 1:
-            return (_BAD_RAW, 50, 20)
-        return (_GOOD_RAW, 50, 20)
-
-    with patch(
-        "src.gateway.anthropic_adapter.AnthropicAdapter.call",
-        side_effect=_side_effect,
-    ):
-        obs = gen.generate(_RECORD_ID)
-
-    assert obs.text != _SAFE_REFUSAL
-    assert call_count == 2
-
-
 # ── AC6: audit log ────────────────────────────────────────────────────────────
 
 

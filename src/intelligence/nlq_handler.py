@@ -71,9 +71,6 @@ class NlqHandler:
         inputs = _build_inputs(query, result.retrieval_set, result.missing_canonical_ids)
 
         output = self._attempt(inputs, result.retrieval_set)
-        if output is None:
-            output = self._attempt(inputs, result.retrieval_set)
-
         text = output.text if output is not None else _SAFE_REFUSAL
         if result.matched_condition_names and output is not None:
             text = text + _condition_group_disclaimer(result.matched_condition_names)
