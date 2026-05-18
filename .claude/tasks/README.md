@@ -30,7 +30,7 @@ Status legend: ⬜ pending · 🟡 in progress · ✅ done · ⏸ blocked
 |---|---|---|---|---|
 | [C1](C1_synthetic_data_generator.md) | Synthetic data generator | 5 | ✅ | A2 |
 | [C2](C2_eval_corpus_assembly.md) | Eval corpus assembly (~18 docs) | 3 | ✅ | C1 |
-| [C3](C3_extraction_accuracy_harness.md) | Extraction accuracy harness | 3 | ⬜ | C2 |
+| [C3](C3_extraction_accuracy_harness.md) | Extraction accuracy harness | 3 | ✅ | C2 |
 | [C4](C4_adversarial_prompt_suite.md) | Adversarial prompt suite | 3 | ⬜ | B3 |
 | [C5](C5_confidence_band_calibration.md) | Confidence band calibration | 6 | ⬜ | C3, D6 |
 

@@ -67,4 +67,30 @@ P6 (eval-driven development) requires measurement, not estimation. The harness i
 
 ## Notes / changelog
 
-_(append after work is done)_
+### Implementation (2026-05-18) — PR #27
+
+**Files created:**
+- `src/eval/harness/__init__.py` — package marker, re-exports all public types
+- `src/eval/harness/comparator.py` — `compare_doc()`, `FieldResult`, `BiomarkerMatch`, `DocComparison`; greedy GT→extracted name matching via rapidfuzz (threshold 90); value tolerance ±0.5% decimal / exact integer; unit/range/date exact stripped match
+- `src/eval/harness/aggregator.py` — `aggregate()`, `FieldMetrics`, `DocResult`, `AggregateReport`; TP/FP/FN per field; by_split and by_band breakdowns
+- `src/eval/harness/reporter.py` — `write_report()` (accuracy.json + accuracy.md), `append_history()` (append-only history.csv with header on first call)
+- `src/eval/harness/runner.py` — `HarnessRunner`, `Pipeline` dataclass; dry-run converts GT dicts to mock BiomarkerCandidates (GT values verbatim, Band.AUTO_ACCEPT); live mode runs D1→D2→D4→D5→D6
+- `scripts/run_accuracy.py` — CLI entry point; `_build_pipeline()` instantiates full pipeline from env; `_NoopAuditRepo` (cast to AuditLogRepository) satisfies Textract/Structurer audit_repo args without Supabase
+- `eval_corpus/runs/.gitkeep` — placeholder for gitignored runs directory
+- `eval_corpus/history.csv` — seed row from dry-run validation (git_sha from C2 commit; first real-pipeline entry will come from live C5 run)
+- `tests/eval/test_harness_comparator.py` — 13 unit tests: comparator edge cases, aggregator all-TP/all-FN
+- `tests/eval/test_harness_reporter.py` — 8 unit tests: write_report (json/md/dir creation), append_history (header once, appends correctly, f1 values, prompt_versions json)
+
+**Files modified:**
+- `pyproject.toml` — added `rapidfuzz>=3.0`
+- `.gitignore` — changed `eval_corpus/runs/` → `eval_corpus/runs/*` + `!eval_corpus/runs/.gitkeep`
+
+**Key design decisions:**
+- `by_band` metrics are precision-focused only (matched pairs grouped by extracted candidate's band); FN from unmatched GT excluded — documented in docstring as approximation acceptable for C5 calibration input
+- `gt.get("biomarkers", [])` handles adversarial_001 which has no `biomarkers` key (only `note`)
+- Dry-run self-comparison: 13 docs, all fields F1=1.000 — validates harness scaffolding end-to-end
+
+**PR review fixes (same branch):**
+- Narrowed `_build_pipeline()` return type from `object` → `Pipeline`; used `cast(AuditLogRepository, _NoopAuditRepo())` to satisfy mypy strict typing on TextractAdapter/TextractFallbackAdapter constructor args
+- Added docstring note to `append_history()` clarifying seed row is a dry-run validation artifact
+- Added `tests/eval/test_harness_reporter.py` (8 tests) per review suggestion
