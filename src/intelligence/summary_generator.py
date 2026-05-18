@@ -17,6 +17,8 @@ from src.persistence.biomarker_repository import BiomarkerRepository
 from src.persistence.models import BiomarkerRecordRow
 from src.reference_data import load_biomarker_groups, load_patient_profile
 
+# Scope: AI generation provenance (this output came from an LLM, not a clinician).
+# Deliberately different from context_cards.DISCLAIMER which covers reference-data accuracy.
 DISCLAIMER = (
     "This summary was prepared by Vitalog from patient-uploaded records. "
     "It is not a medical document and does not constitute medical advice. "

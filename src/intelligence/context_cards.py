@@ -24,6 +24,8 @@ from src.reference_data import (
     load_taxonomy,
 )
 
+# Scope: reference-data accuracy (ranges are population-level, not personalized).
+# Deliberately different from summary_generator.DISCLAIMER which covers AI generation.
 DISCLAIMER = (
     "Reference ranges are published guidelines, not personalized recommendations. "
     "Always discuss your results with your healthcare provider."
