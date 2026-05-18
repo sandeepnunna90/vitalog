@@ -2,6 +2,10 @@
 
 Loaded once at Gateway init time (disk reads are not per-call).
 The preamble and refusals are prepended to every system prompt verbatim.
+
+Hot-reload limitation: editing safety_preamble.md or any few_shot_refusals/*.md
+file requires a Gateway restart (process re-init) to take effect. The cost is low
+for the MCP demo use-case; revisit if banned-phrase iteration becomes frequent.
 """
 
 from __future__ import annotations
