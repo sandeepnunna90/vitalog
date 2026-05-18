@@ -63,4 +63,26 @@ Project CLAUDE.md Gotchas: "Mark's patient profile is hardcoded in `reference_da
 
 ## Notes / changelog
 
-_(append after work is done)_
+### Implementation (2026-05-17)
+
+**Files created:**
+- `reference_data/mark_profile.json` — hardcoded profile with conditions `["T2D", "HTN", "hypothyroidism"]`, medications (metformin, lisinopril, levothyroxine, rosuvastatin started 2026-02-15), allergy (penicillin), and `note` field labelling it synthetic demo data
+- `src/reference_data/patient_profile_schemas.py` — `Medication`, `Allergy`, `PatientProfile` Pydantic v2 models with `ConfigDict(strict=True)`
+- `src/reference_data/patient_profile.py` — `load_patient_profile()` with `@lru_cache(maxsize=1)`; injects `profile_version_hash` (SHA-256 of raw JSON bytes)
+- `tests/reference_data/test_patient_profile.py` — 8 unit tests covering all ACs
+
+**Files modified:**
+- `src/reference_data/__init__.py` — re-exports `load_patient_profile`, `MARK_PATIENT_ID`, `PatientProfile` for consistent public API surface
+
+**Key design decisions:**
+- `model_validate(..., strict=False)` used at load time to allow JSON string→UUID/date coercion; model stays `strict=True` for all other construction paths
+- Condition codes use `condition_biomarker_map.json` keys exactly (`T2D`, `HTN`, `hypothyroidism`)
+- Rosuvastatin `start_date: 2026-02-15` is the F5 data-gap anchor for "no post-statin lipid panel"
+- AC3 (audit-log `profile_loaded` event) deferred to G1 (MCP server startup); G2 exposes `profile_version_hash` to support it
+
+**PR review fixes:**
+- Changed CWD-relative path in test to `Path(__file__).parent.parent.parent / "src/reference_data/patient_profile.py"` 
+- Added `note: str` to `PatientProfile` schema so the JSON demo-label field is validated rather than silently dropped
+- Re-exported `MARK_PATIENT_ID`, `load_patient_profile`, `PatientProfile` from `src/reference_data/__init__.py`
+
+**PR:** #24

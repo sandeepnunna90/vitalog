@@ -57,7 +57,7 @@ Storage policy (classification-gated, §7.6):
 | `src/intelligence/` | Trend engine (F1 ✅); Observation Generator (F2 ✅); NLQ Handler + retrieval resolver (F3 ✅) |
 | `src/persistence/` | Repository pattern over Supabase; all DB entity models |
 | `src/eval/synthesis/` | Synthetic lab report generator; ground truth writer |
-| `src/reference_data/` | Taxonomy loader (cached); `biomarker_taxonomy.json` — 30-biomarker seed |
+| `src/reference_data/` | Taxonomy loader (cached); `biomarker_taxonomy.json` — 30-biomarker seed; `patient_profile.py` + `patient_profile_schemas.py` — Mark's hardcoded profile (G2 ✅) |
 | `scripts/` | Admin CLI (`resolve_pending`, `generate_synthetic`) |
 | `prompts/` | Versioned prompt templates — bump version on every edit |
 
