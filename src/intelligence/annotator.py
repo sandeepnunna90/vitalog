@@ -57,8 +57,8 @@ class SummaryAnnotator:
                         "summary_id": str(row.summary_id),
                     },
                 )
-            except Exception:  # noqa: BLE001
-                pass  # audit failure must never break the caller
+            except Exception as _exc:  # noqa: BLE001
+                _audit_log.warning("audit_log_failed: %s", _exc)
         return row
 
     def add_note(self, summary_id: uuid.UUID, section: str, text: str) -> SummaryRow:

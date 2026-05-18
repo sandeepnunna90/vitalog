@@ -106,8 +106,8 @@ class ObservationGenerator:
                         "prompt_version": _PROMPT_VERSION,
                     },
                 )
-            except Exception:  # noqa: BLE001
-                pass  # audit failure must never break the caller
+            except Exception as _exc:  # noqa: BLE001
+                _audit_log.warning("audit_log_failed: %s", _exc)
 
 
 # ── Module-level helpers ──────────────────────────────────────────────────────

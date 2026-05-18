@@ -13,6 +13,7 @@ Guardrail seams are overrideable methods:
 
 from __future__ import annotations
 
+import logging
 import time
 from pathlib import Path
 from typing import Any, TypeVar
@@ -38,6 +39,7 @@ except ImportError:  # pragma: no cover
     _AuditRepo = None  # type: ignore[assignment,misc]
 
 _T = TypeVar("_T", bound=BaseModel)
+_log = logging.getLogger(__name__)
 
 
 class Gateway:
@@ -187,8 +189,8 @@ class Gateway:
                         "success": True,
                     },
                 )
-            except Exception:  # noqa: BLE001
-                pass  # audit failure must never break the caller
+            except Exception as _exc:  # noqa: BLE001
+                _log.warning("audit_log_failed: %s", _exc)  # audit must not break caller
 
         return validated
 
@@ -313,5 +315,5 @@ class Gateway:
         )
         try:
             self._logger.log(entry)
-        except Exception:  # noqa: BLE001
-            pass  # eval log failure must never break the caller
+        except Exception as _exc:  # noqa: BLE001
+            _log.warning("eval_log_failed: %s", _exc)  # eval log must not break caller
