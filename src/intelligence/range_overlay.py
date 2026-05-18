@@ -15,6 +15,9 @@ _CONDITION_PREFERRED_SUFFIXES: dict[str, list[str]] = {
 
 
 def _parse_range(raw: str) -> tuple[float | None, float | None]:
+    # Note: "~N" (approximate) qualifiers are not supported — they return (None, None).
+    # All ranges in biomarker_taxonomy.json use <, >, or X-Y formats; add ~ support
+    # here if approximate guideline ranges are ever added.
     s = raw.strip()
     m = re.match(r"^([0-9.]+)\s*[-–]\s*([0-9.]+)", s)
     if m:
