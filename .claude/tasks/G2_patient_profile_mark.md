@@ -36,7 +36,7 @@ Project CLAUDE.md Gotchas: "Mark's patient profile is hardcoded in `reference_da
 
 - Synthetic personal details (name, DOB, address fields): use clearly-fake values per A2 convention (`"Mark Capstone"`, DOB `1969-04-15`, etc.). Document explicitly that this is a demo profile.
 - The statin start_date is the demo's "data gap" anchor. Pick a date approximately 2–3 months before the demo so "no post-statin lipid panel" is a believable gap.
-- Conditions encoded as canonical condition codes that match the condition→biomarker map keys (e.g., `"T2D"` matches `condition_biomarker_map.json` key).
+- Conditions encoded as canonical condition codes that match the condition→biomarker map keys (e.g., `"T2D"` matches `biomarker_groups.json` key).
 - The loader caches in process memory after first load. Hot-reload is not needed at capstone scale.
 - The `PatientProfile` model is the contract for F1 (condition-aware range overlay), F3 (NLQ condition references), F5 (summary), and G1 (MCP tools that need patient_id).
 
@@ -76,7 +76,7 @@ Project CLAUDE.md Gotchas: "Mark's patient profile is hardcoded in `reference_da
 
 **Key design decisions:**
 - `model_validate(..., strict=False)` used at load time to allow JSON string→UUID/date coercion; model stays `strict=True` for all other construction paths
-- Condition codes use `condition_biomarker_map.json` keys exactly (`T2D`, `HTN`, `hypothyroidism`)
+- Condition codes use `biomarker_groups.json` keys exactly (`T2D`, `HTN`, `hypothyroidism`)
 - Rosuvastatin `start_date: 2026-02-15` is the F5 data-gap anchor for "no post-statin lipid panel"
 - AC3 (audit-log `profile_loaded` event) deferred to G1 (MCP server startup); G2 exposes `profile_version_hash` to support it
 

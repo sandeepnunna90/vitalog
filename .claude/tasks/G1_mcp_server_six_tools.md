@@ -23,7 +23,7 @@ P2 (channel-agnostic value layer) and ADR-08 (MCP-only for capstone) both conver
 3. **Given** the `list_biomarkers(patient_id, filter?)` tool, **When** invoked, **Then** the response includes a list of biomarkers Mark has data for, with latest value + collection_date + record_count.
 4. **Given** the `get_trend(patient_id, biomarker_id)` tool, **When** invoked with `"hba1c"` for Mark, **Then** the response includes 9 points (post-H1) + target band + per-point provenance, rendered as chart-ready data.
 5. **Given** the `query_records(patient_id, question)` tool, **When** invoked with "show me my diabetes markers", **Then** the response is the NLQ Handler's output.
-6. **Given** the `prepare_summary(patient_id, specialist, visit_type)` tool, **When** invoked with `("cardiology", "first_visit")`, **Then** the response is the Summary Generator's structured output.
+6. **Given** the `prepare_summary(patient_id)` tool, **When** invoked, **Then** the response is the Summary Generator's structured output (no specialist or visit_type params — removed in F5 design).
 7. **Given** the `export_summary(summary_id, format)` tool, **When** invoked with `format="pdf"`, **Then** the response includes a base64-encoded PDF or a Supabase Storage URL that Claude Desktop can present.
 8. **Given** the contract, **When** I `grep "anthropic\|Anthropic\|Gateway\|Repository\|Supabase" src/mcp_server/`, **Then** the only matches are imports from `src.orchestration` — the MCP layer never touches services directly.
 

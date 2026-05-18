@@ -521,7 +521,7 @@ Generates structured one-page appointment summaries. LLM call.
 - `list_biomarkers(patient_id, filter?)` — list available biomarkers for a patient
 - `get_trend(patient_id, biomarker_id)` — fetch a longitudinal trend with target ranges
 - `query_records(patient_id, question)` — natural language query over patient's data
-- `prepare_summary(patient_id, specialist, visit_type)` — generate appointment summary
+- `prepare_summary(patient_id)` — generate appointment summary
 - `export_summary(summary_id, format)` — return summary as PDF/markdown/JSON
 
 **Dependencies:** Orchestration only. The MCP server is a thin protocol adapter — no business logic, no persistence calls, no LLM calls of its own.
@@ -623,7 +623,6 @@ pending_taxonomy_entry (
 -- Summaries
 summary (
   summary_id, patient_id,
-  specialist_type, visit_type,
   generated_at,
   content_json,              -- structured sections
   patient_annotations,
@@ -701,7 +700,6 @@ erDiagram
     SUMMARY {
         string summary_id PK
         string patient_id FK
-        string specialist_type
         json content_json
         timestamp generated_at
     }
@@ -713,8 +711,7 @@ Reference data lives in the repo as version-controlled JSON, not in the database
 - `reference_data/loinc_subset.json` — ~30K lab observation codes from LOINC
 - `reference_data/ucum_units.json` — common medical units and conversion rules
 - `reference_data/biomarker_taxonomy_seed.json` — initial 30-entry curated taxonomy
-- `reference_data/condition_biomarker_map.json` — which biomarkers are relevant per condition
-- `reference_data/specialist_content_templates.json` — what each specialist's summary should include
+- `reference_data/biomarker_groups.json` — condition-to-biomarker groupings with embedded guideline citations (F5)
 - `reference_data/guideline_ranges.json` — ADA/AHA/ACC/ATA target ranges with citations
 
 This is loaded at startup. Updates require a code change and PR review — appropriate for data this critical.
