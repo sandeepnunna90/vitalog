@@ -56,7 +56,11 @@ Storage policy (classification-gated, §7.6):
 | `src/normalization/` | Tier 1 alias lookup, unit conversion, range validation, duplicate detection |
 | `src/intelligence/` | Trend engine (F1 ✅); Observation Generator (F2 ✅); NLQ Handler + retrieval resolver (F3 ✅); Context cards (F4 ✅) — `context_cards.py` + `context_card_schemas.py` |
 | `src/persistence/` | Repository pattern over Supabase; all DB entity models |
-| `src/eval/synthesis/` | Synthetic lab report generator; ground truth writer |
+| `src/eval/synthesis/` | Synthetic lab report generator (C1 ✅); Quest/hospital/LabCorp vendor templates (C2 ✅); ground truth writer |
+| `eval_corpus/` | Fixed eval corpus (C2 ✅): `synthetic/` (10 docs), `adversarial/` (3 docs), `redacted_real/` (placeholder); `manifest.json` with SHA-256 hashes; `redaction_checklist.md` |
+| `scripts/build_adversarial.py` | Generate 3 adversarial corpus docs (C2 ✅) |
+| `scripts/build_manifest.py` | SHA-256 hash all corpus files → `manifest.json` (C2 ✅) |
+| `scripts/redact_real.py` | PyMuPDF HIPAA Safe Harbor redaction helper for user-provided real PDFs (C2 ✅) |
 | `src/reference_data/` | Taxonomy loader (cached); `biomarker_taxonomy.json` — 30-biomarker seed; `patient_profile.py` + `patient_profile_schemas.py` — Mark's hardcoded profile (G2 ✅) |
 | `scripts/` | Admin CLI (`resolve_pending`, `generate_synthetic`) |
 | `prompts/` | Versioned prompt templates — bump version on every edit |

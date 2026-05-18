@@ -121,4 +121,40 @@ SHA-256 hashes of every PDF + ground_truth.json. Stores split, vendor, expected_
 
 ## Notes / changelog
 
-_(append after work is done)_
+### Implementation (2026-05-18) — PR #26
+
+**Files created:**
+- `src/eval/synthesis/vendor_templates/hospital.py` — 4-col Epic/hospital format; flag embedded in Result cell; `_patient_age()` from fixed DOB 1970-01-01; `_make_reproducible()` for byte-identical output
+- `src/eval/synthesis/vendor_templates/labcorp.py` — `NotImplementedError` placeholder; unblocks CLI wiring without requiring real PDFs
+- `scripts/redact_real.py` — PyMuPDF HIPAA redaction helper; `--dry-run` to preview match counts before writing
+- `scripts/build_adversarial.py` — builds all 3 adversarial docs: image-only PDF (PIL effects), multipage lab+discharge, mmol/mol HbA1c override via `dataclasses.replace()`
+- `scripts/build_manifest.py` — SHA-256 hashes PDF + ground_truth.json per entry; writes `eval_corpus/manifest.json`
+- `eval_corpus/redaction_checklist.md` — 18 HIPAA Safe Harbor identifier checklist + redaction log table
+- `tests/eval/test_corpus_integrity.py` — `pytest_generate_tests` dynamically parametrizes hash checks from manifest at collection time; skips gracefully if manifest absent
+- All corpus files: `eval_corpus/synthetic/` (10 PDFs × Quest seeds 100–103 + hospital seeds 300–302 + Quest placeholder seeds 200–202), `eval_corpus/adversarial/` (3 PDFs + ground truth + failure mode docs), `eval_corpus/manifest.json`, `eval_corpus/redacted_real/.gitkeep`
+
+**Files modified:**
+- `src/eval/synthesis/vendor_templates/quest.py` — column header "Reference Interval" (not "Reference Range"); "Specimen ID" (not "Accession #"); two-column header block; `_specimen_dates()` for Collected/Received/Reported; `_PANELS` dict for panel grouping; margins 0.75→0.5in
+- `src/eval/synthesis/__init__.py` — exports `generate_hospital_report`, `generate_labcorp_report` alongside existing `generate_report`
+- `scripts/generate_synthetic.py` — added `--vendor labcorp` and `--vendor hospital` choices
+- `tests/eval/test_synthesis_reproducibility.py` — added 3 hospital reproducibility tests (2-seed parametrize + different-seeds check)
+
+**Key design decisions:**
+- LabCorp template deferred: user provides personal LabCorp PDFs → `redact_real.py` runs locally (originals never shared with assistant) → layout inspected → template built. Seeds 200–202 generated as Quest placeholder in the interim.
+- `dataclasses.replace()` used to override HbA1c unit/value/range for adversarial_003 without changing the `generate_readings()` API.
+- `_make_reproducible()` duplicated in `quest.py` and `hospital.py` (two copies acceptable; extract to `_pdf_utils.py` when LabCorp template lands and a third copy would be needed).
+- Private `_build_pdf` imported in `build_adversarial.py` — intentional for a one-off script; add a public wrapper when LabCorp refactors the module.
+
+**PR review fixes (in follow-up commit):**
+- Removed dead `test_file_hashes_match_manifest` stub from `test_corpus_integrity.py`
+- Added hospital reproducibility tests to `test_synthesis_reproducibility.py`
+- Moved `import shutil` from inside `_build_002_multipage` to top-level
+
+**Deferred cleanup (open PR suggestion threads):**
+- Extract `_make_reproducible` to `_pdf_utils.py` when LabCorp template lands (3rd copy = extraction trigger)
+- Add public `build_pdf_from_readings()` wrapper in `quest.py` to replace private import in `build_adversarial.py`
+- `generated_at` in manifest is non-deterministic (wall-clock); exclude from any future hash-of-manifest logic
+
+**Remaining work (not in this story):**
+- LabCorp template: user provides real PDFs → `redact_real.py` → inspect layout → build `labcorp.py` → regenerate seeds 200–202 → re-run `build_manifest.py`
+- `redacted_real/` split: user runs `redact_real.py` on personal LabCorp PDFs; manually curate ground truth JSON
