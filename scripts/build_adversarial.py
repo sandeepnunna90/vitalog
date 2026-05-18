@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import io
 import json
+import shutil
 from dataclasses import replace
 from pathlib import Path
 
@@ -146,8 +147,6 @@ def _build_002_multipage(out_dir: Path) -> None:
     discharge_fitz.close()
 
     # Ground truth — from the Quest seed=999 report
-    import shutil
-
     shutil.copy(gt_path, out_dir / "adversarial_002_multipage.ground_truth.json")
 
     (out_dir / "adversarial_002_multipage.failure_mode_under_test.md").write_text(

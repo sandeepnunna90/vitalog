@@ -39,14 +39,6 @@ def test_all_splits_represented(manifest: dict) -> None:
     assert "adversarial" in splits, "No adversarial docs in manifest"
 
 
-@pytest.mark.parametrize(
-    "entry",
-    pytest.lazy_fixture("manifest") if False else [],  # populated dynamically below
-)
-def test_file_hashes_match_manifest(entry: dict) -> None:
-    pass  # replaced by the parametrized test below
-
-
 def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
     """Dynamically parametrize hash tests from manifest at collection time."""
     if metafunc.function.__name__ != "test_corpus_file_hash":
