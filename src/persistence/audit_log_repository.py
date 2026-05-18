@@ -25,7 +25,7 @@ class AuditLogRepository:
         data: Any = self._client.table(_TABLE).insert(entry.model_dump(mode="json")).execute().data
         if not data:
             raise ValueError("Audit log INSERT returned no rows — DB trigger or RLS rejection")
-        return AuditLogRow.model_validate(data[0])
+        return AuditLogRow.model_validate(data[0], strict=False)
 
     def get_last_n(self, n: int = 10) -> list[AuditLogRow]:
         """Return the n most recent audit log rows (for hash chain verification)."""
@@ -37,4 +37,4 @@ class AuditLogRepository:
             .execute()
             .data
         )
-        return [AuditLogRow.model_validate(row) for row in reversed(data)]
+        return [AuditLogRow.model_validate(row, strict=False) for row in reversed(data)]

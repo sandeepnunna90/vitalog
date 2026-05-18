@@ -34,7 +34,7 @@ Context cards turn "a number on a chart" into "a number I understand". They're e
 
 ## Implementation notes
 
-- This is the "use reference data correctly" story. All content is composed from `biomarker_taxonomy.json` + `condition_biomarker_map.json` + `guideline_ranges.json` (all from A2).
+- This is the "use reference data correctly" story. All content is composed from `biomarker_taxonomy.json` + `biomarker_groups.json` + `guideline_ranges.json` (all from A2).
 - The disclaimer string is embedded in every card: "Reference ranges are published guidelines, not personalized recommendations. Always discuss your results with your healthcare provider."
 - For biomarkers with multiple applicable guideline ranges (e.g., LDL-C has separate ACC/AHA targets for primary vs secondary prevention), the card returns all of them as a list with each tagged by its applicability.
 - The card knows the patient's conditions but does NOT make claims about what they mean for the patient — it just shows the guidelines and lets the user read.
@@ -71,7 +71,7 @@ Context cards turn "a number on a chart" into "a number I understand". They're e
 
 **Key design decisions:**
 - **Two-tier range source:** 16 biomarkers appear in `guideline_ranges.json` (rich `label/value/unit/source_section` structure with DOI citations); 14 fall back to `taxonomy.guideline_ranges` simple strings — every card always has at least one cited range (AC3)
-- **Relevance bullet:** intersects `taxonomy.conditions` with caller-supplied patient conditions; looks up `display_name` from `condition_biomarker_map.json`. `taxonomy.conditions` is intentionally broader than the 9 capstone cbm conditions — out-of-scope codes (NAFLD, anemia, hyperthyroidism, etc.) are silently skipped by design
+- **Relevance bullet:** intersects `taxonomy.conditions` with caller-supplied patient conditions; looks up `display_name` from `biomarker_groups.json`. `taxonomy.conditions` is intentionally broader than the 9 capstone cbm conditions — out-of-scope codes (NAFLD, anemia, hyperthyroidism, etc.) are silently skipped by design
 - **No LLM:** zero `anthropic`/`Gateway` imports; enforced by source-scan test (AC4)
 - **Data-integrity tests:** two new tests guard that all cbm entries have `display_name` and that any condition code in both taxonomy and cbm always resolves correctly
 

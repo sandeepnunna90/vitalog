@@ -262,8 +262,6 @@ def test_summary_add_and_update_annotations(svc, patient_id):  # type: ignore[no
     summary = repo.add(
         SummaryCreate(
             patient_id=patient_id,
-            specialist_type="cardiology",
-            visit_type="first_visit",
             content_json={"sections": ["lipid_panel", "blood_pressure_trend"]},
         )
     )

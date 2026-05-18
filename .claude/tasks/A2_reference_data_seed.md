@@ -30,8 +30,7 @@ Normalization must be deterministic, and the Summary Generator must cite publish
 - `reference_data/biomarker_taxonomy.json` — 30 entries (per architecture §5.2)
 - `reference_data/loinc_subset.json` — codes referenced by the taxonomy
 - `reference_data/ucum_units.json` — units + conversion rules
-- `reference_data/condition_biomarker_map.json`
-- `reference_data/specialist_content_templates.json`
+- `reference_data/biomarker_groups.json` — replaced condition_biomarker_map.json in F5; specialist_content_templates.json deleted in F5
 - `reference_data/guideline_ranges.json` — ADA / ACC / AHA / ATA with citations
 - `src/reference_data/__init__.py` — `load_all()`, `load_taxonomy()`, `lookup_alias()`, `lookup_guideline()`
 - `tests/reference_data/test_loading.py`
@@ -73,11 +72,10 @@ Normalization must be deterministic, and the Summary Generator must cite publish
 - **`biomarker_taxonomy.json`** — The master dictionary. For each of the 30 biomarkers (HbA1c, LDL, eGFR, etc.) it stores: what to call it, all its nicknames, its LOINC code, what unit it uses, and its normal/abnormal ranges. Everything else links back to this.
 - **`loinc_subset.json`** — LOINC is a global standard code system for lab tests (like ICD-10, but for lab results). This file stores metadata for the 30 specific LOINC codes used by the taxonomy — the "official ID card" for each test.
 - **`ucum_units.json`** — A unit conversion table. Labs report the same biomarker in different units (e.g., blood glucose as mg/dL in the US or mmol/L in Europe). This file stores the math to convert between them.
-- **`condition_biomarker_map.json`** — Answers "which biomarkers matter for which condition?" T2D → HbA1c, fasting glucose, eGFR, lipids. HTN → blood pressure, eGFR, potassium. Used to know what to look for in Mark's records.
+- **`biomarker_groups.json`** (replaces `condition_biomarker_map.json`, F5) — Answers "which biomarkers are grouped with which condition?" Flat `biomarkers` list per condition with embedded guideline citations. `specialist_content_templates.json` was deleted in F5 — encoded clinical assumptions with no defensible authority.
 - **`guideline_ranges.json`** — The published "what's normal/abnormal" thresholds from medical organizations (ADA, ACC/AHA, etc.) with full citations and DOI links. The Summary Generator cites these directly when it says "your LDL is above the ACC/AHA target."
-- **`specialist_content_templates.json`** — The structure of a visit summary. For a cardiology first visit, what sections appear, in what order (BP, lipids, glucose, renal function, disclaimer…). The Summary Generator uses this as its outline.
 
-One-line distinction: **taxonomy = identity**, **LOINC = official IDs**, **UCUM = unit math**, **condition map = relevance**, **guideline ranges = thresholds with sources**, **templates = document structure**.
+One-line distinction: **taxonomy = identity**, **LOINC = official IDs**, **UCUM = unit math**, **biomarker groups = condition-grouping reference**, **guideline ranges = thresholds with sources**.
 
 ### Data provenance (2026-05-13)
 

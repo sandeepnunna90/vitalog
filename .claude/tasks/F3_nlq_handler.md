@@ -83,7 +83,7 @@ The hard constraint "answers ONLY from stored data, never general medical knowle
 
 **Files modified:**
 - `prompts/_registry.yaml` — added `nlq / v1` entry.
-- `src/reference_data/__init__.py` — added `@lru_cache(maxsize=1)` to `load_condition_biomarker_map` (PR review fix).
+- `src/reference_data/__init__.py` — added `@lru_cache(maxsize=1)` to `load_biomarker_groups` (PR review fix).
 
 **Key design decisions:**
 - Retrieval set: real patient records only — no synthetic guideline records. NLQ must not cite guideline values; Mode B correctly rejects them.
@@ -93,5 +93,5 @@ The hard constraint "answers ONLY from stored data, never general medical knowle
 **PR review fixes (PR #23, commit 1aad9cd):**
 1. Replaced `"query": query` with `"query_length": len(query)` in audit_repo payload (PII).
 2. Removed unused `patient_conditions` parameter from `answer()` signature.
-3. Added `@lru_cache(maxsize=1)` to `load_condition_biomarker_map` in `reference_data/__init__.py`.
+3. Added `@lru_cache(maxsize=1)` to `load_biomarker_groups` in `reference_data/__init__.py`.
 4. Added `test_answer_partial_retrieval_absent_text_in_prompt` to cover mixed retrieval path.

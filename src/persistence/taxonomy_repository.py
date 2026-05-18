@@ -34,12 +34,12 @@ class TaxonomyRepository:
             .execute()
             .data
         )
-        return CanonicalBiomarkerRow.model_validate(data[0]) if data else None
+        return CanonicalBiomarkerRow.model_validate(data[0], strict=False) if data else None
 
     def list_all_canonical(self) -> list[CanonicalBiomarkerRow]:
         """Return all canonical biomarker entries."""
         data: Any = self._client.table(_CANONICAL_TABLE).select("*").execute().data
-        return [CanonicalBiomarkerRow.model_validate(row) for row in data]
+        return [CanonicalBiomarkerRow.model_validate(row, strict=False) for row in data]
 
     # ── Pending taxonomy queue ─────────────────────────────────────────────
 
@@ -50,14 +50,14 @@ class TaxonomyRepository:
         )
         if not data:
             raise ValueError("INSERT returned no rows — possible duplicate or RLS rejection")
-        return PendingTaxonomyEntryRow.model_validate(data[0])
+        return PendingTaxonomyEntryRow.model_validate(data[0], strict=False)
 
     def list_pending(self, status: PendingStatus = "pending") -> list[PendingTaxonomyEntryRow]:
         """Return pending taxonomy entries with the given status."""
         data: Any = (
             self._client.table(_PENDING_TABLE).select("*").eq("status", status).execute().data
         )
-        return [PendingTaxonomyEntryRow.model_validate(row) for row in data]
+        return [PendingTaxonomyEntryRow.model_validate(row, strict=False) for row in data]
 
     def resolve_pending(
         self,
@@ -76,4 +76,4 @@ class TaxonomyRepository:
         )
         if not data:
             raise ValueError(f"Pending entry {pending_id} not found or RLS rejected update")
-        return PendingTaxonomyEntryRow.model_validate(data[0])
+        return PendingTaxonomyEntryRow.model_validate(data[0], strict=False)

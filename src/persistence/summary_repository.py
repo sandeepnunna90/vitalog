@@ -23,14 +23,14 @@ class SummaryRepository:
         )
         if not data:
             raise ValueError("INSERT returned no rows — possible duplicate or RLS rejection")
-        return SummaryRow.model_validate(data[0])
+        return SummaryRow.model_validate(data[0], strict=False)
 
     def get(self, summary_id: uuid.UUID) -> SummaryRow | None:
         """Return a summary by its summary_id, or None if not found."""
         data: Any = (
             self._client.table(_TABLE).select("*").eq("summary_id", str(summary_id)).execute().data
         )
-        return SummaryRow.model_validate(data[0]) if data else None
+        return SummaryRow.model_validate(data[0], strict=False) if data else None
 
     def list_for_patient(self, patient_id: uuid.UUID) -> list[SummaryRow]:
         """Return all summaries for a patient, newest first."""
@@ -42,7 +42,7 @@ class SummaryRepository:
             .execute()
             .data
         )
-        return [SummaryRow.model_validate(row) for row in data]
+        return [SummaryRow.model_validate(row, strict=False) for row in data]
 
     def update_annotations(self, summary_id: uuid.UUID, annotations: str) -> SummaryRow:
         """Update the patient_annotations field for a summary."""
@@ -55,4 +55,4 @@ class SummaryRepository:
         )
         if not data:
             raise ValueError(f"Summary {summary_id} not found or RLS rejected update")
-        return SummaryRow.model_validate(data[0])
+        return SummaryRow.model_validate(data[0], strict=False)
