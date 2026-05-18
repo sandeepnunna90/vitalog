@@ -141,6 +141,7 @@ def _detect_data_gaps(
     gaps: list[str] = []
     for cond in conditions:
         if cond not in groups:
+            _audit_log.warning("unknown condition code in profile, skipping: %s", cond)
             continue
         for cid in groups[cond].get("biomarkers", []):
             if cid not in recorded_ids and cid not in seen:
@@ -180,7 +181,8 @@ def _build_inputs(
         value_str = str(r.canonical_value)
         unit_str = r.canonical_unit or r.original_unit or ""
         d = r.collection_date
-        date_str = f"{d.strftime('%B')} {d.day}, {d.year}"  # type: ignore[union-attr]
+        assert d is not None  # accepted filter guarantees non-None collection_date
+        date_str = f"{d.strftime('%B')} {d.day}, {d.year}"
         value_unit = f"{value_str} {unit_str}".rstrip()
         record_lines.append(f"{r.original_name}: {value_unit} — {date_str} [id={r.record_id}]")
 

@@ -52,16 +52,20 @@ class NlqHandler:
                 retrieval_count=0,
                 prompt_version=_PROMPT_VERSION,
                 is_fallback=True,
+                matched_condition_names=[],
             )
 
         if not result.retrieval_set:
             text = _missing_fallback(result.missing_canonical_ids)
+            if result.matched_condition_names:
+                text = text + _condition_group_disclaimer(result.matched_condition_names)
             self._log_audit(query, 0)
             return NlqResponse(
                 text=text,
                 retrieval_count=0,
                 prompt_version=_PROMPT_VERSION,
                 is_fallback=True,
+                matched_condition_names=result.matched_condition_names,
             )
 
         inputs = _build_inputs(query, result.retrieval_set, result.missing_canonical_ids)
@@ -79,6 +83,7 @@ class NlqHandler:
             retrieval_count=len(result.retrieval_set),
             prompt_version=_PROMPT_VERSION,
             is_fallback=output is None,
+            matched_condition_names=result.matched_condition_names,
         )
 
     def _attempt(

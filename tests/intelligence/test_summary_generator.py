@@ -223,6 +223,20 @@ def test_data_gaps_detection(mock_groups: MagicMock) -> None:
     assert len(gaps) == 2
 
 
+@patch("src.intelligence.summary_generator.load_biomarker_groups")
+def test_data_gaps_unknown_condition_code_skipped(mock_groups: MagicMock) -> None:
+    """Unknown condition code in profile is silently skipped (no KeyError) and emits a warning."""
+    mock_groups.return_value = {"conditions": {"T2D": {"biomarkers": ["hba1c"]}}}
+    import logging
+
+    with patch.object(logging.getLogger("audit"), "warning") as mock_warn:
+        gaps = _detect_data_gaps(["T2D", "UNKNOWN_COND"], [])
+    # UNKNOWN_COND is not in biomarker_groups — warning emitted, no crash
+    assert mock_warn.call_count >= 1
+    # T2D gap still detected
+    assert len(gaps) == 1
+
+
 @patch("src.intelligence.summary_generator.load_patient_profile")
 @patch("src.intelligence.summary_generator.verify_mode_a")
 def test_audit_logged(mock_verify: MagicMock, mock_profile: MagicMock) -> None:
