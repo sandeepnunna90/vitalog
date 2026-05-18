@@ -14,10 +14,8 @@ from typing import Any
 
 import anthropic
 
+from src._retry import ADAPTER_RETRY_SLEEP
 from src.gateway.errors import ModelError
-
-# Retry sleep schedule: attempt 0 → 0s, 1 → 1s, 2 → 2s
-_RETRY_SLEEP: dict[int, float] = {0: 0.0, 1: 1.0, 2: 2.0}
 
 
 class AnthropicAdapter:
@@ -100,6 +98,6 @@ class AnthropicAdapter:
                     raise ModelError(f"Non-retryable API error: {exc}") from exc
                 last_exc = exc
                 if attempt < max_retries - 1:
-                    time.sleep(_RETRY_SLEEP.get(attempt, 2.0**attempt))
+                    time.sleep(ADAPTER_RETRY_SLEEP[attempt])
 
         raise ModelError(f"Anthropic API call failed after {max_retries} attempts") from last_exc

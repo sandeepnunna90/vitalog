@@ -12,6 +12,7 @@ import time
 import uuid
 from typing import Any
 
+from src._retry import ADAPTER_RETRY_SLEEP
 from src.ingestion.errors import TextractFailureError
 from src.ingestion.textract_schemas import (
     Block,
@@ -23,8 +24,6 @@ from src.ingestion.textract_schemas import (
 )
 from src.ingestion.upload_validator import ValidatedUpload
 from src.persistence.audit_log_repository import AuditLogRepository
-
-_RETRY_SLEEP: dict[int, float] = {0: 0.0, 1: 1.0, 2: 2.0}
 
 _RETRYABLE_ERROR_CODES: frozenset[str] = frozenset(
     {
@@ -103,7 +102,7 @@ class TextractAdapter:
             except botocore.exceptions.BotoCoreError as exc:
                 last_exc = exc
             if attempt < self._max_retries - 1:
-                time.sleep(_RETRY_SLEEP.get(attempt, 2.0**attempt))
+                time.sleep(ADAPTER_RETRY_SLEEP[attempt])
         raise TextractFailureError(str(last_exc), self._max_retries) from last_exc
 
     def _normalize(self, raw: dict[str, Any]) -> TextractResult:
