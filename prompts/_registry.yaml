@@ -23,3 +23,6 @@ prompts:
   - prompt_id: summary
     version: v1
     path: summary/v1.md
+  - prompt_id: summary
+    version: v2
+    path: summary/v2.md

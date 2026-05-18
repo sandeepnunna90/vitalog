@@ -13,7 +13,7 @@ from src.intelligence.summary_generator import (
     SummaryGenerator,
     _detect_data_gaps,
 )
-from src.intelligence.summary_schemas import Summary, SummaryOutput
+from src.intelligence.summary_schemas import Summary, SummaryOutput, SummaryOutputCitation
 from src.persistence.models import BiomarkerRecordRow
 
 _PATIENT_ID = uuid.UUID("7f3b1c5e-4d2a-4e8f-b6c9-1a2b3c4d5e6f")
@@ -53,8 +53,6 @@ def _make_record(
 
 
 def _good_output() -> SummaryOutput:
-    from src.gateway.citation_schemas import Citation
-
     return SummaryOutput(
         conditions_section="Type 2 Diabetes, Hypertension",
         medications_section="Metformin 1000mg",
@@ -63,11 +61,11 @@ def _good_output() -> SummaryOutput:
         data_gaps_section="postprandial_glucose",
         patient_notes="",
         citations=[
-            Citation(
+            SummaryOutputCitation(
                 value=6.8,
                 unit="%",
-                collection_date=date(2026, 3, 12),
-                source_record_id=_RECORD_ID_1,
+                collection_date="2026-03-12",
+                source_record_id=str(_RECORD_ID_1),
             )
         ],
     )
@@ -104,7 +102,7 @@ def test_happy_path(mock_verify: MagicMock, mock_profile: MagicMock) -> None:
     assert summary.is_fallback is False
     assert summary.disclaimer == DISCLAIMER
     assert summary.citation_count == 1
-    assert summary.prompt_version == "v1"
+    assert summary.prompt_version == "v2"
     assert summary.conditions_section == "Type 2 Diabetes, Hypertension"
     mock_verify.assert_called_once()
 

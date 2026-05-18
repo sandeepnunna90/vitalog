@@ -92,10 +92,8 @@ def test_summary_generate_mark() -> None:
     Asserts: is_fallback=False, disclaimer present verbatim, citation_count > 0.
     """
     from src.gateway.gateway import Gateway
-    from src.gateway.prompt_registry import PromptRegistry
 
-    registry = PromptRegistry()
-    gateway = Gateway(registry=registry)
+    gateway = Gateway()
 
     repo = MagicMock()
     repo.list_for_patient.return_value = _STUB_RECORDS

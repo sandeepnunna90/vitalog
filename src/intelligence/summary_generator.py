@@ -4,13 +4,15 @@ from __future__ import annotations
 
 import logging
 import uuid
+from datetime import date
 from typing import Any
 
+from src.gateway.citation_schemas import Citation
 from src.gateway.citation_verifier_mode_a import verify as verify_mode_a
 from src.gateway.errors import BannedPhraseViolation, ModeAVerificationError, OutputValidationError
 from src.gateway.gateway import Gateway
 from src.intelligence.retrieval import canonical_name
-from src.intelligence.summary_schemas import Summary, SummaryOutput
+from src.intelligence.summary_schemas import Summary, SummaryOutput, SummaryOutputCitation
 from src.persistence.biomarker_repository import BiomarkerRepository
 from src.persistence.models import BiomarkerRecordRow
 from src.reference_data import load_biomarker_groups, load_patient_profile
@@ -22,7 +24,7 @@ DISCLAIMER = (
 )
 
 _PROMPT_ID = "summary"
-_PROMPT_VERSION = "v1"
+_PROMPT_VERSION = "v2"
 _ACCEPTED_VERIFIED_BY = frozenset({"auto", "user", "admin"})
 
 _audit_log = logging.getLogger("audit")
@@ -61,22 +63,23 @@ class SummaryGenerator:
         gaps = _detect_data_gaps(profile.conditions, accepted)
         inputs = _build_inputs(profile, accepted, gaps)
 
-        output = self._attempt(inputs, retrieval_set, patient_id)
-        if output is None:
-            output = self._attempt(inputs, retrieval_set, patient_id)
+        result = self._attempt(inputs, retrieval_set, patient_id)
+        if result is None:
+            result = self._attempt(inputs, retrieval_set, patient_id)
 
-        is_fallback = output is None
-        citation_count = len(output.citations) if output is not None else 0
+        is_fallback = result is None
+        out, citations = result if result is not None else (None, [])
+        citation_count = len(citations)
 
         summary = Summary(
             patient_id=patient_id,
-            conditions_section=output.conditions_section if output else "",
-            medications_section=output.medications_section if output else "",
-            results_section=output.results_section if output else "",
-            trends_section=output.trends_section if output else "",
-            data_gaps_section=output.data_gaps_section if output else "",
-            patient_notes=output.patient_notes if output else "",
-            citations=output.citations if output else [],
+            conditions_section=out.conditions_section if out else "",
+            medications_section=out.medications_section if out else "",
+            results_section=out.results_section if out else "",
+            trends_section=out.trends_section if out else "",
+            data_gaps_section=out.data_gaps_section if out else "",
+            patient_notes=out.patient_notes if out else "",
+            citations=citations,
             disclaimer=DISCLAIMER,
             prompt_version=_PROMPT_VERSION,
             citation_count=citation_count,
@@ -91,12 +94,18 @@ class SummaryGenerator:
         inputs: dict[str, str],
         retrieval_set: dict[uuid.UUID, BiomarkerRecordRow],
         patient_id: uuid.UUID,
-    ) -> SummaryOutput | None:
+    ) -> tuple[SummaryOutput, list[Citation]] | None:
         try:
             out = self._gateway.call(_PROMPT_ID, _PROMPT_VERSION, inputs, SummaryOutput)
-            verify_mode_a(out.citations, patient_id, retrieval_set)
-            return out
-        except (BannedPhraseViolation, ModeAVerificationError, OutputValidationError) as exc:
+            citations = _convert_citations(out.citations)
+            verify_mode_a(citations, patient_id, retrieval_set)
+            return out, citations
+        except (
+            BannedPhraseViolation,
+            ModeAVerificationError,
+            OutputValidationError,
+            ValueError,
+        ) as exc:
             _audit_log.warning("summary attempt failed: %s: %s", type(exc).__name__, exc)
             return None
 
@@ -126,6 +135,23 @@ class SummaryGenerator:
 
 
 # ── Module-level helpers ──────────────────────────────────────────────────────
+
+
+def _convert_citations(raw: list[SummaryOutputCitation]) -> list[Citation]:
+    """Convert LLM string-typed citations to properly typed Citation objects.
+
+    Raises ValueError if any collection_date is not ISO format or source_record_id
+    is not a valid UUID — triggers retry in _attempt().
+    """
+    return [
+        Citation(
+            value=c.value,
+            unit=c.unit,
+            collection_date=date.fromisoformat(c.collection_date),
+            source_record_id=uuid.UUID(c.source_record_id),
+        )
+        for c in raw
+    ]
 
 
 def _detect_data_gaps(
