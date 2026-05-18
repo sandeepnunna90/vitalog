@@ -90,4 +90,40 @@ This is the demo's terminal scene and the product's core value proposition. Mode
 
 ## Notes / changelog
 
-_(append after work is done)_
+### Implementation (2026-05-18)
+
+**Files created:**
+- `src/intelligence/summary_generator.py` — `SummaryGenerator.generate(patient_id)` with 2-attempt retry, `_detect_data_gaps()`, `_build_inputs()`, `_convert_citations()`, `_log_audit()`
+- `src/intelligence/summary_schemas.py` — `SummaryOutputCitation` (str types for LLM JSON), `SummaryOutput`, `Summary` (disclaimer: str set by code)
+- `prompts/summary/v1.md` + `prompts/summary/v2.md` — v2 used in prod (v1 had unescaped `{value:...}` in example block causing KeyError in format_map)
+- `tests/intelligence/test_summary_generator.py` — 9 unit tests (happy path, disclaimer, retry, safe-refusal, data gaps, audit)
+- `tests/intelligence/test_summary_constraints.py` — 4 Mode A adversarial probes (unknown record_id, ownership leak, unit mismatch, value out of tolerance)
+- `tests/intelligence/test_summary_end_to_end.py` — 1 integration test, live API call
+- `tests/conftest.py` — `load_dotenv()` so integration tests pick up `.env` credentials
+- `reference_data/biomarker_groups.json` — replaces `condition_biomarker_map.json`; 9 conditions, embedded guideline citations, biomarkers contradicted by guidelines removed
+- `docs/guideline_citations.md` — source of truth for which biomarkers are in `biomarker_groups.json`
+
+**Files modified:**
+- `src/intelligence/retrieval.py` — `ResolveResult` dataclass; `resolve_query()` returns it; `_condition_group_matches` replaces `_condition_biomarker_matches`; imports `load_biomarker_groups`
+- `src/intelligence/nlq_handler.py` — unpacks `ResolveResult`; condition-group disclaimer appended in BOTH LLM path and missing-records fallback path
+- `src/intelligence/nlq_schemas.py` — added `matched_condition_names: list[str] = []` to `NlqResponse`
+- `src/intelligence/context_cards.py` — import `load_biomarker_groups`; reads `groups[c]["display_name"]`
+- `src/reference_data/__init__.py` — `load_biomarker_groups()` replaces `load_condition_biomarker_map()` and `load_specialist_templates()`
+- `src/reference_data/patient_profile_schemas.py` — comment updated
+- `prompts/_registry.yaml` — added summary@v1 and summary@v2 entries
+- `tests/intelligence/test_retrieval.py` — all call sites updated for `ResolveResult`
+- `tests/intelligence/test_context_cards.py` — updated for `biomarker_groups` structure
+- `tests/intelligence/test_nlq_handler.py` — 3 new tests for condition disclaimer paths
+- `tests/reference_data/test_loading.py` + `test_patient_profile.py` — updated imports/assertions
+
+**Files deleted:**
+- `reference_data/condition_biomarker_map.json` (replaced by `biomarker_groups.json`)
+- `reference_data/specialist_content_templates.json` (clinical assumptions with no defensible authority)
+- `.claude/tasks/F5_summary_generator_cardiology.md` (superseded by generic design)
+
+**Key design decisions:**
+- `SummaryOutputCitation` (str types) + `_convert_citations()` pattern: mirrors `ObservationCitation` from F2; Pydantic strict=True rejects `str→UUID` and `str→date` coercions; ValueError from malformed dates/UUIDs caught in `_attempt()` and triggers retry
+- `_PROMPT_VERSION = "v2"`: v1 had unescaped `{value: 6.8, unit: "%"}` in EXAMPLES block, `str.format_map()` interpreted it as a template variable → `KeyError`
+- Condition-group disclaimer appended in code (not LLM-generated) in both successful and missing-records paths
+
+**PR:** #29 — all CI checks green, integration test passed against live API (11.86s)

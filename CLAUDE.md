@@ -54,7 +54,7 @@ Storage policy (classification-gated, §7.6):
 | `src/ingestion/` | Upload validation, classification, Textract/vision OCR, structurer, composite confidence |
 | `src/gateway/` | AI Gateway chokepoint, guardrails (L1/L2/L3), prompt registry, eval logger, Mode A + Mode B citation verifiers |
 | `src/normalization/` | Tier 1 alias lookup, unit conversion, range validation, duplicate detection |
-| `src/intelligence/` | Trend engine (F1 ✅); Observation Generator (F2 ✅); NLQ Handler + retrieval resolver (F3 ✅); Context cards (F4 ✅) — `context_cards.py` + `context_card_schemas.py` |
+| `src/intelligence/` | Trend engine (F1 ✅); Observation Generator (F2 ✅); NLQ Handler + retrieval resolver (F3 ✅); Context cards (F4 ✅) — `context_cards.py` + `context_card_schemas.py`; Summary Generator (F5 ✅) — `summary_generator.py` + `summary_schemas.py` |
 | `src/persistence/` | Repository pattern over Supabase; all DB entity models |
 | `src/eval/synthesis/` | Synthetic lab report generator (C1 ✅); Quest/hospital/LabCorp vendor templates (C2 ✅); ground truth writer |
 | `src/eval/harness/` | Extraction accuracy harness (C3 ✅): `comparator.py` (per-field comparison, ±0.5% decimal tolerance, rapidfuzz name matching), `aggregator.py` (precision/recall/F1 by field/split/band), `runner.py` (dry-run + live pipeline dispatch), `reporter.py` (accuracy.json + accuracy.md + history.csv) |
@@ -63,7 +63,7 @@ Storage policy (classification-gated, §7.6):
 | `scripts/build_manifest.py` | SHA-256 hash all corpus files → `manifest.json` (C2 ✅) |
 | `scripts/redact_real.py` | PyMuPDF HIPAA Safe Harbor redaction helper for user-provided real PDFs (C2 ✅) |
 | `scripts/run_accuracy.py` | Harness CLI (C3 ✅): `--dry-run` for GT self-comparison (~100% F1, no API calls); live mode runs D1–D6 against full corpus |
-| `src/reference_data/` | Taxonomy loader (cached); `biomarker_taxonomy.json` — 30-biomarker seed; `patient_profile.py` + `patient_profile_schemas.py` — Mark's hardcoded profile (G2 ✅) |
+| `src/reference_data/` | Taxonomy loader (cached); `biomarker_taxonomy.json` — 30-biomarker seed; `patient_profile.py` + `patient_profile_schemas.py` — Mark's hardcoded profile (G2 ✅); `biomarker_groups.json` — 9-condition grouping reference with embedded guideline citations (F5 ✅) |
 | `scripts/` | Admin CLI (`resolve_pending`, `generate_synthetic`) |
 | `prompts/` | Versioned prompt templates — bump version on every edit |
 
@@ -94,9 +94,13 @@ Storage policy (classification-gated, §7.6):
 - **F3 retrieval token stripping is required.** `_direct_alias_matches` strips non-alphanumeric chars from each token before alias lookup so "HbA1c?" resolves correctly. Without this, trailing punctuation causes lookup to fail silently and the query falls through to the safe-refusal path.
 - **F3 condition matching uses significant-word threshold (>=8 chars).** `_condition_biomarker_matches` matches any display-name word ≥8 chars against the query so "diabetes" expands T2D biomarkers without requiring the full "Type 2 Diabetes" string. Words < 8 chars ("type", "chronic", "disease") are skipped to avoid false positives.
 - **F3 NLQ retrieval set has no synthetic guideline records.** Unlike F2 (which adds synthetic records for band bounds), F3's retrieval set contains only real patient records. NLQ must not cite guideline target values — Mode B correctly rejects them.
-- **`load_condition_biomarker_map` is now `@lru_cache`.** Added in the F3 review fix. All six reference-data loaders that are called in hot paths (`load_taxonomy`, `load_condition_biomarker_map`) are now cached after first read.
+- **All reference-data loaders are `@lru_cache`.** Added in the F3 review fix. `load_taxonomy`, `load_biomarker_groups`, and all other hot-path loaders are cached after first read.
 - **C4 grader imports a private L3 function.** `src/eval/adversarial/grader.py` imports `_load_banned_phrases` from `src.gateway.guardrails.layer3_deterministic`. The `_` prefix means no public-API contract — if L3 internals are refactored, update both callers together. Do not make `_load_banned_phrases` public without moving it to a shared utility first.
 - **C4 `assert isinstance()` in `_run_one`.** `scripts/run_adversarial.py` uses `assert isinstance(spec, PromptSpec)` as a type guard. This is stripped under `python -O`. The script is always run interactively (never with `-O`), so this is safe; do not add `-O` to the runner invocation without replacing the assert with an explicit `TypeError` raise.
+- **F5 `SummaryOutputCitation` uses `str` types for `collection_date` and `source_record_id`.** Pydantic `strict=True` on `Citation` rejects `str→date` and `str→UUID` coercions; the LLM always returns strings in JSON tool-use output. `_convert_citations()` does the conversion after parsing. Mirrors the `ObservationCitation` pattern from F2. Do not change `SummaryOutputCitation` fields to `date`/`UUID` — every LLM call will raise `OutputValidationError`.
+- **F5 prompt is on v2.** `prompts/summary/v1.md` had an unescaped `{value: 6.8, ...}` in the EXAMPLES block that `str.format_map()` interpreted as a template variable → `KeyError`. Always escape literal braces in prompt template examples as `{{...}}`.
+- **F5 condition-group disclaimer appended in both paths.** `nlq_handler.py` appends the condition-group disclaimer when `matched_condition_names` is non-empty — both in the successful LLM response path AND in the missing-records fallback path. If you add a new early-return path to `NlqHandler._handle()`, check whether it also needs the disclaimer.
+- **`load_condition_biomarker_map` is removed; use `load_biomarker_groups`.** The old function is gone; `biomarker_groups.json` replaces `condition_biomarker_map.json`. The new structure has `["conditions"][code]["biomarkers"]` (flat list) and `["conditions"][code]["display_name"]`. The old `primary_biomarkers`/`monitoring_biomarkers` split no longer exists.
 
 ## Out of capstone scope
 
