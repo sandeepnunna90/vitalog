@@ -184,7 +184,7 @@ def test_audit_event_on_value_conflict() -> None:
     detector.check(_PATIENT_ID, _CANONICAL_ID, _COLLECTION_DATE, 9.0, new_id)
     audit_repo.record.assert_called_once()
     call_kwargs = audit_repo.record.call_args.kwargs
-    assert call_kwargs["event_type"] == "value_conflict"
+    assert call_kwargs["event_type"] == "dedup_value_conflict"
     assert call_kwargs["payload"]["value_conflict"] is True
 
 
