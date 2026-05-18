@@ -59,6 +59,22 @@ class SummaryGenerator:
             and r.verified_by in _ACCEPTED_VERIFIED_BY
         ]
 
+        if not accepted:
+            return Summary(
+                patient_id=patient_id,
+                conditions_section="",
+                medications_section="",
+                results_section="No accepted biomarker records found.",
+                trends_section="",
+                data_gaps_section="",
+                patient_notes="",
+                citations=[],
+                disclaimer=DISCLAIMER,
+                prompt_version=_PROMPT_VERSION,
+                citation_count=0,
+                is_fallback=True,
+            )
+
         retrieval_set: dict[uuid.UUID, BiomarkerRecordRow] = {r.record_id: r for r in accepted}
         gaps = _detect_data_gaps(profile.conditions, accepted)
         inputs = _build_inputs(profile, accepted, gaps)

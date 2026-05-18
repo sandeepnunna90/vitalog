@@ -131,10 +131,30 @@ def test_disclaimer_not_in_llm_schema() -> None:
 
 @patch("src.intelligence.summary_generator.load_patient_profile")
 @patch("src.intelligence.summary_generator.verify_mode_a")
-def test_safe_refusal_on_failure(mock_verify: MagicMock, mock_profile: MagicMock) -> None:
-    """Single attempt fails → is_fallback=True with empty sections and disclaimer."""
+def test_no_records_returns_fallback_without_llm(
+    mock_verify: MagicMock, mock_profile: MagicMock
+) -> None:
+    """No accepted records → immediate fallback; LLM never called."""
     mock_profile.return_value = MagicMock(conditions=[], medications=[], allergies=[])
     repo = _mock_repo([])
+    gateway = MagicMock()
+
+    gen = _make_generator(gateway, repo)
+    summary = gen.generate(_PATIENT_ID)
+
+    assert summary.is_fallback is True
+    assert summary.conditions_section == ""
+    assert summary.citations == []
+    assert summary.disclaimer == DISCLAIMER
+    gateway.call.assert_not_called()
+
+
+@patch("src.intelligence.summary_generator.load_patient_profile")
+@patch("src.intelligence.summary_generator.verify_mode_a")
+def test_safe_refusal_on_failure(mock_verify: MagicMock, mock_profile: MagicMock) -> None:
+    """LLM attempt fails → is_fallback=True with empty sections and disclaimer."""
+    mock_profile.return_value = MagicMock(conditions=["T2D"], medications=[], allergies=[])
+    repo = _mock_repo([_make_record()])
     gateway = MagicMock()
     gateway.call.side_effect = OutputValidationError("bad")
 
