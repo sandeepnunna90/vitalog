@@ -1,0 +1,110 @@
+{
+  "generated_at": "2026-05-18T06:12:08.691483+00:00",
+  "total_documents": 13,
+  "documents": [
+    {
+      "split": "synthetic",
+      "vendor": "quest",
+      "filename": "synthetic_000100.pdf",
+      "expected_classification": "lab_report",
+      "pdf_sha256": "200c2d04ad3e5569c21fd2cca77980b87ba3985595224d1a1f30b9a3b33ccaf9",
+      "ground_truth_sha256": "194899fe6b9a04715a261682e52e04765fa4689452986f0db640c767ca8bb4c4"
+    },
+    {
+      "split": "synthetic",
+      "vendor": "quest",
+      "filename": "synthetic_000101.pdf",
+      "expected_classification": "lab_report",
+      "pdf_sha256": "cd564484f9989334ca5307f17dce03083f196283bc01309a18cd063495b1688e",
+      "ground_truth_sha256": "b268f956a7c2f0be1866ea58a9e021a39a7f810557d3ba37ec64a55f64ac68e0"
+    },
+    {
+      "split": "synthetic",
+      "vendor": "quest",
+      "filename": "synthetic_000102.pdf",
+      "expected_classification": "lab_report",
+      "pdf_sha256": "17509831bbee8d780309cc2831ee7bcb48746fc375f85438e70ee7bb30cf3f2c",
+      "ground_truth_sha256": "48a9a40ec1ad229c8eefbd91b26c37981b0d3bd9198fa3c14d870db800c289ee"
+    },
+    {
+      "split": "synthetic",
+      "vendor": "quest",
+      "filename": "synthetic_000103.pdf",
+      "expected_classification": "lab_report",
+      "pdf_sha256": "7165fa99131bfaabaa0f8f593cb1043fdbadf5b434ab6e35b05772062d67c9ae",
+      "ground_truth_sha256": "f66eaf1b2e311ea4ce74f17d3ad7318bf31816ddc3900f5ac2f0e3958682245a"
+    },
+    {
+      "split": "synthetic",
+      "vendor": "quest",
+      "filename": "synthetic_000200.pdf",
+      "expected_classification": "lab_report",
+      "pdf_sha256": "ca8756053423cd91067f127056dc145b661a9d2feba4b360531a286083bf6395",
+      "ground_truth_sha256": "d89c7f6792c9db41e3f3164156400de75d4fc26f95d6454332d77187ea7846e3"
+    },
+    {
+      "split": "synthetic",
+      "vendor": "quest",
+      "filename": "synthetic_000201.pdf",
+      "expected_classification": "lab_report",
+      "pdf_sha256": "509f183c3a61e28d80a49b113d33aedd398ee6646a9267bb365ce690f5fa5e1d",
+      "ground_truth_sha256": "0f3a51b70cba76549a276d5e55ba914464b4d8655ece7798eb60e6d5a5fb754a"
+    },
+    {
+      "split": "synthetic",
+      "vendor": "quest",
+      "filename": "synthetic_000202.pdf",
+      "expected_classification": "lab_report",
+      "pdf_sha256": "79ac1d43883ec32c3b9774ea3fe492382a835fa2eb293a25c8cdb76ec5d9898a",
+      "ground_truth_sha256": "d9ca5b6923330e8f7f8f31b270e4d6e49793aecb7ac6f6da2be147d00ef3d871"
+    },
+    {
+      "split": "synthetic",
+      "vendor": "quest",
+      "filename": "synthetic_000300.pdf",
+      "expected_classification": "lab_report",
+      "pdf_sha256": "7ce23192bec5180c79986ad158e1d02b765115bdecfb6ea0e384a37140390c44",
+      "ground_truth_sha256": "b2654c215b2acd457d4788569d6d47a0ba6ade55404aa5c12dc70be6debf032b"
+    },
+    {
+      "split": "synthetic",
+      "vendor": "quest",
+      "filename": "synthetic_000301.pdf",
+      "expected_classification": "lab_report",
+      "pdf_sha256": "bfd7f7e711d5ba09101af8733df43664049fa4e4cba99180c8b517ea690446f9",
+      "ground_truth_sha256": "d89a13b9d7c2bc5c0e5c698ef37b276ee8b05d7975abc3ed3431954f6b61e1e7"
+    },
+    {
+      "split": "synthetic",
+      "vendor": "quest",
+      "filename": "synthetic_000302.pdf",
+      "expected_classification": "lab_report",
+      "pdf_sha256": "86c17b2192af15d7cbbea5c498ad905c3c074c698cddbfb7cbc61e56cab4886f",
+      "ground_truth_sha256": "07eacc397dd3625bc4b566dc363d75c5067a1d79bbb2d69580a4a8af8909ac1f"
+    },
+    {
+      "split": "adversarial",
+      "vendor": "quest-image",
+      "filename": "adversarial_001_photo_sim.pdf",
+      "expected_classification": "lab_report",
+      "pdf_sha256": "5b1b1b090c5881a19cffbe9b80dc02ed47ff32494db809bb6f4559961830ff1c",
+      "ground_truth_sha256": "eded10bb9df0750500fe7c4a664aeeee211dd314fbae9fcc0fe70f198102e8fc"
+    },
+    {
+      "split": "adversarial",
+      "vendor": "quest-multipage",
+      "filename": "adversarial_002_multipage.pdf",
+      "expected_classification": "lab_report",
+      "pdf_sha256": "763e5179fb7698652dae131dd7931d82346a449d160410638aa298978ea18d18",
+      "ground_truth_sha256": "1bb77ee2a7a6e6e43c88c5157a845aba42b9f1831b61162043db74ee52faacd9"
+    },
+    {
+      "split": "adversarial",
+      "vendor": "quest-mmol",
+      "filename": "adversarial_003_mmol_hba1c.pdf",
+      "expected_classification": "lab_report",
+      "pdf_sha256": "05a4fba6fd78b5a0dcef9cc0ba653412bdd32e791a1912bc1120430b5326c418",
+      "ground_truth_sha256": "ae520bf0ab86def8c9d42ac97d41c7901dded4f7b754631e0f9d225165e08ee6"
+    }
+  ]
+}

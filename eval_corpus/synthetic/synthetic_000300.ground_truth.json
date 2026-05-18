@@ -1,0 +1,153 @@
+{
+  "document_type": "lab_report",
+  "lab_source": "Memorial Hospital Laboratory",
+  "collection_date": "1970-01-01",
+  "patient_name": "TEST PATIENT",
+  "patient_dob": "1970-01-01",
+  "biomarkers": [
+    {
+      "vitalog_id": "hba1c",
+      "original_name": "HbA1c",
+      "original_value": "8.8",
+      "original_unit": "%",
+      "original_range": "4.0-5.6%",
+      "collection_date": "1970-01-01",
+      "lab_source": "Memorial Hospital Laboratory"
+    },
+    {
+      "vitalog_id": "fasting_glucose",
+      "original_name": "Glucose, Fasting",
+      "original_value": "149",
+      "original_unit": "mg/dL",
+      "original_range": "70-99 mg/dL",
+      "collection_date": "1970-01-01",
+      "lab_source": "Memorial Hospital Laboratory"
+    },
+    {
+      "vitalog_id": "total_cholesterol",
+      "original_name": "Cholesterol, Total",
+      "original_value": "120",
+      "original_unit": "mg/dL",
+      "original_range": "<200 mg/dL",
+      "collection_date": "1970-01-01",
+      "lab_source": "Memorial Hospital Laboratory"
+    },
+    {
+      "vitalog_id": "ldl_cholesterol",
+      "original_name": "LDL Cholesterol",
+      "original_value": "119",
+      "original_unit": "mg/dL",
+      "original_range": "<100 mg/dL",
+      "collection_date": "1970-01-01",
+      "lab_source": "Memorial Hospital Laboratory"
+    },
+    {
+      "vitalog_id": "hdl_cholesterol",
+      "original_name": "HDL Cholesterol",
+      "original_value": "79",
+      "original_unit": "mg/dL",
+      "original_range": ">40 mg/dL",
+      "collection_date": "1970-01-01",
+      "lab_source": "Memorial Hospital Laboratory"
+    },
+    {
+      "vitalog_id": "triglycerides",
+      "original_name": "Triglycerides",
+      "original_value": "241",
+      "original_unit": "mg/dL",
+      "original_range": "<150 mg/dL",
+      "collection_date": "1970-01-01",
+      "lab_source": "Memorial Hospital Laboratory"
+    },
+    {
+      "vitalog_id": "egfr",
+      "original_name": "eGFR",
+      "original_value": "76",
+      "original_unit": "mL/min/1.73m2",
+      "original_range": ">=60 mL/min/1.73m2",
+      "collection_date": "1970-01-01",
+      "lab_source": "Memorial Hospital Laboratory"
+    },
+    {
+      "vitalog_id": "creatinine",
+      "original_name": "Creatinine",
+      "original_value": "0.90",
+      "original_unit": "mg/dL",
+      "original_range": "0.74-1.35 mg/dL",
+      "collection_date": "1970-01-01",
+      "lab_source": "Memorial Hospital Laboratory"
+    },
+    {
+      "vitalog_id": "tsh",
+      "original_name": "TSH",
+      "original_value": "4.33",
+      "original_unit": "mIU/L",
+      "original_range": "0.5-4.5 mIU/L",
+      "collection_date": "1970-01-01",
+      "lab_source": "Memorial Hospital Laboratory"
+    },
+    {
+      "vitalog_id": "vitamin_d",
+      "original_name": "Vitamin D, 25-OH",
+      "original_value": "35.8",
+      "original_unit": "ng/mL",
+      "original_range": "30-100 ng/mL",
+      "collection_date": "1970-01-01",
+      "lab_source": "Memorial Hospital Laboratory"
+    },
+    {
+      "vitalog_id": "hemoglobin",
+      "original_name": "Hemoglobin",
+      "original_value": "11.1",
+      "original_unit": "g/dL",
+      "original_range": "13.5-17.5 g/dL",
+      "collection_date": "1970-01-01",
+      "lab_source": "Memorial Hospital Laboratory"
+    },
+    {
+      "vitalog_id": "wbc",
+      "original_name": "WBC",
+      "original_value": "5.7",
+      "original_unit": "10*3/uL",
+      "original_range": "4.5-11.0 10*3/uL",
+      "collection_date": "1970-01-01",
+      "lab_source": "Memorial Hospital Laboratory"
+    },
+    {
+      "vitalog_id": "platelets",
+      "original_name": "Platelets",
+      "original_value": "138",
+      "original_unit": "10*3/uL",
+      "original_range": "150-400 10*3/uL",
+      "collection_date": "1970-01-01",
+      "lab_source": "Memorial Hospital Laboratory"
+    },
+    {
+      "vitalog_id": "sodium",
+      "original_name": "Sodium",
+      "original_value": "147",
+      "original_unit": "mEq/L",
+      "original_range": "136-145 mEq/L",
+      "collection_date": "1970-01-01",
+      "lab_source": "Memorial Hospital Laboratory"
+    },
+    {
+      "vitalog_id": "potassium",
+      "original_name": "Potassium",
+      "original_value": "4.5",
+      "original_unit": "mEq/L",
+      "original_range": "3.5-5.0 mEq/L",
+      "collection_date": "1970-01-01",
+      "lab_source": "Memorial Hospital Laboratory"
+    },
+    {
+      "vitalog_id": "bun",
+      "original_name": "BUN",
+      "original_value": "23",
+      "original_unit": "mg/dL",
+      "original_range": "7-20 mg/dL",
+      "collection_date": "1970-01-01",
+      "lab_source": "Memorial Hospital Laboratory"
+    }
+  ]
+}
