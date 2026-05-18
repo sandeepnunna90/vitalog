@@ -8,7 +8,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
-from src.normalization.constants import MODE_B_NUMERIC_TOLERANCE
+from src.normalization.constants import MODE_B_NUMERIC_TOLERANCE, within_tolerance
 from src.persistence.audit_log_repository import AuditLogRepository
 from src.persistence.biomarker_repository import BiomarkerRepository
 from src.persistence.models import BiomarkerRecordRow
@@ -75,12 +75,7 @@ class DuplicateDetector:
                 continue
 
             ref = prior.canonical_value
-            if ref == 0.0:
-                within_tolerance = canonical_value == 0.0
-            else:
-                within_tolerance = abs(canonical_value - ref) / abs(ref) <= MODE_B_NUMERIC_TOLERANCE
-
-            if within_tolerance:
+            if within_tolerance(canonical_value, ref, MODE_B_NUMERIC_TOLERANCE):
                 self._audit_repo.record(
                     actor="normalization",
                     event_type="duplicate_detected",

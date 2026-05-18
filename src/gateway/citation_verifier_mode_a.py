@@ -73,6 +73,7 @@ def verify(
             )
 
         # Numeric tolerance ±0.5% (AC1, AC3)
+        # Zero-stored requires exact match; see also normalization.constants.within_tolerance.
         if record.canonical_value is None:
             raise ModeAVerificationError(
                 reason="stored record has no canonical_value",
