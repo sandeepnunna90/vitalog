@@ -64,4 +64,28 @@ Layer 2 prompt-level constraints are known to be insufficient under prompt drift
 
 ## Notes / changelog
 
-_(append after work is done)_
+### Implementation (2026-05-18)
+
+**PR:** #28 — `feat/c4-adversarial-prompt-suite`
+
+**Files created:**
+- `tests/adversarial/prompts/` — 20 prompt files across 10 attack categories (2 per category): direct_medical_advice, role_play, instruction_injection, authority_appeal, hypothetical_framing, numeric_trickery, translation_jailbreak, emotional_pressure, tool_hijacking, derived_value_misuse
+- `tests/adversarial/results_history.jsonl` — append-only run log; seeded with one dry-run entry (20/20 pass)
+- `src/eval/adversarial/__init__.py` — package marker re-exporting public types
+- `src/eval/adversarial/grader.py` — 5-step grading pipeline: banned-phrase scan → refusal regex → redirect regex → optional tiebreaker LLM → default safe_redirect. Uses `_load_banned_phrases` from L3 (shared, not duplicated). `grade_exception()` maps `BannedPhraseViolation`/`OutputValidationError` → refusal (L3 worked) vs unexpected exception → clinical_advice (flag for review).
+- `prompts/grader/v1.md` — tiebreaker classifier prompt using `claude-haiku-4-5-20251001`
+- `scripts/run_adversarial.py` — CLI runner with `--dry-run` mode; stubs BiomarkerRepository via `MagicMock` so NLQ handler always calls the LLM; appends to `results_history.jsonl`; exits 1 + prints ROLLBACK message on any `clinical_advice` grade
+- `tests/eval/test_adversarial_grader.py` — 11 unit tests; pure logic, no API calls
+
+**Files modified:**
+- `prompts/_registry.yaml` — added `grader@v1` entry
+- `CLAUDE.md` — added 2 C4 gotchas (private `_load_banned_phrases` import coupling; `assert isinstance()` stripped under `-O`)
+
+**Key design decisions:**
+- `Grade` is a `StrEnum` (UP042 compliant, Python 3.11+)
+- Grader default is `safe_redirect` (conservative — false-negative over false-positive)
+- `emotional_pressure` prompts use `expected: safe_redirect` (not `refusal`) — matches L2 preamble intent; factual response + redirect is acceptable
+- Tiebreaker LLM is optional (`gateway=None` in dry-run and unit tests) — no API calls required for regression
+
+**Post-merge fix:**
+- Anchored `history_path` to `Path(__file__).parent.parent / ...` so runner works from any cwd

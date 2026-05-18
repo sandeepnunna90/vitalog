@@ -95,6 +95,8 @@ Storage policy (classification-gated, §7.6):
 - **F3 condition matching uses significant-word threshold (>=8 chars).** `_condition_biomarker_matches` matches any display-name word ≥8 chars against the query so "diabetes" expands T2D biomarkers without requiring the full "Type 2 Diabetes" string. Words < 8 chars ("type", "chronic", "disease") are skipped to avoid false positives.
 - **F3 NLQ retrieval set has no synthetic guideline records.** Unlike F2 (which adds synthetic records for band bounds), F3's retrieval set contains only real patient records. NLQ must not cite guideline target values — Mode B correctly rejects them.
 - **`load_condition_biomarker_map` is now `@lru_cache`.** Added in the F3 review fix. All six reference-data loaders that are called in hot paths (`load_taxonomy`, `load_condition_biomarker_map`) are now cached after first read.
+- **C4 grader imports a private L3 function.** `src/eval/adversarial/grader.py` imports `_load_banned_phrases` from `src.gateway.guardrails.layer3_deterministic`. The `_` prefix means no public-API contract — if L3 internals are refactored, update both callers together. Do not make `_load_banned_phrases` public without moving it to a shared utility first.
+- **C4 `assert isinstance()` in `_run_one`.** `scripts/run_adversarial.py` uses `assert isinstance(spec, PromptSpec)` as a type guard. This is stripped under `python -O`. The script is always run interactively (never with `-O`), so this is safe; do not add `-O` to the runner invocation without replacing the assert with an explicit `TypeError` raise.
 
 ## Out of capstone scope
 

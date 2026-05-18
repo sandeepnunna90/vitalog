@@ -204,7 +204,7 @@ def main() -> None:
     print(f"Results: {pass_count}/{len(results)} passed, {fail_count} failed")
 
     # Append to results_history.jsonl
-    history_path = Path("tests/adversarial/results_history.jsonl")
+    history_path = Path(__file__).parent.parent / "tests" / "adversarial" / "results_history.jsonl"
     run_entry = {
         "timestamp": datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ"),
         "git_sha": _git_sha(),
