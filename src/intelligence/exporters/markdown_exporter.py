@@ -45,7 +45,7 @@ def export_markdown(row: SummaryRow) -> bytes:
         lines.append(body or "_None_")
         lines.append("")
         for ann in annotations_by_section.get(section_key, []):
-            lines.append(f"> **Patient note:** {ann.text} _({ann.created_at[:10]})_")
+            lines.append(f"> **Patient note:** {ann.text} _({str(ann.created_at)[:10]})_")
             lines.append("")
 
     citations: list[dict[str, Any]] = content.get("citations", [])
