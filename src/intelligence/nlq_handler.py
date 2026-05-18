@@ -125,6 +125,8 @@ class NlqHandler:
 
 
 def _missing_fallback(missing_ids: list[str]) -> str:
+    # canonical_name() reads from biomarker_groups.json — curated data only.
+    # If biomarker_groups.json is ever loaded from an untrusted source, re-audit this path.
     names = [canonical_name(cid) for cid in missing_ids]
     if len(names) == 1:
         return (

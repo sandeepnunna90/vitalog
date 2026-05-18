@@ -26,7 +26,7 @@ class RawBiomarkerCandidate(BaseModel):
     raw_value: str
     raw_unit: str
     raw_reference_range: str
-    collection_date: str
+    collection_date: str  # LLM-emitted string; must be ISO 8601 (YYYY-MM-DD) for DB insert
     lab_source: str
     llm_confidence: float = Field(ge=0.0, le=100.0)
     source_page: int | None
@@ -56,7 +56,7 @@ class BiomarkerCandidate(BaseModel):
     raw_value: str
     raw_unit: str
     raw_reference_range: str
-    collection_date: str
+    collection_date: str  # must be ISO 8601 (YYYY-MM-DD); non-ISO raises Postgres error on insert
     lab_source: str
     llm_confidence: float
     source_page: int | None

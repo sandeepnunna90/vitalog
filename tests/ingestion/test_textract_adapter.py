@@ -146,6 +146,57 @@ def test_table_reconstructed_row_major() -> None:
     assert cell.confidence == pytest.approx(97.5)
 
 
+def test_merged_cell_last_block_wins() -> None:
+    """Two CELL blocks at the same (row, col) — the later one silently overwrites.
+
+    This is a documented capstone limitation. The test confirms the current
+    behaviour so future changes don't introduce silent regressions.
+    """
+    word1_id = "word-first"
+    word2_id = "word-second"
+    cell1_id = "cell-first"
+    cell2_id = "cell-second"
+    table_id = "table-merged"
+    blocks: list[dict[str, Any]] = [
+        {"Id": word1_id, "BlockType": "WORD", "Text": "FIRST"},
+        {"Id": word2_id, "BlockType": "WORD", "Text": "SECOND"},
+        {
+            "Id": cell1_id,
+            "BlockType": "CELL",
+            "RowIndex": 1,
+            "ColumnIndex": 1,
+            "Confidence": 90.0,
+            "Geometry": {"BoundingBox": {"Left": 0.0, "Top": 0.0, "Width": 0.2, "Height": 0.05}},
+            "Relationships": [{"Type": "CHILD", "Ids": [word1_id]}],
+        },
+        {
+            "Id": cell2_id,
+            "BlockType": "CELL",
+            "RowIndex": 1,
+            "ColumnIndex": 1,  # same position — simulates a spanning/merged cell
+            "Confidence": 91.0,
+            "Geometry": {"BoundingBox": {"Left": 0.0, "Top": 0.0, "Width": 0.2, "Height": 0.05}},
+            "Relationships": [{"Type": "CHILD", "Ids": [word2_id]}],
+        },
+        {
+            "Id": table_id,
+            "BlockType": "TABLE",
+            "Confidence": 95.0,
+            "Relationships": [{"Type": "CHILD", "Ids": [cell1_id, cell2_id]}],
+        },
+    ]
+    client = MagicMock()
+    client.analyze_document.return_value = _minimal_response(blocks)
+    adapter, _ = _make_adapter(client)
+
+    result = adapter.extract(_make_upload(), _DOCUMENT_ID)
+
+    assert len(result.tables[0].rows) == 1
+    assert len(result.tables[0].rows[0]) == 1
+    # second block overwrites the first — documented behaviour
+    assert result.tables[0].rows[0][0].text == "SECOND"
+
+
 def test_kv_pairs_resolved() -> None:
     key_word_id = "kw-1"
     val_word_id = "vw-1"

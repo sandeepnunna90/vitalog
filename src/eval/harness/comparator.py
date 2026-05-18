@@ -146,6 +146,9 @@ def _value_match(extracted: str, expected: str) -> bool:
 
     Decimal presence (any '.' in either string) selects ±0.5% tolerance; otherwise exact.
     """
+    # Assumes values do not use comma-thousands separators (e.g. "1,234" vs "1234"
+    # would fall through to string comparison and mismatch). Ground-truth values
+    # must be written without thousand separators.
     try:
         e_val = float(extracted.strip())
         g_val = float(expected.strip())

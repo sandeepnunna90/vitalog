@@ -71,6 +71,9 @@ class SummaryAnnotator:
             raise ValueError(
                 f"Invalid section: {section!r}. Valid sections: {sorted(_VALID_SECTIONS)}"
             )
+        # Read-then-write: concurrent calls could race and silently drop one annotation.
+        # Acceptable for single-user capstone scope; add optimistic locking (row version)
+        # before supporting multiple concurrent users.
         row = self._repo.get(summary_id)
         if row is None:
             raise ValueError(f"Summary {summary_id} not found")

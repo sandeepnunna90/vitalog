@@ -3,6 +3,10 @@
 The orchestrator implements the short-circuit rule (architecture §7.6 / D3 AC6):
 only lab_report documents continue to Textract. The textract_fn slot is left None
 until D4 wires the real implementation.
+
+Note: this file belongs in src/orchestration/ per the architecture (§4). It lives
+here because it was written before the orchestration package existed. Move it there
+when the orchestration layer is implemented.
 """
 
 from __future__ import annotations

@@ -206,6 +206,9 @@ def _build_inputs(
         f"Allergies: {', '.join(allergy_lines) if allergy_lines else 'None'}"
     )
 
+    # Assert non-None before sort; the accepted filter guarantees this but mypy can't see it.
+    for r in accepted_records:
+        assert r.collection_date is not None, f"record {r.record_id} slipped past accepted filter"
     sorted_records = sorted(
         accepted_records,
         key=lambda r: (r.original_name, r.collection_date),
@@ -215,7 +218,7 @@ def _build_inputs(
         value_str = str(r.canonical_value)
         unit_str = r.canonical_unit or r.original_unit or ""
         d = r.collection_date
-        assert d is not None  # accepted filter guarantees non-None collection_date
+        assert d is not None
         date_str = f"{d.strftime('%B')} {d.day}, {d.year}"
         value_unit = f"{value_str} {unit_str}".rstrip()
         record_lines.append(f"{r.original_name}: {value_unit} — {date_str} [id={r.record_id}]")

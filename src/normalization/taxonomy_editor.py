@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from src.normalization.index_builder import _normalize_key
 from src.normalization.tier1 import _index
 from src.reference_data import invalidate_taxonomy_caches
 
@@ -29,10 +30,10 @@ def add_alias(
     if target is None:
         raise ValueError(f"vitalog_id {vitalog_id!r} not found in taxonomy")
 
-    normalised = alias.strip().lower()
+    normalised = _normalize_key(alias)
     for entry in taxonomy:
-        existing = [a.strip().lower() for a in entry["aliases"]]
-        if normalised in existing or entry["canonical_name"].strip().lower() == normalised:
+        existing = [_normalize_key(a) for a in entry["aliases"]]
+        if normalised in existing or _normalize_key(entry["canonical_name"]) == normalised:
             raise ValueError(f"Alias {alias!r} already exists on entry {entry['vitalog_id']!r}")
 
     target["aliases"].append(alias)
