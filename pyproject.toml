@@ -15,6 +15,7 @@ dependencies = [
     "puremagic>=1.28",
     "pillow>=10.0.0",
     "pillow-heif>=0.18.0",
+    "rapidfuzz>=3.0",
 ]
 
 [build-system]

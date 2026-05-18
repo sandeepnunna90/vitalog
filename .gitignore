@@ -33,7 +33,8 @@ env/
 .DS_Store
 
 # Eval runs (generated outputs, not source)
-eval_corpus/runs/
+eval_corpus/runs/*
+!eval_corpus/runs/.gitkeep
 
 # Supabase local dev
 supabase/.temp/
