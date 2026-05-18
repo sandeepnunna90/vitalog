@@ -19,7 +19,11 @@ def write_report(report: AggregateReport, out_dir: Path) -> None:
 
 
 def append_history(report: AggregateReport, corpus_root: Path) -> None:
-    """Append one row to eval_corpus/history.csv (created with header on first call)."""
+    """Append one row to eval_corpus/history.csv (created with header on first call).
+
+    The first row in the committed history.csv is a dry-run seed (git_sha from C2)
+    written during C3 harness validation — not a live pipeline run.
+    """
     history_path = corpus_root / "history.csv"
     field_names = [
         "timestamp",

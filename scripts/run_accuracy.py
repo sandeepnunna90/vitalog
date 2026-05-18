@@ -14,10 +14,13 @@ import argparse
 from datetime import UTC, datetime
 from pathlib import Path
 
+from src.eval.harness.runner import Pipeline
 
-def _build_pipeline() -> object:
+
+def _build_pipeline() -> Pipeline:
     """Instantiate full D1–D6 pipeline from environment credentials."""
     import os
+    from typing import cast
 
     from src.gateway.gateway import Gateway
     from src.ingestion.classifier import DocumentClassifier
@@ -25,6 +28,7 @@ def _build_pipeline() -> object:
     from src.ingestion.textract_adapter import TextractAdapter
     from src.ingestion.textract_fallback import TextractFallbackAdapter
     from src.ingestion.upload_validator import UploadValidator
+    from src.persistence.audit_log_repository import AuditLogRepository
 
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     gateway = Gateway(api_key=api_key)
@@ -33,14 +37,13 @@ def _build_pipeline() -> object:
         def record(self, actor: str, event: str, details: object) -> None:
             pass
 
-    from src.eval.harness.runner import Pipeline
-
+    audit_repo = cast(AuditLogRepository, _NoopAuditRepo())
     return Pipeline(
         validator=UploadValidator(),
         classifier=DocumentClassifier(gateway),
-        textract=TextractAdapter(),
-        fallback=TextractFallbackAdapter(gateway),
-        structurer=Structurer(gateway, audit_repo=_NoopAuditRepo()),
+        textract=TextractAdapter(audit_repo),
+        fallback=TextractFallbackAdapter(gateway, audit_repo),
+        structurer=Structurer(gateway, audit_repo=audit_repo),
     )
 
 
@@ -69,11 +72,11 @@ def main() -> None:
 
     from src.eval.harness.aggregator import aggregate
     from src.eval.harness.reporter import append_history, write_report
-    from src.eval.harness.runner import HarnessRunner, Pipeline
+    from src.eval.harness.runner import HarnessRunner
 
     pipeline: Pipeline | None = None
     if not args.dry_run:
-        pipeline = _build_pipeline()  # type: ignore[assignment]
+        pipeline = _build_pipeline()
 
     runner = HarnessRunner(args.corpus, dry_run=args.dry_run, pipeline=pipeline)
 
