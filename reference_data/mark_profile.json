@@ -1,0 +1,17 @@
+{
+  "patient_id": "7f3b1c5e-4d2a-4e8f-b6c9-1a2b3c4d5e6f",
+  "name": "Mark Capstone",
+  "dob": "1969-04-15",
+  "profile_version": "1.0.0",
+  "note": "DEMO PROFILE — synthetic data, not a real patient",
+  "conditions": ["T2D", "HTN", "hypothyroidism"],
+  "medications": [
+    {"name": "Metformin",     "dose": "1000mg twice daily", "start_date": "2018-03-01"},
+    {"name": "Lisinopril",    "dose": "10mg once daily",    "start_date": "2019-07-15"},
+    {"name": "Levothyroxine", "dose": "75mcg once daily",   "start_date": "2020-11-10"},
+    {"name": "Rosuvastatin",  "dose": "10mg once daily",    "start_date": "2026-02-15"}
+  ],
+  "allergies": [
+    {"substance": "Penicillin", "severity": "moderate"}
+  ]
+}
