@@ -8,6 +8,7 @@ import pytest
 
 from src.intelligence.context_card_schemas import CardNotAvailable, ContextCard
 from src.intelligence.context_cards import DISCLAIMER, get_context_card
+from src.reference_data import load_condition_biomarker_map, load_taxonomy
 
 MARK_CONDITIONS = ["T2D", "HTN", "hypothyroidism"]
 
@@ -117,3 +118,39 @@ def test_all_cards_have_disclaimer(vitalog_id: str) -> None:
     result = get_context_card(vitalog_id, MARK_CONDITIONS)
     assert isinstance(result, ContextCard)
     assert result.disclaimer == DISCLAIMER
+
+
+# AC3 — every card (all 30, including fallback-path biomarkers) has non-empty cited ranges
+@pytest.mark.parametrize("vitalog_id", ALL_VITALOG_IDS)
+def test_all_cards_have_cited_ranges(vitalog_id: str) -> None:
+    result = get_context_card(vitalog_id, MARK_CONDITIONS)
+    assert isinstance(result, ContextCard)
+    assert result.ranges_with_citations, f"{vitalog_id}: expected at least one range"
+    for r in result.ranges_with_citations:
+        assert r.source, f"{vitalog_id}: range '{r.label}' has empty source citation"
+
+
+# Data integrity — any condition code that IS in cbm must have a display_name.
+# taxonomy.conditions is intentionally broader than cbm (9 capstone conditions); codes
+# outside cbm are silently skipped in _build_relevance by design. This test guards the
+# narrower invariant: codes that DO appear in cbm are well-formed.
+def test_cbm_conditions_have_display_names() -> None:
+    cbm = load_condition_biomarker_map()["conditions"]
+    for code, entry in cbm.items():
+        assert "display_name" in entry and entry["display_name"], (
+            f"condition_biomarker_map entry '{code}' is missing a display_name"
+        )
+
+
+# Data integrity — biomarkers whose taxonomy.conditions intersect cbm resolve display names.
+# Guards: if a patient condition matches a taxonomy condition AND that code is in cbm,
+# _build_relevance will always produce a non-empty display name.
+def test_taxonomy_cbm_intersection_always_has_display_name() -> None:
+    cbm = load_condition_biomarker_map()["conditions"]
+    for entry in load_taxonomy():
+        for code in entry.get("conditions", []):
+            if code in cbm:
+                assert "display_name" in cbm[code] and cbm[code]["display_name"], (
+                    f"vitalog_id '{entry['vitalog_id']}': condition '{code}' is in cbm "
+                    "but has no display_name — _build_relevance would silently degrade"
+                )

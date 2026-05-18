@@ -69,12 +69,13 @@ def _build_relevance(entry: dict[str, Any], patient_conditions: list[str]) -> st
     if not matched:
         return "Not directly tied to your current conditions"
     cbm = load_condition_biomarker_map()["conditions"]
+    # taxonomy.conditions is intentionally broader than cbm (capstone covers 9 conditions;
+    # taxonomy entries may reference NAFLD, anemia, hyperthyroidism, etc. for future use).
+    # We only surface display names for conditions that are in both — others are silently skipped.
     display_names = [cbm[c]["display_name"] for c in matched if c in cbm]
-    return (
-        "Tracked for: " + ", ".join(display_names)
-        if display_names
-        else ("Not directly tied to your current conditions")
-    )
+    if not display_names:
+        return "Not directly tied to your current conditions"
+    return "Tracked for: " + ", ".join(display_names)
 
 
 def _build_ranges_from_guideline_json(vitalog_id: str) -> list[RangeWithCitation]:
@@ -104,6 +105,7 @@ def _build_ranges_from_guideline_json(vitalog_id: str) -> list[RangeWithCitation
 
 def _build_ranges_from_taxonomy(entry: dict[str, Any]) -> list[RangeWithCitation]:
     citations: dict[str, str] = entry.get("guideline_citations", {})
+    # fallback: use the first available citation only; secondary citations are dropped
     first_citation = next(iter(citations.values()), "")
     ranges: list[RangeWithCitation] = []
     for key, val_str in entry.get("guideline_ranges", {}).items():
