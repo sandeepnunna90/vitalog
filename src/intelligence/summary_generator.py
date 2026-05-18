@@ -9,7 +9,7 @@ from typing import Any
 
 from src.gateway.citation_schemas import Citation
 from src.gateway.citation_verifier_mode_a import verify as verify_mode_a
-from src.gateway.errors import ModeAVerificationError, OutputValidationError
+from src.gateway.errors import BannedPhraseViolation, ModeAVerificationError, OutputValidationError
 from src.gateway.gateway import Gateway
 from src.intelligence.retrieval import canonical_name
 from src.intelligence.summary_schemas import Summary, SummaryOutput, SummaryOutputCitation
@@ -118,7 +118,12 @@ class SummaryGenerator:
             citations = _convert_citations(out.citations)
             verify_mode_a(citations, patient_id, retrieval_set)
             return out, citations
-        except (ModeAVerificationError, OutputValidationError, ValueError) as exc:
+        except (  # noqa: E501 — four exception types is intentional; see src/gateway/errors.py
+            BannedPhraseViolation,
+            ModeAVerificationError,
+            OutputValidationError,
+            ValueError,
+        ) as exc:
             _audit_log.warning("summary attempt failed: %s: %s", type(exc).__name__, exc)
             return None
 

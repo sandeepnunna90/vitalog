@@ -7,7 +7,7 @@ from datetime import date, datetime
 from typing import Any
 from unittest.mock import MagicMock, patch
 
-from src.gateway.errors import OutputValidationError
+from src.gateway.errors import BannedPhraseViolation, OutputValidationError
 from src.intelligence.summary_generator import (
     DISCLAIMER,
     SummaryGenerator,
@@ -164,6 +164,25 @@ def test_safe_refusal_on_failure(mock_verify: MagicMock, mock_profile: MagicMock
     assert summary.is_fallback is True
     assert summary.conditions_section == ""
     assert summary.citations == []
+    assert summary.disclaimer == DISCLAIMER
+    assert gateway.call.call_count == 2  # two attempts before fallback
+
+
+@patch("src.intelligence.summary_generator.load_patient_profile")
+@patch("src.intelligence.summary_generator.verify_mode_a")
+def test_banned_phrase_from_gateway_produces_fallback(
+    mock_verify: MagicMock, mock_profile: MagicMock
+) -> None:
+    """BannedPhraseViolation raised by Gateway.call() → both attempts fail → is_fallback=True."""
+    mock_profile.return_value = MagicMock(conditions=["T2D"], medications=[], allergies=[])
+    repo = _mock_repo([_make_record()])
+    gateway = MagicMock()
+    gateway.call.side_effect = BannedPhraseViolation(phrases=["you should take"])
+
+    gen = _make_generator(gateway, repo)
+    summary = gen.generate(_PATIENT_ID)
+
+    assert summary.is_fallback is True
     assert summary.disclaimer == DISCLAIMER
     assert gateway.call.call_count == 2  # two attempts before fallback
 

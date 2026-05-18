@@ -8,7 +8,7 @@ from datetime import date
 from typing import Any
 
 from src.gateway.citation_verifier_mode_b import verify as verify_mode_b
-from src.gateway.errors import ModeBVerificationError, OutputValidationError
+from src.gateway.errors import BannedPhraseViolation, ModeBVerificationError, OutputValidationError
 from src.gateway.gateway import Gateway
 from src.intelligence.nlq_schemas import NlqOutput, NlqResponse
 from src.intelligence.retrieval import canonical_name, resolve_query
@@ -95,7 +95,7 @@ class NlqHandler:
             out = self._gateway.call(_PROMPT_ID, _PROMPT_VERSION, inputs, NlqOutput)
             verify_mode_b(out.text, retrieval_set)
             return out
-        except (ModeBVerificationError, OutputValidationError) as exc:
+        except (BannedPhraseViolation, ModeBVerificationError, OutputValidationError) as exc:
             _audit_log.warning("nlq attempt failed: %s: %s", type(exc).__name__, exc)
             return None
 

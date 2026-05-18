@@ -8,7 +8,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from src.gateway.citation_verifier_mode_b import verify as verify_mode_b
-from src.gateway.errors import ModeBVerificationError, OutputValidationError
+from src.gateway.errors import BannedPhraseViolation, ModeBVerificationError, OutputValidationError
 from src.gateway.gateway import Gateway
 from src.intelligence.observation_schemas import Observation, ObservationCitation, ObservationOutput
 from src.intelligence.trend_engine import TrendEngine
@@ -88,7 +88,7 @@ class ObservationGenerator:
             out = self._gateway.call(_PROMPT_ID, _PROMPT_VERSION, inputs, ObservationOutput)
             verify_mode_b(out.text, retrieval_set)
             return out
-        except (ModeBVerificationError, OutputValidationError) as exc:
+        except (BannedPhraseViolation, ModeBVerificationError, OutputValidationError) as exc:
             _audit_log.warning("observation attempt failed: %s: %s", type(exc).__name__, exc)
             return None
 
