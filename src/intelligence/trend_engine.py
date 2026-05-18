@@ -14,11 +14,12 @@ _ACCEPTED_VERIFIED_BY = frozenset({"auto", "user", "admin"})
 
 
 def _to_point(row: BiomarkerRecordRow) -> TrendPoint:
-    # canonical_value and collection_date are non-None — guaranteed by caller filter
+    assert row.collection_date is not None, f"record {row.record_id} has no collection_date"
+    assert row.canonical_value is not None, f"record {row.record_id} has no canonical_value"
     return TrendPoint(
         record_id=row.record_id,
-        collection_date=row.collection_date,  # type: ignore[arg-type]
-        canonical_value=row.canonical_value,  # type: ignore[arg-type]
+        collection_date=row.collection_date,
+        canonical_value=row.canonical_value,
         canonical_unit=row.canonical_unit or "",
         lab_source=row.lab_source,
         verified_by=row.verified_by,
