@@ -636,6 +636,11 @@ audit_log (
   event_type,                -- 'document_uploaded' | 'llm_call' | 'export' | ...
   payload JSON               -- redacted of PHI
 )
+
+-- Schema note (PR #31): event_type 'value_conflict' was renamed to
+-- 'dedup_value_conflict'. Historical rows before this PR use the old name.
+-- Any query filtering on event_type must handle both:
+--   event_type IN ('value_conflict', 'dedup_value_conflict')
 ```
 
 ### Diagram 3 — Data Model (Mermaid ER diagram)
