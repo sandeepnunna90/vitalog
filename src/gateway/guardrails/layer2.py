@@ -9,9 +9,11 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
+from src._paths import PROJECT_ROOT
+
 logger = logging.getLogger(__name__)
 
-_DEFAULT_SHARED_DIR = Path(__file__).parent.parent.parent.parent / "prompts" / "_shared"
+_DEFAULT_SHARED_DIR = PROJECT_ROOT / "prompts" / "_shared"
 
 
 def _load_preamble(shared_dir: Path) -> str:

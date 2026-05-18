@@ -15,10 +15,11 @@ from typing import Any
 
 import yaml
 
+from src._paths import PROJECT_ROOT
 from src.gateway.errors import PromptNotFoundError
 from src.gateway.model_router import default_model
 
-_DEFAULT_PROMPTS_DIR = Path(__file__).parent.parent.parent / "prompts"
+_DEFAULT_PROMPTS_DIR = PROJECT_ROOT / "prompts"
 
 
 @dataclass(frozen=True)

@@ -15,13 +15,14 @@ from typing import Any, TypeVar
 
 from pydantic import BaseModel, ValidationError
 
+from src._paths import PROJECT_ROOT
 from src.gateway.errors import BannedPhraseViolation, SchemaValidationError
 
 logger = logging.getLogger(__name__)
 
 _T = TypeVar("_T", bound=BaseModel)
 
-_DEFAULT_SHARED_DIR = Path(__file__).parent.parent.parent.parent / "prompts" / "_shared"
+_DEFAULT_SHARED_DIR = PROJECT_ROOT / "prompts" / "_shared"
 
 
 def _load_banned_phrases(shared_dir: Path) -> list[tuple[re.Pattern[str], str]]:

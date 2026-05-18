@@ -6,13 +6,12 @@ import json
 from pathlib import Path
 from typing import Any
 
+from src._paths import PROJECT_ROOT
 from src.normalization.index_builder import _normalize_key
 from src.normalization.tier1 import _index
 from src.reference_data import invalidate_taxonomy_caches
 
-_DEFAULT_TAXONOMY_PATH = (
-    Path(__file__).parent.parent.parent / "reference_data" / "biomarker_taxonomy.json"
-)
+_DEFAULT_TAXONOMY_PATH = PROJECT_ROOT / "reference_data" / "biomarker_taxonomy.json"
 
 
 def add_alias(

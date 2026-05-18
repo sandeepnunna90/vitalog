@@ -15,7 +15,9 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-_DEFAULT_RUNS_DIR = Path(__file__).parent.parent.parent / "eval_corpus" / "runs"
+from src._paths import PROJECT_ROOT
+
+_DEFAULT_RUNS_DIR = PROJECT_ROOT / "eval_corpus" / "runs"
 
 
 @dataclass
