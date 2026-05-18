@@ -2,7 +2,7 @@
 
 Each card is assembled from three A2 files:
   - biomarker_taxonomy.json  (definition, conditions)
-  - condition_biomarker_map.json  (display_name for relevance bullet)
+  - biomarker_groups.json  (display_name for relevance bullet)
   - guideline_ranges.json  (structured ranges with full citations)
 
 Biomarkers not covered by guideline_ranges.json fall back to the simpler
@@ -19,7 +19,7 @@ from src.intelligence.context_card_schemas import (
     RangeWithCitation,
 )
 from src.reference_data import (
-    load_condition_biomarker_map,
+    load_biomarker_groups,
     load_guideline_ranges,
     load_taxonomy,
 )
@@ -68,11 +68,11 @@ def _build_relevance(entry: dict[str, Any], patient_conditions: list[str]) -> st
     matched = [c for c in entry.get("conditions", []) if c in patient_conditions]
     if not matched:
         return "Not directly tied to your current conditions"
-    cbm = load_condition_biomarker_map()["conditions"]
-    # taxonomy.conditions is intentionally broader than cbm (capstone covers 9 conditions;
-    # taxonomy entries may reference NAFLD, anemia, hyperthyroidism, etc. for future use).
-    # We only surface display names for conditions that are in both — others are silently skipped.
-    display_names = [cbm[c]["display_name"] for c in matched if c in cbm]
+    groups = load_biomarker_groups()["conditions"]
+    # taxonomy.conditions is intentionally broader than biomarker_groups (capstone covers 9
+    # conditions; taxonomy entries may reference NAFLD, anemia, hyperthyroidism, etc. for future
+    # use). We only surface display names for conditions that are in both — others silently skipped.
+    display_names = [groups[c]["display_name"] for c in matched if c in groups]
     if not display_names:
         return "Not directly tied to your current conditions"
     return "Tracked for: " + ", ".join(display_names)

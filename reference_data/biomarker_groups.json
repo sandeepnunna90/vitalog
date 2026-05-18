@@ -1,0 +1,175 @@
+{
+  "version": "2.0",
+  "description": "Biomarker grouping reference by condition — informational only, not clinical guidance",
+  "disclaimer": "These groupings are derived from published clinical guidelines for informational purposes only. They do not constitute medical advice. Consult your healthcare provider about which biomarkers are relevant for your care.",
+  "conditions": {
+    "T2D": {
+      "display_name": "Type 2 Diabetes",
+      "guideline": {
+        "name": "ADA Standards of Care in Diabetes 2026",
+        "organization": "American Diabetes Association",
+        "year": 2026,
+        "url": "https://professional.diabetes.org/standards-of-care"
+      },
+      "biomarkers": [
+        "hba1c",
+        "fasting_glucose",
+        "postprandial_glucose",
+        "serum_glucose",
+        "egfr",
+        "urine_acr",
+        "ldl_cholesterol",
+        "total_cholesterol",
+        "triglycerides",
+        "hdl_cholesterol",
+        "non_hdl_cholesterol",
+        "bp_systolic",
+        "bp_diastolic",
+        "alt",
+        "ast",
+        "vitamin_b12",
+        "fructosamine"
+      ]
+    },
+    "T1D": {
+      "display_name": "Type 1 Diabetes",
+      "guideline": {
+        "name": "ADA Standards of Care in Diabetes 2026",
+        "organization": "American Diabetes Association",
+        "year": 2026,
+        "url": "https://professional.diabetes.org/standards-of-care"
+      },
+      "biomarkers": [
+        "hba1c",
+        "fasting_glucose",
+        "postprandial_glucose",
+        "serum_glucose",
+        "egfr",
+        "urine_acr",
+        "ldl_cholesterol",
+        "total_cholesterol",
+        "fructosamine"
+      ]
+    },
+    "HTN": {
+      "display_name": "Hypertension",
+      "guideline": {
+        "name": "2025 AHA/ACC Guideline for the Prevention, Detection, Evaluation and Management of High Blood Pressure in Adults",
+        "organization": "American College of Cardiology / American Heart Association",
+        "year": 2025,
+        "url": "https://www.ahajournals.org/doi/10.1161/HYP.0000000000000249"
+      },
+      "biomarkers": [
+        "bp_systolic",
+        "bp_diastolic",
+        "egfr",
+        "urine_acr",
+        "creatinine",
+        "potassium",
+        "sodium",
+        "total_cholesterol",
+        "ldl_cholesterol"
+      ]
+    },
+    "CVD": {
+      "display_name": "Cardiovascular Disease",
+      "guideline": {
+        "name": "ACC/AHA/Multisociety 2026 Guideline on the Management of Dyslipidemia",
+        "organization": "American College of Cardiology / American Heart Association",
+        "year": 2026,
+        "url": "https://www.ahajournals.org/doi/10.1161/CIR.0000000000001423"
+      },
+      "biomarkers": [
+        "ldl_cholesterol",
+        "hdl_cholesterol",
+        "total_cholesterol",
+        "triglycerides",
+        "non_hdl_cholesterol",
+        "hs_crp",
+        "bp_systolic",
+        "bp_diastolic",
+        "fasting_glucose",
+        "hba1c"
+      ]
+    },
+    "CKD": {
+      "display_name": "Chronic Kidney Disease",
+      "guideline": {
+        "name": "KDIGO 2024 Clinical Practice Guideline for the Evaluation and Management of Chronic Kidney Disease",
+        "organization": "Kidney Disease: Improving Global Outcomes",
+        "year": 2024,
+        "url": "https://kdigo.org/wp-content/uploads/2024/03/KDIGO-2024-CKD-Guideline.pdf"
+      },
+      "biomarkers": [
+        "egfr",
+        "urine_acr",
+        "creatinine",
+        "potassium",
+        "hemoglobin",
+        "ferritin"
+      ]
+    },
+    "hypothyroidism": {
+      "display_name": "Hypothyroidism",
+      "guideline": {
+        "name": "AACE/ATA Clinical Practice Guidelines for Hypothyroidism in Adults",
+        "organization": "American Association of Clinical Endocrinologists / American Thyroid Association",
+        "year": 2012,
+        "url": "https://pro.aace.com/clinical-guidance/2012-clinical-practice-guideline-hypothyroidism-adults"
+      },
+      "biomarkers": [
+        "tsh",
+        "free_t4"
+      ]
+    },
+    "prediabetes": {
+      "display_name": "Prediabetes",
+      "guideline": {
+        "name": "ADA Standards of Care in Diabetes 2026",
+        "organization": "American Diabetes Association",
+        "year": 2026,
+        "url": "https://professional.diabetes.org/standards-of-care"
+      },
+      "biomarkers": [
+        "hba1c",
+        "fasting_glucose",
+        "postprandial_glucose",
+        "ldl_cholesterol",
+        "bp_systolic",
+        "bp_diastolic"
+      ]
+    },
+    "dyslipidemia": {
+      "display_name": "Dyslipidemia",
+      "guideline": {
+        "name": "ACC/AHA/Multisociety 2026 Guideline on the Management of Dyslipidemia",
+        "organization": "American College of Cardiology / American Heart Association",
+        "year": 2026,
+        "url": "https://www.ahajournals.org/doi/10.1161/CIR.0000000000001423"
+      },
+      "biomarkers": [
+        "total_cholesterol",
+        "ldl_cholesterol",
+        "hdl_cholesterol",
+        "triglycerides",
+        "non_hdl_cholesterol"
+      ]
+    },
+    "metabolic_syndrome": {
+      "display_name": "Metabolic Syndrome",
+      "guideline": {
+        "name": "AHA/NHLBI Scientific Statement: Diagnosis and Management of the Metabolic Syndrome (2005, harmonized 2009)",
+        "organization": "American Heart Association / National Heart, Lung, and Blood Institute",
+        "year": 2009,
+        "url": "https://www.ahajournals.org/doi/10.1161/circulationaha.109.192644"
+      },
+      "biomarkers": [
+        "fasting_glucose",
+        "triglycerides",
+        "hdl_cholesterol",
+        "bp_systolic",
+        "bp_diastolic"
+      ]
+    }
+  }
+}

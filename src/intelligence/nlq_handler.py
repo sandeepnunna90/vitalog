@@ -43,40 +43,47 @@ class NlqHandler:
         AC5: retrieval always runs before the LLM is called — no path skips this step.
         AC3/AC6: if Mode B verification fails on both attempts, returns safe-refusal text.
         """
-        retrieval_set, missing_ids = resolve_query(query, patient_id, self._repo)
+        result = resolve_query(query, patient_id, self._repo)
 
-        if not retrieval_set and not missing_ids:
+        if not result.retrieval_set and not result.missing_canonical_ids:
             self._log_audit(query, 0)
             return NlqResponse(
                 text=_SAFE_REFUSAL,
                 retrieval_count=0,
                 prompt_version=_PROMPT_VERSION,
                 is_fallback=True,
+                matched_condition_names=[],
             )
 
-        if not retrieval_set:
-            text = _missing_fallback(missing_ids)
+        if not result.retrieval_set:
+            text = _missing_fallback(result.missing_canonical_ids)
+            if result.matched_condition_names:
+                text = text + _condition_group_disclaimer(result.matched_condition_names)
             self._log_audit(query, 0)
             return NlqResponse(
                 text=text,
                 retrieval_count=0,
                 prompt_version=_PROMPT_VERSION,
                 is_fallback=True,
+                matched_condition_names=result.matched_condition_names,
             )
 
-        inputs = _build_inputs(query, retrieval_set, missing_ids)
+        inputs = _build_inputs(query, result.retrieval_set, result.missing_canonical_ids)
 
-        output = self._attempt(inputs, retrieval_set)
+        output = self._attempt(inputs, result.retrieval_set)
         if output is None:
-            output = self._attempt(inputs, retrieval_set)
+            output = self._attempt(inputs, result.retrieval_set)
 
         text = output.text if output is not None else _SAFE_REFUSAL
-        self._log_audit(query, len(retrieval_set))
+        if result.matched_condition_names and output is not None:
+            text = text + _condition_group_disclaimer(result.matched_condition_names)
+        self._log_audit(query, len(result.retrieval_set))
         return NlqResponse(
             text=text,
-            retrieval_count=len(retrieval_set),
+            retrieval_count=len(result.retrieval_set),
             prompt_version=_PROMPT_VERSION,
             is_fallback=output is None,
+            matched_condition_names=result.matched_condition_names,
         )
 
     def _attempt(
@@ -129,6 +136,14 @@ def _missing_fallback(missing_ids: list[str]) -> str:
         )
     joined = ", ".join(names)
     return f"We don't have results for {joined} yet. Upload a lab report that includes these tests."
+
+
+def _condition_group_disclaimer(names: list[str]) -> str:
+    joined = ", ".join(names)
+    return (
+        f"\n\nThese biomarkers are commonly grouped with {joined} based on clinical guidelines"
+        " — speak with your provider about what's relevant for you."
+    )
 
 
 def _build_inputs(

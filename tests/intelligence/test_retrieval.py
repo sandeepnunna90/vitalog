@@ -6,7 +6,7 @@ import uuid
 from datetime import date, datetime
 from unittest.mock import MagicMock
 
-from src.intelligence.retrieval import canonical_name, resolve_query
+from src.intelligence.retrieval import ResolveResult, canonical_name, resolve_query
 from src.persistence.biomarker_repository import BiomarkerRepository
 from src.persistence.models import BiomarkerRecordRow
 
@@ -52,47 +52,48 @@ def _make_repo(records: list[BiomarkerRecordRow]) -> BiomarkerRepository:
 def test_resolve_direct_biomarker_name() -> None:
     """Direct biomarker alias in query → record appears in retrieval_set."""
     repo = _make_repo([_make_record()])
-    rs, missing = resolve_query("what's my HbA1c?", _PATIENT_ID, repo)
+    result = resolve_query("what's my HbA1c?", _PATIENT_ID, repo)
 
-    assert len(rs) == 1
-    assert missing == []
+    assert isinstance(result, ResolveResult)
+    assert len(result.retrieval_set) == 1
+    assert result.missing_canonical_ids == []
 
 
 def test_resolve_alias_case_insensitive() -> None:
     """Multi-word alias in any case is matched."""
     repo = _make_repo([_make_record()])
-    rs, missing = resolve_query("show me my hemoglobin a1c results", _PATIENT_ID, repo)
+    result = resolve_query("show me my hemoglobin a1c results", _PATIENT_ID, repo)
 
-    assert len(rs) == 1
+    assert len(result.retrieval_set) == 1
 
 
 def test_resolve_missing_biomarker_no_records() -> None:
     """Recognized alias but repo returns [] → canonical_id in missing list."""
     repo = _make_repo([])
-    rs, missing = resolve_query("what's my HbA1c?", _PATIENT_ID, repo)
+    result = resolve_query("what's my HbA1c?", _PATIENT_ID, repo)
 
-    assert rs == {}
-    assert "hba1c" in missing
+    assert result.retrieval_set == {}
+    assert "hba1c" in result.missing_canonical_ids
 
 
 # ── Condition keyword expansion ───────────────────────────────────────────────
 
 
 def test_resolve_condition_keyword_diabetes() -> None:
-    """'diabetes' in query → T2D primary_biomarkers fetched from repo."""
+    """'diabetes' in query → T2D biomarkers fetched from repo."""
     repo = _make_repo([_make_record()])
-    rs, _ = resolve_query("show me my diabetes markers", _PATIENT_ID, repo)
+    result = resolve_query("show me my diabetes markers", _PATIENT_ID, repo)
 
-    # repo.find_by_canonical_id called for multiple T2D primary biomarkers
+    # repo.find_by_canonical_id called for multiple T2D biomarkers
     assert repo.find_by_canonical_id.call_count >= 1
     # At least one record (hba1c) should appear
-    assert len(rs) >= 1
+    assert len(result.retrieval_set) >= 1
 
 
 def test_resolve_condition_display_name_match() -> None:
-    """Full condition display name 'type 2 diabetes' expands primary biomarkers."""
+    """Full condition display name 'type 2 diabetes' expands biomarkers."""
     repo = _make_repo([_make_record()])
-    rs, _ = resolve_query("my type 2 diabetes results", _PATIENT_ID, repo)
+    resolve_query("my type 2 diabetes results", _PATIENT_ID, repo)
 
     assert repo.find_by_canonical_id.call_count >= 1
 
@@ -103,10 +104,10 @@ def test_resolve_condition_display_name_match() -> None:
 def test_resolve_unrecognized_query_empty() -> None:
     """Query with no recognized biomarker or condition → both returns empty."""
     repo = _make_repo([])
-    rs, missing = resolve_query("what is the weather today?", _PATIENT_ID, repo)
+    result = resolve_query("what is the weather today?", _PATIENT_ID, repo)
 
-    assert rs == {}
-    assert missing == []
+    assert result.retrieval_set == {}
+    assert result.missing_canonical_ids == []
     repo.find_by_canonical_id.assert_not_called()
 
 

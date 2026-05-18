@@ -53,14 +53,9 @@ def load_ucum_units() -> dict[str, Any]:
 
 
 @lru_cache(maxsize=1)
-def load_condition_biomarker_map() -> dict[str, Any]:
-    """Load the condition-to-biomarker mapping."""
-    return _load_json("condition_biomarker_map.json")  # type: ignore[no-any-return]
-
-
-def load_specialist_templates() -> dict[str, Any]:
-    """Load specialist visit content section templates."""
-    return _load_json("specialist_content_templates.json")  # type: ignore[no-any-return]
+def load_biomarker_groups() -> dict[str, Any]:
+    """Load the condition biomarker grouping reference (guideline-backed, informational only)."""
+    return _load_json("biomarker_groups.json")  # type: ignore[no-any-return]
 
 
 def load_guideline_ranges() -> dict[str, Any]:
@@ -69,17 +64,12 @@ def load_guideline_ranges() -> dict[str, Any]:
 
 
 def load_all() -> dict[str, Any]:
-    """Load and return all six reference data files as a single dict.
-
-    This is the only public entry point that application services should use.
-    Do not import JSON paths or individual loaders outside of this module.
-    """
+    """Load and return all reference data files as a single dict."""
     return {
         "taxonomy": load_taxonomy(),
         "loinc_subset": load_loinc_subset(),
         "ucum_units": load_ucum_units(),
-        "condition_biomarker_map": load_condition_biomarker_map(),
-        "specialist_templates": load_specialist_templates(),
+        "biomarker_groups": load_biomarker_groups(),
         "guideline_ranges": load_guideline_ranges(),
     }
 

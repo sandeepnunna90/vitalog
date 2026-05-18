@@ -8,7 +8,7 @@ import pytest
 
 from src.intelligence.context_card_schemas import CardNotAvailable, ContextCard
 from src.intelligence.context_cards import DISCLAIMER, get_context_card
-from src.reference_data import load_condition_biomarker_map, load_taxonomy
+from src.reference_data import load_biomarker_groups, load_taxonomy
 
 MARK_CONDITIONS = ["T2D", "HTN", "hypothyroidism"]
 
@@ -130,27 +130,26 @@ def test_all_cards_have_cited_ranges(vitalog_id: str) -> None:
         assert r.source, f"{vitalog_id}: range '{r.label}' has empty source citation"
 
 
-# Data integrity — any condition code that IS in cbm must have a display_name.
-# taxonomy.conditions is intentionally broader than cbm (9 capstone conditions); codes
-# outside cbm are silently skipped in _build_relevance by design. This test guards the
-# narrower invariant: codes that DO appear in cbm are well-formed.
-def test_cbm_conditions_have_display_names() -> None:
-    cbm = load_condition_biomarker_map()["conditions"]
-    for code, entry in cbm.items():
+# Data integrity — any condition code in biomarker_groups must have a display_name.
+# taxonomy.conditions is intentionally broader than biomarker_groups (9 capstone conditions);
+# codes outside biomarker_groups are silently skipped in _build_relevance by design.
+def test_biomarker_groups_conditions_have_display_names() -> None:
+    groups = load_biomarker_groups()["conditions"]
+    for code, entry in groups.items():
         assert "display_name" in entry and entry["display_name"], (
-            f"condition_biomarker_map entry '{code}' is missing a display_name"
+            f"biomarker_groups entry '{code}' is missing a display_name"
         )
 
 
-# Data integrity — biomarkers whose taxonomy.conditions intersect cbm resolve display names.
-# Guards: if a patient condition matches a taxonomy condition AND that code is in cbm,
-# _build_relevance will always produce a non-empty display name.
-def test_taxonomy_cbm_intersection_always_has_display_name() -> None:
-    cbm = load_condition_biomarker_map()["conditions"]
+# Data integrity — biomarkers whose taxonomy.conditions intersect biomarker_groups resolve
+# display names. Guards: if a patient condition matches a taxonomy condition AND that code is
+# in biomarker_groups, _build_relevance will always produce a non-empty display name.
+def test_taxonomy_groups_intersection_always_has_display_name() -> None:
+    groups = load_biomarker_groups()["conditions"]
     for entry in load_taxonomy():
         for code in entry.get("conditions", []):
-            if code in cbm:
-                assert "display_name" in cbm[code] and cbm[code]["display_name"], (
-                    f"vitalog_id '{entry['vitalog_id']}': condition '{code}' is in cbm "
-                    "but has no display_name — _build_relevance would silently degrade"
+            if code in groups:
+                assert "display_name" in groups[code] and groups[code]["display_name"], (
+                    f"vitalog_id '{entry['vitalog_id']}': condition '{code}' "
+                    "is in biomarker_groups but has no display_name"
                 )

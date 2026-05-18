@@ -130,6 +130,51 @@ def test_answer_missing_biomarker_graceful_fallback() -> None:
     assert "Upload" in resp.text
 
 
+def test_answer_missing_biomarker_with_condition_expansion_appends_disclaimer() -> None:
+    """Condition expansion fires but all records missing → fallback text + condition disclaimer."""
+    handler = _make_handler(records=[])  # all biomarker lookups return empty
+
+    with patch("src.gateway.anthropic_adapter.AnthropicAdapter.call") as mock_call:
+        # "diabetes" triggers T2D condition expansion; repo returns nothing for any biomarker
+        resp = handler.answer("show me my diabetes markers", _PATIENT_ID)
+        mock_call.assert_not_called()
+
+    assert resp.is_fallback is True
+    assert resp.retrieval_count == 0
+    # Condition disclaimer must be appended even on the missing-records path
+    assert "clinical guidelines" in resp.text
+    assert len(resp.matched_condition_names) > 0
+
+
+def test_answer_matched_condition_names_exposed_on_response() -> None:
+    """matched_condition_names is populated on NlqResponse when condition expansion fired."""
+    handler = _make_handler()
+
+    with patch(
+        "src.gateway.anthropic_adapter.AnthropicAdapter.call",
+        return_value=(_GOOD_RAW, 50, 20),
+    ):
+        # "diabetes" expands T2D; hba1c record is present so LLM fires
+        resp = handler.answer("show me my diabetes results", _PATIENT_ID)
+
+    assert isinstance(resp.matched_condition_names, list)
+    # Condition expansion fired — at least one condition name must be present
+    assert len(resp.matched_condition_names) > 0
+
+
+def test_answer_matched_condition_names_empty_for_direct_alias() -> None:
+    """matched_condition_names is empty when query resolved via direct alias only."""
+    handler = _make_handler()
+
+    with patch(
+        "src.gateway.anthropic_adapter.AnthropicAdapter.call",
+        return_value=(_GOOD_RAW, 50, 20),
+    ):
+        resp = handler.answer("what's my HbA1c?", _PATIENT_ID)
+
+    assert resp.matched_condition_names == []
+
+
 # ── AC4: safe refusal for unrecognized queries ────────────────────────────────
 
 
