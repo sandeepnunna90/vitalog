@@ -63,6 +63,8 @@ class DocumentClassifier:
                 if total >= _PDF_TEXT_LIMIT:
                     break
             return " ".join(parts)[:_PDF_TEXT_LIMIT]
+        except Exception:  # noqa: BLE001
+            return ""
         finally:
             doc.close()
 
