@@ -49,6 +49,8 @@ class AnthropicAdapter:
         # regardless of how many network retries occur.
         schema_retried = False
         _uc: str | list[dict[str, Any]] = user_content
+        # Clamp so ADAPTER_RETRY_SLEEP[attempt] never goes out of bounds.
+        max_retries = min(max_retries, len(ADAPTER_RETRY_SLEEP))
 
         for attempt in range(max_retries):
             try:

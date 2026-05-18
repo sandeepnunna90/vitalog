@@ -53,7 +53,8 @@ class TextractAdapter:
                 region_name=region or os.getenv("AWS_REGION", "us-east-1"),
             )
         self._audit = audit_repo
-        self._max_retries = max_retries
+        # Clamp so ADAPTER_RETRY_SLEEP[attempt] never goes out of bounds.
+        self._max_retries = min(max_retries, len(ADAPTER_RETRY_SLEEP))
 
     def extract(self, upload: ValidatedUpload, document_id: uuid.UUID) -> TextractResult:
         start = time.monotonic()
