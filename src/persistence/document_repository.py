@@ -21,7 +21,7 @@ class DocumentRepository:
         data: Any = self._client.table(_TABLE).insert(doc.model_dump(mode="json")).execute().data
         if not data:
             raise ValueError("INSERT returned no rows — possible duplicate or RLS rejection")
-        return DocumentRow.model_validate(data[0])
+        return DocumentRow.model_validate(data[0], strict=False)
 
     def get_by_id(self, document_id: uuid.UUID) -> DocumentRow | None:
         """Return a document by its document_id, or None if not found."""
@@ -32,7 +32,7 @@ class DocumentRepository:
             .execute()
             .data
         )
-        return DocumentRow.model_validate(data[0]) if data else None
+        return DocumentRow.model_validate(data[0], strict=False) if data else None
 
     def list_for_patient(self, patient_id: uuid.UUID) -> list[DocumentRow]:
         """Return all documents for a patient, newest first."""
@@ -44,7 +44,7 @@ class DocumentRepository:
             .execute()
             .data
         )
-        return [DocumentRow.model_validate(row) for row in data]
+        return [DocumentRow.model_validate(row, strict=False) for row in data]
 
     def update_processing_status(
         self, document_id: uuid.UUID, status: ProcessingStatus
@@ -59,4 +59,4 @@ class DocumentRepository:
         )
         if not data:
             raise ValueError(f"Document {document_id} not found or RLS rejected update")
-        return DocumentRow.model_validate(data[0])
+        return DocumentRow.model_validate(data[0], strict=False)
