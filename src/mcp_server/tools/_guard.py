@@ -28,8 +28,9 @@ _ACCEPTED_PATIENT_ID: uuid.UUID = _load_accepted_patient_id()
 
 
 def validate_patient_id(patient_id: str) -> uuid.UUID:
-    """Return the parsed UUID if patient_id matches the accepted patient; raise ValueError otherwise.
+    """Return the parsed UUID if patient_id matches the accepted patient.
 
+    Raises ValueError if the UUID is malformed or not registered.
     Accepts the UUID in any standard string form (with or without hyphens).
     """
     try:
