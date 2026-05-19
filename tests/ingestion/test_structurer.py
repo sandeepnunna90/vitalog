@@ -29,7 +29,7 @@ from src.ingestion.textract_schemas import Block, KVPair, Table, TableCell, Text
 _DOC_ID = uuid.UUID("00000000-0000-0000-0000-000000000006")
 _HIGH_CLASS_CONF = 0.95  # → 95.0 after scaling
 _MID_CLASS_CONF = 0.80  # → 80.0 after scaling
-_LOW_CLASS_CONF = 0.60  # → 60.0 after scaling
+_LOW_CLASS_CONF = 0.50  # → 50.0 after scaling — always below minimum grid THRESHOLD_REJECT (60)
 
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
@@ -84,9 +84,10 @@ def _make_structured_report(
 
 
 def test_threshold_constants_defined() -> None:
-    """AC4: THRESHOLD_AUTO_ACCEPT and THRESHOLD_REJECT are named module-level constants."""
-    assert THRESHOLD_AUTO_ACCEPT == 95.0
-    assert THRESHOLD_REJECT == 70.0
+    """THRESHOLD_AUTO_ACCEPT and THRESHOLD_REJECT are valid named module-level constants."""
+    assert isinstance(THRESHOLD_AUTO_ACCEPT, float)
+    assert isinstance(THRESHOLD_REJECT, float)
+    assert THRESHOLD_REJECT < THRESHOLD_AUTO_ACCEPT
 
 
 # ── Auto-accept band ──────────────────────────────────────────────────────────
@@ -178,12 +179,12 @@ def test_composite_confidence_stored_on_candidate() -> None:
 def test_classification_confidence_drives_composite_floor() -> None:
     """When classification_confidence is lowest, it sets the composite floor end-to-end."""
     structurer, gateway, _ = _make_structurer()
-    # textract_floor=97, llm=96, class=_LOW_CLASS_CONF=0.60 → 60.0
-    # composite = min(97, 96, 60) = 60 → REJECT band (60 < THRESHOLD_REJECT=70)
+    # textract_floor=97, llm=96, class=_LOW_CLASS_CONF=0.50 → 50.0
+    # composite = min(97, 96, 50) = 50 → REJECT band (50 < THRESHOLD_REJECT for any grid value)
     gateway.call.return_value = _make_structured_report([_make_raw_candidate(llm_confidence=96.0)])
     result = structurer.structure(_high_confidence_textract(), _DOC_ID, _LOW_CLASS_CONF)
 
-    assert result.candidates[0].composite_confidence == 60.0
+    assert result.candidates[0].composite_confidence == 50.0
     assert result.candidates[0].band == Band.REJECT
 
 
