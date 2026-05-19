@@ -55,7 +55,6 @@ def _make_record(
 def _good_output() -> SummaryOutput:
     return SummaryOutput(
         conditions_section="Type 2 Diabetes, Hypertension",
-        medications_section="Metformin 1000mg",
         results_section="HbA1c: 6.8% (March 12, 2026)",
         trends_section="HbA1c decreased from 7.1% to 6.8% over 6 months.",
         data_gaps_section="postprandial_glucose",
@@ -85,11 +84,7 @@ def _mock_repo(records: list[BiomarkerRecordRow]) -> MagicMock:
 @patch("src.intelligence.summary_generator.verify_mode_a")
 def test_happy_path(mock_verify: MagicMock, mock_profile: MagicMock) -> None:
     """Valid SummaryOutput → Summary built with disclaimer and citation_count."""
-    mock_profile.return_value = MagicMock(
-        conditions=["T2D"],
-        medications=[MagicMock(name="Metformin", dose="1000mg")],
-        allergies=[],
-    )
+    mock_profile.return_value = MagicMock(conditions=["T2D"])
     record = _make_record()
     repo = _mock_repo([record])
     gateway = MagicMock()
@@ -102,7 +97,7 @@ def test_happy_path(mock_verify: MagicMock, mock_profile: MagicMock) -> None:
     assert summary.is_fallback is False
     assert summary.disclaimer == DISCLAIMER
     assert summary.citation_count == 1
-    assert summary.prompt_version == "v2"
+    assert summary.prompt_version == "v3"
     assert summary.conditions_section == "Type 2 Diabetes, Hypertension"
     mock_verify.assert_called_once()
 
@@ -111,7 +106,7 @@ def test_happy_path(mock_verify: MagicMock, mock_profile: MagicMock) -> None:
 @patch("src.intelligence.summary_generator.verify_mode_a")
 def test_disclaimer_always_present(mock_verify: MagicMock, mock_profile: MagicMock) -> None:
     """Disclaimer is verbatim even when is_fallback=True."""
-    mock_profile.return_value = MagicMock(conditions=[], medications=[], allergies=[])
+    mock_profile.return_value = MagicMock(conditions=[])
     repo = _mock_repo([])
     gateway = MagicMock()
     gateway.call.side_effect = OutputValidationError("bad output")
@@ -135,7 +130,7 @@ def test_no_records_returns_fallback_without_llm(
     mock_verify: MagicMock, mock_profile: MagicMock
 ) -> None:
     """No accepted records → immediate fallback; LLM never called."""
-    mock_profile.return_value = MagicMock(conditions=[], medications=[], allergies=[])
+    mock_profile.return_value = MagicMock(conditions=[])
     repo = _mock_repo([])
     gateway = MagicMock()
 
@@ -153,7 +148,7 @@ def test_no_records_returns_fallback_without_llm(
 @patch("src.intelligence.summary_generator.verify_mode_a")
 def test_safe_refusal_on_failure(mock_verify: MagicMock, mock_profile: MagicMock) -> None:
     """LLM attempt fails → is_fallback=True with empty sections and disclaimer."""
-    mock_profile.return_value = MagicMock(conditions=["T2D"], medications=[], allergies=[])
+    mock_profile.return_value = MagicMock(conditions=["T2D"])
     repo = _mock_repo([_make_record()])
     gateway = MagicMock()
     gateway.call.side_effect = OutputValidationError("bad")
@@ -174,7 +169,7 @@ def test_banned_phrase_from_gateway_produces_fallback(
     mock_verify: MagicMock, mock_profile: MagicMock
 ) -> None:
     """BannedPhraseViolation raised by Gateway.call() → both attempts fail → is_fallback=True."""
-    mock_profile.return_value = MagicMock(conditions=["T2D"], medications=[], allergies=[])
+    mock_profile.return_value = MagicMock(conditions=["T2D"])
     repo = _mock_repo([_make_record()])
     gateway = MagicMock()
     gateway.call.side_effect = BannedPhraseViolation(phrases=["you should take"])
@@ -193,7 +188,7 @@ def test_retry_succeeds_on_second_attempt(mock_verify: MagicMock, mock_profile: 
     """First attempt fails (Mode A rejects); second attempt succeeds → is_fallback=False."""
     from src.gateway.errors import ModeAVerificationError
 
-    mock_profile.return_value = MagicMock(conditions=["T2D"], medications=[], allergies=[])
+    mock_profile.return_value = MagicMock(conditions=["T2D"])
     repo = _mock_repo([_make_record()])
     gateway = MagicMock()
     gateway.call.return_value = _good_output()
@@ -241,11 +236,7 @@ def test_data_gaps_unknown_condition_code_skipped(mock_groups: MagicMock) -> Non
 @patch("src.intelligence.summary_generator.verify_mode_a")
 def test_audit_logged(mock_verify: MagicMock, mock_profile: MagicMock) -> None:
     """audit_repo.record is called with event_type='summary_generated'."""
-    mock_profile.return_value = MagicMock(
-        conditions=["T2D"],
-        medications=[],
-        allergies=[],
-    )
+    mock_profile.return_value = MagicMock(conditions=["T2D"])
     record = _make_record()
     repo = _mock_repo([record])
     gateway = MagicMock()

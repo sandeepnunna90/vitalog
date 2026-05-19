@@ -26,7 +26,7 @@ DISCLAIMER = (
 )
 
 _PROMPT_ID = "summary"
-_PROMPT_VERSION = "v2"
+_PROMPT_VERSION = "v3"
 _ACCEPTED_VERIFIED_BY = frozenset({"auto", "user", "admin"})
 
 _audit_log = logging.getLogger("audit")
@@ -66,7 +66,6 @@ class SummaryGenerator:
             return Summary(
                 patient_id=patient_id,
                 conditions_section="",
-                medications_section="",
                 results_section="No accepted biomarker records found.",
                 trends_section="",
                 data_gaps_section="",
@@ -92,7 +91,6 @@ class SummaryGenerator:
         summary = Summary(
             patient_id=patient_id,
             conditions_section=out.conditions_section if out else "",
-            medications_section=out.medications_section if out else "",
             results_section=out.results_section if out else "",
             trends_section=out.trends_section if out else "",
             data_gaps_section=out.data_gaps_section if out else "",
@@ -207,14 +205,7 @@ def _build_inputs(
         display = groups[cond]["display_name"] if cond in groups else cond
         condition_lines.append(display)
 
-    allergy_lines = [f"{a.substance} ({a.severity})" for a in profile.allergies]
-    med_lines = [f"{m.name} {m.dose}" for m in profile.medications]
-
-    profile_text = (
-        f"Conditions: {', '.join(condition_lines) if condition_lines else 'None'}\n"
-        f"Medications: {', '.join(med_lines) if med_lines else 'None'}\n"
-        f"Allergies: {', '.join(allergy_lines) if allergy_lines else 'None'}"
-    )
+    profile_text = f"Conditions: {', '.join(condition_lines) if condition_lines else 'None'}"
 
     # Assert non-None before sort; the accepted filter guarantees this but mypy can't see it.
     for r in accepted_records:

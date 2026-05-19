@@ -23,7 +23,6 @@ def _make_summary() -> Summary:
     return Summary(
         patient_id=_PATIENT_ID,
         conditions_section="Type 2 Diabetes",
-        medications_section="Metformin 1000mg",
         results_section="HbA1c: 6.8%",
         trends_section="HbA1c improved.",
         data_gaps_section="No lipid panel on record.",
@@ -39,7 +38,7 @@ def _make_summary() -> Summary:
         disclaimer="This summary was prepared by Vitalog from patient-uploaded records. "
         "It is not a medical document and does not constitute medical advice. "
         "Please verify all information with your healthcare provider.",
-        prompt_version="v2",
+        prompt_version="v3",
         citation_count=1,
         is_fallback=False,
     )
@@ -144,7 +143,7 @@ def test_add_note_preserves_existing_annotations() -> None:
         [
             {
                 "annotation_id": str(uuid.uuid4()),
-                "section": "medications_section",
+                "section": "results_section",
                 "text": "First note",
                 "created_at": "2026-05-18T09:00:00",
             }

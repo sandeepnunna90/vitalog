@@ -20,8 +20,6 @@ def run(patient_id: str, container: ServiceContainer) -> str:
     sections = []
     if result.conditions_section:
         sections.append(f"**Conditions**\n{result.conditions_section}")
-    if result.medications_section:
-        sections.append(f"**Medications**\n{result.medications_section}")
     if result.results_section:
         sections.append(f"**Lab Results**\n{result.results_section}")
     if result.trends_section:

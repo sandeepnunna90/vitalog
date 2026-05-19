@@ -43,17 +43,13 @@ class PatientCreate(_Base):
 
 class PatientProfileRow(_Base):
     patient_id: uuid.UUID
-    conditions: list[Any]  # JSONB array of patient-supplied strings; open-ended schema
-    medications: list[Any]  # JSONB array of patient-supplied strings; open-ended schema
-    allergies: list[Any]  # JSONB array of patient-supplied strings; open-ended schema
+    conditions: list[Any]  # JSONB array of condition code strings
     updated_at: datetime
 
 
 class PatientProfileCreate(_Base):
     patient_id: uuid.UUID
     conditions: list[Any] = []  # see PatientProfileRow
-    medications: list[Any] = []  # see PatientProfileRow
-    allergies: list[Any] = []  # see PatientProfileRow
 
 
 # ── Document ──────────────────────────────────────────────────────────────────

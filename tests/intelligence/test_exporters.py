@@ -28,7 +28,6 @@ _DISCLAIMER = (
 _CONTENT_JSON = {
     "patient_id": str(_PATIENT_ID),
     "conditions_section": "Type 2 Diabetes, Hypertension",
-    "medications_section": "Metformin 1000mg",
     "results_section": "HbA1c: 6.8% (March 12, 2026)",
     "trends_section": "HbA1c decreased from 7.1% to 6.8% over 6 months.",
     "data_gaps_section": "No lipid panel on record.",
@@ -42,7 +41,7 @@ _CONTENT_JSON = {
         }
     ],
     "disclaimer": _DISCLAIMER,
-    "prompt_version": "v2",
+    "prompt_version": "v3",
     "citation_count": 1,
     "is_fallback": False,
 }
@@ -92,9 +91,9 @@ def test_markdown_export_structure() -> None:
     row = _make_summary_row()
     text = export_markdown(row).decode("utf-8")
     assert "## Active Conditions" in text
-    assert "## Current Medications" in text
     assert "## Biomarker Results" in text
     assert "## Citations" in text
+    assert "## Current Medications" not in text
 
 
 def test_markdown_disclaimer_at_top() -> None:
