@@ -8,7 +8,6 @@ from src.ingestion.structurer_schemas import Band
 
 
 def test_exactly_at_auto_accept_threshold() -> None:
-    """95.0 with defaults → AUTO_ACCEPT (condition is >=)."""
     assert (
         assign_band(THRESHOLD_AUTO_ACCEPT, THRESHOLD_AUTO_ACCEPT, THRESHOLD_REJECT)
         == Band.AUTO_ACCEPT
@@ -16,7 +15,10 @@ def test_exactly_at_auto_accept_threshold() -> None:
 
 
 def test_just_above_auto_accept() -> None:
-    assert assign_band(95.1, THRESHOLD_AUTO_ACCEPT, THRESHOLD_REJECT) == Band.AUTO_ACCEPT
+    assert (
+        assign_band(THRESHOLD_AUTO_ACCEPT + 0.1, THRESHOLD_AUTO_ACCEPT, THRESHOLD_REJECT)
+        == Band.AUTO_ACCEPT
+    )
 
 
 def test_hundred_is_auto_accept() -> None:
@@ -24,7 +26,10 @@ def test_hundred_is_auto_accept() -> None:
 
 
 def test_just_below_auto_accept_is_review() -> None:
-    assert assign_band(94.9, THRESHOLD_AUTO_ACCEPT, THRESHOLD_REJECT) == Band.REVIEW
+    assert (
+        assign_band(THRESHOLD_AUTO_ACCEPT - 0.1, THRESHOLD_AUTO_ACCEPT, THRESHOLD_REJECT)
+        == Band.REVIEW
+    )
 
 
 def test_midpoint_is_review() -> None:
@@ -33,12 +38,14 @@ def test_midpoint_is_review() -> None:
 
 
 def test_exactly_at_reject_threshold_is_review() -> None:
-    """70.0 → REVIEW, not REJECT (condition is >=)."""
+    """THRESHOLD_REJECT exactly → REVIEW, not REJECT (condition is >=)."""
     assert assign_band(THRESHOLD_REJECT, THRESHOLD_AUTO_ACCEPT, THRESHOLD_REJECT) == Band.REVIEW
 
 
 def test_just_below_reject_threshold_is_reject() -> None:
-    assert assign_band(69.9, THRESHOLD_AUTO_ACCEPT, THRESHOLD_REJECT) == Band.REJECT
+    assert (
+        assign_band(THRESHOLD_REJECT - 0.1, THRESHOLD_AUTO_ACCEPT, THRESHOLD_REJECT) == Band.REJECT
+    )
 
 
 def test_zero_is_reject() -> None:
