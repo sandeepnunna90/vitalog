@@ -91,6 +91,17 @@ def test_patient_id_guard_rejects_malformed() -> None:
         validate_patient_id("not-a-uuid")
 
 
+def test_patient_id_guard_accepts_env_var_uuid(monkeypatch: pytest.MonkeyPatch) -> None:
+    """When VITALOG_PATIENT_ID is set, the guard accepts that UUID instead of Mark's."""
+    import src.mcp_server.tools._guard as guard_mod
+
+    custom_id = uuid.uuid4()
+    monkeypatch.setattr(guard_mod, "_ACCEPTED_PATIENT_ID", custom_id)
+    assert validate_patient_id(str(custom_id)) == custom_id
+    with pytest.raises(ValueError, match="not registered"):
+        validate_patient_id(_PATIENT_ID_STR)
+
+
 # ── upload_document_workflow ──────────────────────────────────────────────────
 
 
