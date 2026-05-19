@@ -38,7 +38,18 @@ class DocumentClassifier:
     ) -> tuple[dict[str, str], list[dict[str, Any]] | None]:
         if upload.mime == "application/pdf":
             text = self._extract_pdf_text(upload.file_bytes)
-            return {"document_text": text or "[PDF has no extractable text]"}, None
+            logger.info("classifier: extracted %d chars of text from PDF", len(text))
+            if text.strip():
+                logger.info("classifier: using text path")
+                return {"document_text": text}, None
+            # No text layer (scanned PDF) — render first page and classify via vision.
+            logger.info("classifier: no text extracted, attempting vision fallback")
+            image_block = self._pdf_first_page_image(upload.file_bytes)
+            if image_block:
+                logger.info("classifier: using vision path (first page rendered)")
+                return {"document_text": "Classify the provided lab report page image."}, [image_block]
+            logger.info("classifier: vision render failed, using placeholder")
+            return {"document_text": "[PDF has no extractable text]"}, None
 
         import base64
 
@@ -48,6 +59,23 @@ class DocumentClassifier:
             "source": {"type": "base64", "media_type": upload.mime, "data": b64},
         }
         return {"document_text": "Classify the provided document image."}, [image_block]
+
+    def _pdf_first_page_image(self, file_bytes: bytes) -> dict[str, Any] | None:
+        import base64
+        import fitz
+
+        try:
+            doc = fitz.open(stream=file_bytes, filetype="pdf")
+            logger.info("classifier: PDF page_count=%d", doc.page_count)
+            page = doc[0]
+            pix = page.get_pixmap(dpi=150)
+            png_bytes = pix.tobytes("png")
+            doc.close()
+        except Exception as exc:  # noqa: BLE001
+            logger.info("classifier: vision render error: %s", exc)
+            return None
+        b64 = base64.standard_b64encode(png_bytes).decode()
+        return {"type": "image", "source": {"type": "base64", "media_type": "image/png", "data": b64}}
 
     def _extract_pdf_text(self, file_bytes: bytes) -> str:
         import fitz  # deferred; already a project dep from D1
