@@ -86,3 +86,32 @@ Project CLAUDE.md Gotchas: "Mark's patient profile is hardcoded in `reference_da
 - Re-exported `MARK_PATIENT_ID`, `load_patient_profile`, `PatientProfile` from `src/reference_data/__init__.py`
 
 **PR:** #24
+
+### Refactor (2026-05-19) — remove medications and allergies
+
+**Context:** Lab reports don't contain medication or allergy data. The original G2 implementation included these fields without a real data source, making the profile misleading. This refactor removes them end-to-end.
+
+**Files modified:**
+- `reference_data/mark_profile.json` — removed `medications`/`allergies` arrays; bumped `profile_version` to `1.1.0`
+- `src/reference_data/patient_profile_schemas.py` — removed `Medication`, `Allergy` classes and their fields from `PatientProfile`
+- `src/persistence/models.py` — removed `medications`/`allergies` from `PatientProfileRow` and `PatientProfileCreate`
+- `src/intelligence/summary_schemas.py` — removed `medications_section` from both `SummaryOutput` (LLM schema) and `Summary`
+- `src/intelligence/summary_generator.py` — bumped `_PROMPT_VERSION` to `"v3"`; `_build_inputs` now produces conditions-only `profile_text`
+- `src/intelligence/annotator.py` — removed `"medications_section"` from `_VALID_SECTIONS` frozenset
+- `src/intelligence/exporters/pdf_exporter.py` — removed `"medications_section"` from `_SECTION_LABELS`
+- `src/intelligence/exporters/markdown_exporter.py` — removed `"medications_section"` from `_SECTION_LABELS`
+- `src/mcp_server/tools/prepare_summary.py` — removed `medications_section` block from formatted output
+- `src/orchestration/workflows.py` — removed `medications_section` from `GenerateSummaryResult`
+- `prompts/summary/v3.md` — new file; OUTPUT SECTIONS reduced from 6 to 5 (no `medications_section`)
+- `tests/intelligence/test_summary_generator.py` — updated `_good_output()`, mocks, prompt version
+- `tests/intelligence/test_exporters.py` — removed `medications_section` from `_CONTENT_JSON`; added `## Current Medications` absence assertion
+- `tests/intelligence/test_annotator.py` — removed `medications_section` from fixtures
+- `tests/mcp_server/test_tools_smoke.py` — removed `medications_section` from mock objects
+- `tests/reference_data/test_patient_profile.py` — removed statin/allergy tests; added `test_profile_version_is_1_1_0` and `test_profile_has_no_medications_or_allergies`
+
+**Key design decisions:**
+- `conditions` retained (they contextualize lab results for guideline range overlays); only medication/allergy data removed
+- No DB migration needed — `PatientProfileRow`/`PatientProfileCreate` are Pydantic models only; no `patient_profile_repository.py` exists
+- `json_exporter.py` unaffected — passes `content_json` dict through without enumerating keys
+
+**PR:** #33
