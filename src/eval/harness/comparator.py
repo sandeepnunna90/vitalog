@@ -38,6 +38,7 @@ class BiomarkerMatch:
     matched: bool  # True iff name_score >= NAME_FUZZY_THRESHOLD
     matched_band: str | None  # band.value of the matched extracted candidate; None if unmatched
     fields: list[FieldResult] = field(default_factory=list)  # populated only when matched=True
+    matched_composite_confidence: float | None = None  # composite_confidence of matched candidate
 
 
 @dataclass
@@ -45,6 +46,8 @@ class DocComparison:
     biomarker_matches: list[BiomarkerMatch]  # one entry per GT biomarker
     extra_extracted: int  # extracted candidates with no GT match
     band_distribution: dict[str, int]  # band.value → count across all extracted candidates
+    # composite_confidence scores of candidates with no GT match; used by C5 grid search
+    unmatched_extracted_composites: list[float] = field(default_factory=list)
 
 
 def compare_doc(
@@ -86,6 +89,7 @@ def compare_doc(
                     matched=True,
                     matched_band=cand.band.value,
                     fields=_compare_fields(cand, gt),
+                    matched_composite_confidence=cand.composite_confidence,
                 )
             )
         else:
@@ -99,10 +103,14 @@ def compare_doc(
             )
 
     extra = len(extracted) - len(matched_indices)
+    unmatched_composites = [
+        extracted[i].composite_confidence for i in range(len(extracted)) if i not in matched_indices
+    ]
     return DocComparison(
         biomarker_matches=matches,
         extra_extracted=max(extra, 0),
         band_distribution=band_dist,
+        unmatched_extracted_composites=unmatched_composites,
     )
 
 

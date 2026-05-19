@@ -22,7 +22,7 @@ migrate:
 	psql "$(SUPABASE_DB_URL)" -f migrations/002_audit_log_hash_chain.sql
 
 calibrate:
-	@echo "Calibration not yet implemented (story C5)" && exit 1
+	uv run python scripts/calibrate.py --corpus eval_corpus/
 
 eval:
 	pytest -q tests/eval/

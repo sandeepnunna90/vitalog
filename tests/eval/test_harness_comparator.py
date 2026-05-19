@@ -56,7 +56,12 @@ def _gt(
 
 
 def _empty_comparison() -> DocComparison:
-    return DocComparison(biomarker_matches=[], extra_extracted=0, band_distribution={})
+    return DocComparison(
+        biomarker_matches=[],
+        extra_extracted=0,
+        band_distribution={},
+        unmatched_extracted_composites=[],
+    )
 
 
 def _doc_result(comparison: DocComparison) -> DocResult:
@@ -81,6 +86,8 @@ def test_exact_match_all_fields_true() -> None:
     assert bm.matched is True
     assert all(fr.match for fr in bm.fields)
     assert cmp.extra_extracted == 0
+    assert bm.matched_composite_confidence == 99.0
+    assert cmp.unmatched_extracted_composites == []
 
 
 def test_value_decimal_within_tolerance() -> None:
@@ -131,6 +138,8 @@ def test_extra_extracted_counted() -> None:
     cands = [_cand(name="HbA1c"), _cand(name="Glucose, Fasting")]
     cmp = compare_doc(cands, [_gt(name="HbA1c")])
     assert cmp.extra_extracted == 1
+    assert len(cmp.unmatched_extracted_composites) == 1
+    assert cmp.unmatched_extracted_composites[0] == 99.0
 
 
 def test_unmatched_gt_no_extracted() -> None:
@@ -139,6 +148,8 @@ def test_unmatched_gt_no_extracted() -> None:
     assert len(cmp.biomarker_matches) == 1
     assert cmp.biomarker_matches[0].matched is False
     assert cmp.extra_extracted == 0
+    assert cmp.unmatched_extracted_composites == []
+    assert cmp.biomarker_matches[0].matched_composite_confidence is None
 
 
 # ── Aggregator tests ──────────────────────────────────────────────────────────
