@@ -6,11 +6,12 @@ import json
 from pathlib import Path
 from typing import Any
 
+from src._paths import PROJECT_ROOT
+from src.normalization.index_builder import _normalize_key
 from src.normalization.tier1 import _index
+from src.reference_data import invalidate_taxonomy_caches
 
-_DEFAULT_TAXONOMY_PATH = (
-    Path(__file__).parent.parent.parent / "reference_data" / "biomarker_taxonomy.json"
-)
+_DEFAULT_TAXONOMY_PATH = PROJECT_ROOT / "reference_data" / "biomarker_taxonomy.json"
 
 
 def add_alias(
@@ -28,10 +29,10 @@ def add_alias(
     if target is None:
         raise ValueError(f"vitalog_id {vitalog_id!r} not found in taxonomy")
 
-    normalised = alias.strip().lower()
+    normalised = _normalize_key(alias)
     for entry in taxonomy:
-        existing = [a.strip().lower() for a in entry["aliases"]]
-        if normalised in existing or entry["canonical_name"].strip().lower() == normalised:
+        existing = [_normalize_key(a) for a in entry["aliases"]]
+        if normalised in existing or _normalize_key(entry["canonical_name"]) == normalised:
             raise ValueError(f"Alias {alias!r} already exists on entry {entry['vitalog_id']!r}")
 
     target["aliases"].append(alias)
@@ -40,5 +41,6 @@ def add_alias(
         encoding="utf-8",
     )
 
-    # Invalidate the cached index so the next lookup rebuilds from the updated file
+    # Invalidate all taxonomy-derived caches (Tier 1 index + reference_data alias index)
     _index.cache_clear()
+    invalidate_taxonomy_caches()

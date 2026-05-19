@@ -8,7 +8,7 @@ from datetime import date
 from typing import Any
 
 from src.gateway.citation_verifier_mode_b import verify as verify_mode_b
-from src.gateway.errors import ModeBVerificationError, OutputValidationError
+from src.gateway.errors import BannedPhraseViolation, ModeBVerificationError, OutputValidationError
 from src.gateway.gateway import Gateway
 from src.intelligence.nlq_schemas import NlqOutput, NlqResponse
 from src.intelligence.retrieval import canonical_name, resolve_query
@@ -41,7 +41,8 @@ class NlqHandler:
         """Answer a natural-language query using only the patient's stored records.
 
         AC5: retrieval always runs before the LLM is called — no path skips this step.
-        AC3/AC6: if Mode B verification fails on both attempts, returns safe-refusal text.
+        AC3/AC6: Mode B verification is retried once on failure. If both attempts fail,
+        returns safe-refusal text.
         """
         result = resolve_query(query, patient_id, self._repo)
 
@@ -73,7 +74,6 @@ class NlqHandler:
         output = self._attempt(inputs, result.retrieval_set)
         if output is None:
             output = self._attempt(inputs, result.retrieval_set)
-
         text = output.text if output is not None else _SAFE_REFUSAL
         if result.matched_condition_names and output is not None:
             text = text + _condition_group_disclaimer(result.matched_condition_names)
@@ -95,7 +95,7 @@ class NlqHandler:
             out = self._gateway.call(_PROMPT_ID, _PROMPT_VERSION, inputs, NlqOutput)
             verify_mode_b(out.text, retrieval_set)
             return out
-        except (ModeBVerificationError, OutputValidationError) as exc:
+        except (BannedPhraseViolation, ModeBVerificationError, OutputValidationError) as exc:
             _audit_log.warning("nlq attempt failed: %s: %s", type(exc).__name__, exc)
             return None
 
@@ -120,14 +120,16 @@ class NlqHandler:
                         "prompt_version": _PROMPT_VERSION,
                     },
                 )
-            except Exception:  # noqa: BLE001
-                pass  # audit failure must never break the caller
+            except Exception as _exc:  # noqa: BLE001
+                _audit_log.warning("audit_log_failed: %s", _exc)
 
 
 # ── Module-level helpers ──────────────────────────────────────────────────────
 
 
 def _missing_fallback(missing_ids: list[str]) -> str:
+    # canonical_name() reads from biomarker_groups.json — curated data only.
+    # If biomarker_groups.json is ever loaded from an untrusted source, re-audit this path.
     names = [canonical_name(cid) for cid in missing_ids]
     if len(names) == 1:
         return (

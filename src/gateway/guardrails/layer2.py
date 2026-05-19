@@ -2,6 +2,10 @@
 
 Loaded once at Gateway init time (disk reads are not per-call).
 The preamble and refusals are prepended to every system prompt verbatim.
+
+Hot-reload limitation: editing safety_preamble.md or any few_shot_refusals/*.md
+file requires a Gateway restart (process re-init) to take effect. The cost is low
+for the MCP demo use-case; revisit if banned-phrase iteration becomes frequent.
 """
 
 from __future__ import annotations
@@ -9,9 +13,11 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
+from src._paths import PROJECT_ROOT
+
 logger = logging.getLogger(__name__)
 
-_DEFAULT_SHARED_DIR = Path(__file__).parent.parent.parent.parent / "prompts" / "_shared"
+_DEFAULT_SHARED_DIR = PROJECT_ROOT / "prompts" / "_shared"
 
 
 def _load_preamble(shared_dir: Path) -> str:

@@ -175,6 +175,22 @@ def test_unit_mismatch_raises() -> None:
         verify([citation], patient_id, _make_set(record))
 
 
+def test_unit_trailing_space_passes() -> None:
+    """LLM-emitted unit with trailing space must not discard the whole summary."""
+    patient_id = uuid.uuid4()
+    record = _make_record(patient_id, 7.0, unit="mg/dL")
+    citation = _make_citation(7.0, unit="mg/dL ", record_id=record.record_id)
+    verify([citation], patient_id, _make_set(record))  # must not raise
+
+
+def test_unit_leading_space_passes() -> None:
+    """Unit with leading space must be accepted."""
+    patient_id = uuid.uuid4()
+    record = _make_record(patient_id, 7.0, unit="mg/dL")
+    citation = _make_citation(7.0, unit=" mg/dL", record_id=record.record_id)
+    verify([citation], patient_id, _make_set(record))  # must not raise
+
+
 def test_date_mismatch_raises() -> None:
     patient_id = uuid.uuid4()
     record = _make_record(patient_id, 7.0, collection_date=date(2025, 1, 15))

@@ -15,10 +15,11 @@ from typing import Any
 
 import yaml
 
+from src._paths import PROJECT_ROOT
 from src.gateway.errors import PromptNotFoundError
 from src.gateway.model_router import default_model
 
-_DEFAULT_PROMPTS_DIR = Path(__file__).parent.parent.parent / "prompts"
+_DEFAULT_PROMPTS_DIR = PROJECT_ROOT / "prompts"
 
 
 @dataclass(frozen=True)
@@ -60,7 +61,12 @@ def _parse_prompt_file(path: Path) -> PromptTemplate:
 
 
 class PromptRegistry:
-    """Eagerly loads all registered prompts at construction time."""
+    """Eagerly loads all registered prompts at construction time.
+
+    Intentionally fails hard on missing registry file (unlike the audit log,
+    which is a soft dependency). Missing prompts are a deploy error; missing
+    audit log is a monitoring gap. The asymmetry is deliberate.
+    """
 
     def __init__(self, prompts_dir: Path | None = None) -> None:
         root = prompts_dir or _DEFAULT_PROMPTS_DIR

@@ -4,14 +4,14 @@ from __future__ import annotations
 
 import json
 from functools import lru_cache
-from pathlib import Path
 from typing import Any
 
+from src._paths import PROJECT_ROOT
 from src.reference_data.patient_profile import MARK_PATIENT_ID as MARK_PATIENT_ID
 from src.reference_data.patient_profile import load_patient_profile as load_patient_profile
 from src.reference_data.patient_profile_schemas import PatientProfile as PatientProfile
 
-_DATA_DIR = Path(__file__).parent.parent.parent / "reference_data"
+_DATA_DIR = PROJECT_ROOT / "reference_data"
 
 _REQUIRED_ENTRY_FIELDS = frozenset(
     {
@@ -89,6 +89,12 @@ def _build_alias_index(taxonomy: list[dict[str, Any]]) -> dict[str, str]:
 @lru_cache(maxsize=1)
 def _get_alias_index() -> dict[str, str]:
     return _build_alias_index(load_taxonomy())
+
+
+def invalidate_taxonomy_caches() -> None:
+    """Clear all taxonomy-derived lru_caches. Call after any taxonomy mutation."""
+    load_taxonomy.cache_clear()
+    _get_alias_index.cache_clear()
 
 
 def lookup_alias(raw_name: str) -> str | None:

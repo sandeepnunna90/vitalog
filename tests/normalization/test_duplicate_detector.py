@@ -6,9 +6,43 @@ import uuid
 from datetime import date, datetime
 from unittest.mock import MagicMock
 
-from src.normalization.constants import MODE_B_NUMERIC_TOLERANCE
+from src.normalization.constants import MODE_B_NUMERIC_TOLERANCE, within_tolerance
 from src.normalization.duplicate_detector import DuplicateDetector
 from src.persistence.models import BiomarkerRecordRow
+
+# ── within_tolerance unit tests ───────────────────────────────────────────────
+
+
+def test_within_tolerance_exact_match() -> None:
+    assert within_tolerance(6.8, 6.8, MODE_B_NUMERIC_TOLERANCE) is True
+
+
+def test_within_tolerance_zero_stored_exact() -> None:
+    assert within_tolerance(0.0, 0.0, MODE_B_NUMERIC_TOLERANCE) is True
+
+
+def test_within_tolerance_zero_stored_nonzero_cited() -> None:
+    assert within_tolerance(0.001, 0.0, MODE_B_NUMERIC_TOLERANCE) is False
+
+
+def test_within_tolerance_upper_boundary_passes() -> None:
+    # 100 * 1.005 = 100.5; 100.49 is within
+    assert within_tolerance(100.49, 100.0, 0.005) is True
+
+
+def test_within_tolerance_upper_boundary_fails() -> None:
+    # 100.51 exceeds 100.5
+    assert within_tolerance(100.51, 100.0, 0.005) is False
+
+
+def test_within_tolerance_lower_boundary_passes() -> None:
+    # 100 * 0.995 = 99.5; 99.51 is within
+    assert within_tolerance(99.51, 100.0, 0.005) is True
+
+
+def test_within_tolerance_lower_boundary_fails() -> None:
+    assert within_tolerance(99.49, 100.0, 0.005) is False
+
 
 _PATIENT_ID = uuid.uuid4()
 _CANONICAL_ID = "hba1c"
@@ -184,7 +218,7 @@ def test_audit_event_on_value_conflict() -> None:
     detector.check(_PATIENT_ID, _CANONICAL_ID, _COLLECTION_DATE, 9.0, new_id)
     audit_repo.record.assert_called_once()
     call_kwargs = audit_repo.record.call_args.kwargs
-    assert call_kwargs["event_type"] == "value_conflict"
+    assert call_kwargs["event_type"] == "dedup_value_conflict"
     assert call_kwargs["payload"]["value_conflict"] is True
 
 

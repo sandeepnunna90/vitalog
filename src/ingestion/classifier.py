@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from src.gateway.gateway import Gateway
 from src.ingestion.classification_schemas import Category, ClassificationResult
 from src.ingestion.upload_validator import ValidatedUpload
+
+logger = logging.getLogger(__name__)
 
 _PDF_TEXT_LIMIT = 8_000  # chars; covers the first few pages of typical lab reports
 
@@ -63,6 +66,9 @@ class DocumentClassifier:
                 if total >= _PDF_TEXT_LIMIT:
                     break
             return " ".join(parts)[:_PDF_TEXT_LIMIT]
+        except Exception as exc:  # noqa: BLE001
+            logger.debug("PDF text extraction failed: %s", exc)
+            return ""
         finally:
             doc.close()
 

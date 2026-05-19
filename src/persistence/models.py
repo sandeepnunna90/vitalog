@@ -43,17 +43,17 @@ class PatientCreate(_Base):
 
 class PatientProfileRow(_Base):
     patient_id: uuid.UUID
-    conditions: list[Any]
-    medications: list[Any]
-    allergies: list[Any]
+    conditions: list[Any]  # JSONB array of patient-supplied strings; open-ended schema
+    medications: list[Any]  # JSONB array of patient-supplied strings; open-ended schema
+    allergies: list[Any]  # JSONB array of patient-supplied strings; open-ended schema
     updated_at: datetime
 
 
 class PatientProfileCreate(_Base):
     patient_id: uuid.UUID
-    conditions: list[Any] = []
-    medications: list[Any] = []
-    allergies: list[Any] = []
+    conditions: list[Any] = []  # see PatientProfileRow
+    medications: list[Any] = []  # see PatientProfileRow
+    allergies: list[Any] = []  # see PatientProfileRow
 
 
 # ── Document ──────────────────────────────────────────────────────────────────
@@ -86,11 +86,11 @@ class CanonicalBiomarkerRow(_Base):
     canonical_name: str
     loinc_code: str
     ucum_unit: str
-    unit_conversions: list[Any]
-    aliases: list[Any]
-    conditions: list[Any]
-    guideline_ranges: dict[str, Any]
-    guideline_citations: dict[str, Any]
+    unit_conversions: list[Any]  # JSONB list[str] from taxonomy JSON; element schema varies
+    aliases: list[Any]  # JSONB list[str] alias strings
+    conditions: list[Any]  # JSONB list[str] condition codes
+    guideline_ranges: dict[str, Any]  # JSONB map; nested structure varies per biomarker
+    guideline_citations: dict[str, Any]  # JSONB map; nested structure varies per biomarker
     verification_tier: str
     verified: bool
     created_at: datetime
@@ -107,9 +107,9 @@ class PendingTaxonomyEntryRow(_Base):
     document_id: uuid.UUID | None
     raw_name: str
     raw_unit: str | None
-    candidate_loinc_codes: list[Any]
+    candidate_loinc_codes: list[Any]  # JSONB list[str] of LOINC code strings
     proposed_canonical_name: str | None
-    similarity_to_existing: dict[str, Any]
+    similarity_to_existing: dict[str, Any]  # JSONB map; structure varies by comparison run
     status: PendingStatus
     resolved_at: datetime | None
     resolved_by: str | None
@@ -119,9 +119,9 @@ class PendingTaxonomyEntryCreate(_Base):
     document_id: uuid.UUID | None = None
     raw_name: str
     raw_unit: str | None = None
-    candidate_loinc_codes: list[Any] = []
+    candidate_loinc_codes: list[Any] = []  # see PendingTaxonomyEntryRow
     proposed_canonical_name: str | None = None
-    similarity_to_existing: dict[str, Any] = {}
+    similarity_to_existing: dict[str, Any] = {}  # see PendingTaxonomyEntryRow
 
 
 # ── Biomarker record ──────────────────────────────────────────────────────────
@@ -172,16 +172,16 @@ class SummaryRow(_Base):
     summary_id: uuid.UUID
     patient_id: uuid.UUID
     generated_at: datetime
-    content_json: dict[str, Any]
+    content_json: dict[str, Any]  # JSONB: 6 section keys + "citations" list; consumed by exporters
     patient_annotations: str | None
-    exported_formats: list[Any]
+    exported_formats: list[Any]  # JSONB list[str] of exported format names (e.g. ["pdf", "json"])
 
 
 class SummaryCreate(_Base):
     patient_id: uuid.UUID
-    content_json: dict[str, Any]
+    content_json: dict[str, Any]  # see SummaryRow
     patient_annotations: str | None = None
-    exported_formats: list[Any] = []
+    exported_formats: list[Any] = []  # see SummaryRow
 
 
 # ── Audit log ─────────────────────────────────────────────────────────────────
@@ -192,7 +192,7 @@ class AuditLogRow(_Base):
     timestamp: datetime
     actor: str
     event_type: str
-    payload: dict[str, Any]
+    payload: dict[str, Any]  # JSONB; structure varies by event_type
     prev_hash: str
     payload_hash: str
     chain_hash: str
@@ -203,4 +203,4 @@ class AuditLogCreate(_Base):
 
     actor: str
     event_type: str
-    payload: dict[str, Any]
+    payload: dict[str, Any]  # JSONB; structure varies by event_type

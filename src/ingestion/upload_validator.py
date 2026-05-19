@@ -64,8 +64,8 @@ def _detect_mime(file_bytes: bytes) -> str:
         matches = puremagic.magic_string(file_bytes)
         if matches:
             return str(matches[0].mime_type)
-    except Exception:  # noqa: BLE001
-        pass
+    except Exception as _exc:  # noqa: BLE001
+        logger.debug("puremagic MIME detection failed (falling back to octet-stream): %s", _exc)
 
     return "application/octet-stream"
 

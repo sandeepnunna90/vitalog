@@ -33,6 +33,13 @@ def test_parse_lower_bound() -> None:
     assert upper is None
 
 
+def test_parse_tilde_qualifier_returns_none_none() -> None:
+    # "~N" approximate ranges are not supported; both bounds return None.
+    lower, upper = _parse_range("~5.0")
+    assert lower is None
+    assert upper is None
+
+
 # ── Band selection ─────────────────────────────────────────────────────────────
 
 

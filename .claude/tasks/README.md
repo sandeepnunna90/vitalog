@@ -107,6 +107,11 @@ Every item in architecture §11 (capstone scope) and roadmap §4 (Scope-in) maps
 - **Patient profile** (Mark hardcoded) → G2
 - **Demo + writeup** → H1, H2
 
+### Maintenance
+| ID | Title | Status |
+|---|---|---|
+| [REVIEW](CODEBASE_REVIEW.md) | Codebase review — 47 issues (5C/10H/16M/16L) | ✅ |
+
 ## Workflow notes
 
 Per `applications/CLAUDE.md`:

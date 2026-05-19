@@ -51,6 +51,8 @@ Storage policy (classification-gated, §7.6):
 
 | Package | Purpose |
 |---|---|
+| `src/_paths.py` | Central `PROJECT_ROOT` constant — all modules import from here instead of recomputing `Path(__file__).parent` chains |
+| `src/_retry.py` | Shared `ADAPTER_RETRY_SLEEP` tuple used by `AnthropicAdapter` and `TextractAdapter` |
 | `src/ingestion/` | Upload validation, classification, Textract/vision OCR, structurer, composite confidence |
 | `src/gateway/` | AI Gateway chokepoint, guardrails (L1/L2/L3), prompt registry, eval logger, Mode A + Mode B citation verifiers |
 | `src/normalization/` | Tier 1 alias lookup, unit conversion, range validation, duplicate detection |

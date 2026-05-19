@@ -15,6 +15,9 @@ _CONDITION_PREFERRED_SUFFIXES: dict[str, list[str]] = {
 
 
 def _parse_range(raw: str) -> tuple[float | None, float | None]:
+    # Note: "~N" (approximate) qualifiers are not supported — they return (None, None).
+    # All ranges in biomarker_taxonomy.json use <, >, or X-Y formats; add ~ support
+    # here if approximate guideline ranges are ever added.
     s = raw.strip()
     m = re.match(r"^([0-9.]+)\s*[-–]\s*([0-9.]+)", s)
     if m:
@@ -76,7 +79,7 @@ def select_bands(
 ) -> list[TrendBand]:
     bands: list[TrendBand] = []
 
-    normal_key = next((k for k in guideline_ranges if "_normal" in k.lower()), None)
+    normal_key = next((k for k in guideline_ranges if k.lower().endswith("_normal")), None)
     if normal_key:
         bands.append(_make_band(normal_key, guideline_ranges[normal_key], guideline_citations))
 

@@ -4,11 +4,14 @@ from __future__ import annotations
 
 import csv
 import json
+import logging
 import subprocess
 from dataclasses import asdict
 from pathlib import Path
 
 from src.eval.harness.aggregator import AggregateReport, FieldMetrics
+
+_log = logging.getLogger(__name__)
 
 
 def write_report(report: AggregateReport, out_dir: Path) -> None:
@@ -136,6 +139,7 @@ def _git_sha() -> str:
             .strip()
         )
     except (subprocess.CalledProcessError, FileNotFoundError):
+        _log.warning("git rev-parse HEAD failed; git_sha will be empty in history.csv")
         return ""
 
 

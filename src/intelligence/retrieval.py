@@ -111,7 +111,11 @@ def _direct_alias_matches(query: str) -> list[str]:
     return found
 
 
-_MIN_CONDITION_WORD_LEN = 8  # skip short words like "type", "1", "chronic", "disease"
+# Words shorter than 8 chars ("type", "1", "chronic", "disease") are skipped to avoid
+# false-positive condition expansions. This threshold also skips "asthma" (6), "anemia"
+# (6), "obesity" (7) — conditions whose display names have no long primary keyword will
+# only match on the full display name or condition code, not on a single word.
+_MIN_CONDITION_WORD_LEN = 8
 
 
 def _condition_group_matches(query: str) -> tuple[list[str], list[str]]:

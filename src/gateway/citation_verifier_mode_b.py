@@ -88,6 +88,8 @@ def _within_tol(cited: float, stored: float | None) -> bool:
 
 
 def _within_tol_orig(cited: float, record: BiomarkerRecordRow) -> bool:
+    # Qualifier-prefixed strings (e.g. "<5.7", ">100") raise ValueError → return False.
+    # The LLM must cite the bare numeric value, not the qualifier form.
     try:
         return _within_tol(cited, float(record.original_value))
     except (ValueError, TypeError):
@@ -95,6 +97,7 @@ def _within_tol_orig(cited: float, record: BiomarkerRecordRow) -> bool:
 
 
 def _original_exact(cited: float, record: BiomarkerRecordRow) -> bool:
+    # Same qualifier caveat as _within_tol_orig: "<5" → float() raises → False.
     try:
         return float(record.original_value) == cited
     except (ValueError, TypeError):

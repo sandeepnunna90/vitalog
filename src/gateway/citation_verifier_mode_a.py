@@ -56,8 +56,10 @@ def verify(
                 citation=citation,
             )
 
-        # Unit exact match (AC1)
-        if record.canonical_unit != citation.unit:
+        # Unit exact match (AC1) — strip whitespace since LLMs occasionally emit trailing spaces
+        stored_unit = (record.canonical_unit or "").strip()
+        cited_unit = (citation.unit or "").strip()
+        if stored_unit != cited_unit:
             raise ModeAVerificationError(
                 reason=f"unit mismatch: stored={record.canonical_unit!r}, cited={citation.unit!r}",
                 citation=citation,
@@ -71,6 +73,7 @@ def verify(
             )
 
         # Numeric tolerance ±0.5% (AC1, AC3)
+        # Zero-stored requires exact match; see also normalization.constants.within_tolerance.
         if record.canonical_value is None:
             raise ModeAVerificationError(
                 reason="stored record has no canonical_value",

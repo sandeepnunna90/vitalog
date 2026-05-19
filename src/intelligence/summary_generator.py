@@ -17,6 +17,8 @@ from src.persistence.biomarker_repository import BiomarkerRepository
 from src.persistence.models import BiomarkerRecordRow
 from src.reference_data import load_biomarker_groups, load_patient_profile
 
+# Scope: AI generation provenance (this output came from an LLM, not a clinician).
+# Deliberately different from context_cards.DISCLAIMER which covers reference-data accuracy.
 DISCLAIMER = (
     "This summary was prepared by Vitalog from patient-uploaded records. "
     "It is not a medical document and does not constitute medical advice. "
@@ -44,8 +46,9 @@ class SummaryGenerator:
     def generate(self, patient_id: uuid.UUID) -> Summary:
         """Produce a one-page health summary for the patient from all stored records.
 
-        All numeric values are citation-verified (Mode A). If both attempts fail,
-        returns a safe-refusal Summary with is_fallback=True and empty sections.
+        All numeric values are citation-verified (Mode A). Mode A verification is
+        retried once on failure. If both attempts fail, returns a safe-refusal Summary
+        with is_fallback=True and empty sections.
         Disclaimer is always appended by code — never LLM-generated.
         """
         profile = load_patient_profile()
@@ -59,6 +62,22 @@ class SummaryGenerator:
             and r.verified_by in _ACCEPTED_VERIFIED_BY
         ]
 
+        if not accepted:
+            return Summary(
+                patient_id=patient_id,
+                conditions_section="",
+                medications_section="",
+                results_section="No accepted biomarker records found.",
+                trends_section="",
+                data_gaps_section="",
+                patient_notes="",
+                citations=[],
+                disclaimer=DISCLAIMER,
+                prompt_version=_PROMPT_VERSION,
+                citation_count=0,
+                is_fallback=True,
+            )
+
         retrieval_set: dict[uuid.UUID, BiomarkerRecordRow] = {r.record_id: r for r in accepted}
         gaps = _detect_data_gaps(profile.conditions, accepted)
         inputs = _build_inputs(profile, accepted, gaps)
@@ -66,7 +85,6 @@ class SummaryGenerator:
         result = self._attempt(inputs, retrieval_set, patient_id)
         if result is None:
             result = self._attempt(inputs, retrieval_set, patient_id)
-
         is_fallback = result is None
         out, citations = result if result is not None else (None, [])
         citation_count = len(citations)
@@ -100,7 +118,7 @@ class SummaryGenerator:
             citations = _convert_citations(out.citations)
             verify_mode_a(citations, patient_id, retrieval_set)
             return out, citations
-        except (
+        except (  # noqa: E501 — four exception types is intentional; see src/gateway/errors.py
             BannedPhraseViolation,
             ModeAVerificationError,
             OutputValidationError,
@@ -130,8 +148,8 @@ class SummaryGenerator:
                         "prompt_version": _PROMPT_VERSION,
                     },
                 )
-            except Exception:  # noqa: BLE001
-                pass  # audit failure must never break the caller
+            except Exception as _exc:  # noqa: BLE001
+                _audit_log.warning("audit_log_failed: %s", _exc)
 
 
 # ── Module-level helpers ──────────────────────────────────────────────────────
@@ -198,6 +216,9 @@ def _build_inputs(
         f"Allergies: {', '.join(allergy_lines) if allergy_lines else 'None'}"
     )
 
+    # Assert non-None before sort; the accepted filter guarantees this but mypy can't see it.
+    for r in accepted_records:
+        assert r.collection_date is not None, f"record {r.record_id} slipped past accepted filter"
     sorted_records = sorted(
         accepted_records,
         key=lambda r: (r.original_name, r.collection_date),
@@ -207,7 +228,7 @@ def _build_inputs(
         value_str = str(r.canonical_value)
         unit_str = r.canonical_unit or r.original_unit or ""
         d = r.collection_date
-        assert d is not None  # accepted filter guarantees non-None collection_date
+        assert d is not None
         date_str = f"{d.strftime('%B')} {d.day}, {d.year}"
         value_unit = f"{value_str} {unit_str}".rstrip()
         record_lines.append(f"{r.original_name}: {value_unit} — {date_str} [id={r.record_id}]")

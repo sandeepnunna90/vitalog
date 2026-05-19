@@ -2,6 +2,10 @@
 
 The profile lives in reference_data/mark_profile.json and is never read from
 Supabase at capstone scope — see CLAUDE.md Gotchas and architecture §6.1.
+
+Task 18 (if-time): replace the hardcoded JSON with a Supabase lookup so that
+arbitrary patients can be loaded. Until then, MARK_PATIENT_ID is the only valid
+patient in the system.
 """
 
 from __future__ import annotations
@@ -10,12 +14,11 @@ import hashlib
 import json
 import uuid
 from functools import lru_cache
-from pathlib import Path
 
+from src._paths import PROJECT_ROOT
 from src.reference_data.patient_profile_schemas import PatientProfile
 
-_DATA_DIR = Path(__file__).parent.parent.parent / "reference_data"
-_MARK_PROFILE_PATH = _DATA_DIR / "mark_profile.json"
+_MARK_PROFILE_PATH = PROJECT_ROOT / "reference_data" / "mark_profile.json"
 
 MARK_PATIENT_ID = uuid.UUID("7f3b1c5e-4d2a-4e8f-b6c9-1a2b3c4d5e6f")
 

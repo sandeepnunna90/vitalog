@@ -57,8 +57,8 @@ class SummaryAnnotator:
                         "summary_id": str(row.summary_id),
                     },
                 )
-            except Exception:  # noqa: BLE001
-                pass  # audit failure must never break the caller
+            except Exception as _exc:  # noqa: BLE001
+                _audit_log.warning("audit_log_failed: %s", _exc)
         return row
 
     def add_note(self, summary_id: uuid.UUID, section: str, text: str) -> SummaryRow:
@@ -71,6 +71,9 @@ class SummaryAnnotator:
             raise ValueError(
                 f"Invalid section: {section!r}. Valid sections: {sorted(_VALID_SECTIONS)}"
             )
+        # Read-then-write: concurrent calls could race and silently drop one annotation.
+        # Acceptable for single-user capstone scope; add optimistic locking (row version)
+        # before supporting multiple concurrent users.
         row = self._repo.get(summary_id)
         if row is None:
             raise ValueError(f"Summary {summary_id} not found")

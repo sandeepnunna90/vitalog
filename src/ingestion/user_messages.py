@@ -24,7 +24,7 @@ _SUBTYPE_LABELS: dict[Subtype, str] = {
     Subtype.SCREENSHOT: "screenshot",
     Subtype.BLANK: "blank document",
     Subtype.UNREADABLE: "unreadable document",
-    Subtype.OTHER: "document",
+    Subtype.OTHER: "unrecognized document type",
 }
 
 
@@ -34,5 +34,5 @@ def get_user_message(result: ClassificationResult) -> str:
         return _LAB_REPORT_MSG
     if result.category == Category.NOT_SUPPORTED:
         return _NOT_SUPPORTED_MSG
-    label = _SUBTYPE_LABELS.get(result.subtype, "document")
+    label = _SUBTYPE_LABELS.get(result.subtype, "unrecognized document type")
     return _RECOGNIZED_TMPL.format(label=label)

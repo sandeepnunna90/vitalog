@@ -18,12 +18,13 @@ from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, ConfigDict
 
+from src._paths import PROJECT_ROOT
 from src.gateway.guardrails.layer3_deterministic import _load_banned_phrases
 
 if TYPE_CHECKING:
     from src.gateway.gateway import Gateway
 
-_DEFAULT_SHARED_DIR = Path(__file__).parent.parent.parent.parent / "prompts" / "_shared"
+_DEFAULT_SHARED_DIR = PROJECT_ROOT / "prompts" / "_shared"
 
 _GRADER_PROMPT_ID = "grader"
 _GRADER_PROMPT_VERSION = "v1"

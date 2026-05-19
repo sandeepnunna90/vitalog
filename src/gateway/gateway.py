@@ -13,6 +13,7 @@ Guardrail seams are overrideable methods:
 
 from __future__ import annotations
 
+import logging
 import time
 from pathlib import Path
 from typing import Any, TypeVar
@@ -38,6 +39,7 @@ except ImportError:  # pragma: no cover
     _AuditRepo = None  # type: ignore[assignment,misc]
 
 _T = TypeVar("_T", bound=BaseModel)
+_log = logging.getLogger(__name__)
 
 
 class Gateway:
@@ -46,10 +48,11 @@ class Gateway:
         prompts_dir: Path | None = None,
         audit_repo: Any | None = None,  # AuditLogRepository or None
         api_key: str | None = None,
+        eval_logger: EvalLogger | None = None,
     ) -> None:
         self._registry = PromptRegistry(prompts_dir)
         self._adapter = AnthropicAdapter(api_key)
-        self._logger = EvalLogger()
+        self._logger = eval_logger or EvalLogger()
         self._audit = audit_repo
         self._layer2 = Layer2(prompts_dir)
         self._layer3 = Layer3(prompts_dir)
@@ -64,6 +67,7 @@ class Gateway:
         output_schema: type[_T],
         *,
         image_content: list[dict[str, Any]] | None = None,
+        session_id: str | None = None,
     ) -> _T:
         """Invoke a registered prompt and return a validated Pydantic model.
 
@@ -135,6 +139,7 @@ class Gateway:
                 0,
                 success=False,
                 error=str(exc),
+                session_id=session_id,
             )
             raise
         except (BannedPhraseViolation, SchemaValidationError) as exc:
@@ -152,6 +157,7 @@ class Gateway:
                 getattr(exc, "_retry_out_tok", out_tok),
                 success=False,
                 error=str(exc),
+                session_id=session_id,
             )
             raise OutputValidationError(f"Output validation failed after retry: {exc}") from exc
 
@@ -169,6 +175,7 @@ class Gateway:
             out_tok,
             success=True,
             error=None,
+            session_id=session_id,
         )
 
         # 11. Audit log (optional — not required for unit tests without Supabase)
@@ -187,8 +194,8 @@ class Gateway:
                         "success": True,
                     },
                 )
-            except Exception:  # noqa: BLE001
-                pass  # audit failure must never break the caller
+            except Exception as _exc:  # noqa: BLE001
+                _log.warning("audit_log_failed: %s", _exc)  # audit must not break caller
 
         return validated
 
@@ -279,9 +286,9 @@ class Gateway:
             return retry_raw, validated, in_tok + ri, out_tok + ro
         except (BannedPhraseViolation, SchemaValidationError) as retry_exc:
             # Attach accounting data so gateway.call() can log the real raw/tokens.
-            setattr(retry_exc, "_retry_raw", retry_raw)
-            setattr(retry_exc, "_retry_in_tok", in_tok + ri)
-            setattr(retry_exc, "_retry_out_tok", out_tok + ro)
+            retry_exc._retry_raw = retry_raw  # type: ignore[union-attr]
+            retry_exc._retry_in_tok = in_tok + ri  # type: ignore[union-attr]
+            retry_exc._retry_out_tok = out_tok + ro  # type: ignore[union-attr]
             raise
 
     # ── Private helpers ───────────────────────────────────────────────────────
@@ -298,6 +305,7 @@ class Gateway:
         out_tok: int,
         success: bool,
         error: str | None,
+        session_id: str | None = None,
     ) -> None:
         entry: EvalLogEntry = make_entry(
             prompt_id=prompt_id,
@@ -310,8 +318,9 @@ class Gateway:
             output_tokens=out_tok,
             success=success,
             error=error,
+            session_id=session_id,
         )
         try:
             self._logger.log(entry)
-        except Exception:  # noqa: BLE001
-            pass  # eval log failure must never break the caller
+        except Exception as _exc:  # noqa: BLE001
+            _log.warning("eval_log_failed: %s", _exc)  # eval log must not break caller
