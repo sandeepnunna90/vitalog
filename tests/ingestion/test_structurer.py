@@ -189,15 +189,15 @@ def test_classification_confidence_drives_composite_floor() -> None:
 
 
 def test_mid_classification_confidence_does_not_force_reject() -> None:
-    """classification_confidence=0.80 → 80.0 → stays in REVIEW when LLM is also mid."""
+    """classification_confidence=0.80 → 80.0 → AUTO_ACCEPT with threshold=80."""
     structurer, gateway, _ = _make_structurer()
     # textract_floor=97, llm=96, class=_MID_CLASS_CONF=0.80 → 80.0
-    # composite = min(97, 96, 80) = 80 → REVIEW band (not REJECT)
+    # composite = min(97, 96, 80) = 80 → AUTO_ACCEPT (threshold lowered to 80 for demo)
     gateway.call.return_value = _make_structured_report([_make_raw_candidate(llm_confidence=96.0)])
     result = structurer.structure(_high_confidence_textract(), _DOC_ID, _MID_CLASS_CONF)
 
     assert result.candidates[0].composite_confidence == 80.0
-    assert result.candidates[0].band == Band.REVIEW
+    assert result.candidates[0].band == Band.AUTO_ACCEPT
 
 
 # ── Audit log ─────────────────────────────────────────────────────────────────
