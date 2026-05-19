@@ -14,7 +14,9 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
+from src.ingestion.errors import TextractFailureError
 from src.ingestion.structurer_schemas import Band
+from src.ingestion.textract_schemas import TextractResult
 from src.intelligence.exporter import export_summary as _export_summary
 from src.intelligence.nlq_schemas import NlqResponse
 from src.intelligence.trend_schemas import TrendResult
@@ -90,7 +92,11 @@ def upload_document_workflow(
     doc_id = route.document_id
     assert doc_id is not None  # guaranteed when should_continue_pipeline=True
 
-    textract_result = container.textract.extract(upload, doc_id)
+    try:
+        textract_result = container.textract.extract(upload, doc_id)
+    except TextractFailureError as exc:
+        _log.warning("Textract unavailable (%s); routing to vision fallback.", exc)
+        textract_result = TextractResult(blocks=[], tables=[], kv_pairs=[], page_count=1)
     textract_result = container.fallback.extract(upload, doc_id, textract_result)
     structurer_result = container.structurer.structure(
         textract_result, doc_id, classification.confidence
