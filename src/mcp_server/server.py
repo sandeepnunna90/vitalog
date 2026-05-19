@@ -34,13 +34,13 @@ def _get_container() -> ServiceContainer:
 @mcp.tool(
     description=(
         "Upload a lab report to Vitalog. "
-        "Call with no arguments — automatically reads the newest PDF from ~/Downloads. "
-        "Optionally pass file_path for a specific file. "
+        "Pass filename (e.g. 'Lab-Report-2019.pdf') to upload a specific file from ~/Downloads. "
+        "Call with no arguments to auto-pick the newest PDF in ~/Downloads. "
         "Returns a summary of extracted biomarker records."
     )
 )
-def upload_document(file_path: str | None = None) -> str:
-    return _upload.run(None, None, _get_container(), file_path=file_path)
+def upload_document(filename: str | None = None) -> str:
+    return _upload.run(None, filename, _get_container())
 
 
 @mcp.tool(

@@ -17,6 +17,10 @@ def run(
     *,
     file_path: str | None = None,
 ) -> str:
+    if file_path is None and filename:
+        # Resolve filename → ~/Downloads/<filename>
+        file_path = str(Path.home() / "Downloads" / filename)
+
     if file_path is not None:
         try:
             file_bytes = Path(file_path).read_bytes()
