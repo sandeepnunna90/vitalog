@@ -25,10 +25,16 @@ def run(
     # various whitespace and escape sequences (\n, \\n, \r) as line separators;
     # enumerating them is fragile. Keeping only [A-Za-z0-9+/=] is exhaustive.
     sanitized = re.sub(r"[^A-Za-z0-9+/=]", "", file_content_base64)
+    # Re-add padding — some encoders omit trailing = and b64decode requires it.
+    padding_needed = (4 - len(sanitized) % 4) % 4
+    sanitized += "=" * padding_needed
     try:
-        file_bytes = base64.b64decode(sanitized)
-    except Exception:
-        return "Error: file_content_base64 is not valid base64."
+        file_bytes = base64.b64decode(sanitized, validate=False)
+    except Exception as exc:
+        return (
+            f"Error: file_content_base64 is not valid base64 "
+            f"(len={len(sanitized)}, padding_added={padding_needed}, err={exc})."
+        )
 
     result = upload_document_workflow(file_bytes, filename, pid, container)
 
