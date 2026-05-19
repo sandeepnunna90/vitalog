@@ -517,12 +517,14 @@ Generates structured one-page appointment summaries. LLM call.
 **Responsibility:** Expose the system via Model Context Protocol so that any MCP-compatible client (Claude Desktop being the primary capstone target) can consume Vitalog.
 
 **MCP tools exposed (capstone):**
-- `upload_document(file)` — ingest a document, return record summary
+- `upload_document(file_content_base64, filename, patient_id)` — ingest a document, return record summary. User attaches PDF in Claude chat; Claude encodes it as base64 and calls this tool. No separate upload UI needed.
 - `list_biomarkers(patient_id, filter?)` — list available biomarkers for a patient
 - `get_trend(patient_id, biomarker_id)` — fetch a longitudinal trend with target ranges
 - `query_records(patient_id, question)` — natural language query over patient's data
-- `prepare_summary(patient_id)` — generate appointment summary
-- `export_summary(summary_id, format)` — return summary as PDF/markdown/JSON
+- `prepare_summary(patient_id)` — generate appointment summary; returns full text + summary_id
+- `export_summary(summary_id, format)` — return summary as PDF (base64)/markdown/JSON
+
+**Transport:** `stdio` for local Claude Desktop; `sse` for remote deployment (Railway, Fly.io, etc.), controlled by `MCP_TRANSPORT` env var. Remote clients connect via URL (`https://host/sse`).
 
 **Dependencies:** Orchestration only. The MCP server is a thin protocol adapter — no business logic, no persistence calls, no LLM calls of its own.
 
