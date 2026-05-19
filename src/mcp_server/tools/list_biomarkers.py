@@ -7,7 +7,7 @@ from src.orchestration import ServiceContainer, list_biomarkers_workflow
 
 
 def run(
-    patient_id: str | None,
+    patient_id: str,
     container: ServiceContainer,
     filter: str | None = None,
 ) -> str:

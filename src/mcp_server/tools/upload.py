@@ -13,7 +13,7 @@ from src.orchestration import ServiceContainer, upload_document_workflow
 def run(
     file_content_base64: str | None,
     filename: str,
-    patient_id: str | None,
+    patient_id: str,
     container: ServiceContainer,
     *,
     file_path: str | None = None,
