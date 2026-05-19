@@ -193,9 +193,7 @@ def test_retry_succeeds_on_second_attempt(mock_verify: MagicMock, mock_profile: 
     """First attempt fails (Mode A rejects); second attempt succeeds → is_fallback=False."""
     from src.gateway.errors import ModeAVerificationError
 
-    mock_profile.return_value = MagicMock(
-        conditions=["T2D"], medications=[], allergies=[]
-    )
+    mock_profile.return_value = MagicMock(conditions=["T2D"], medications=[], allergies=[])
     repo = _mock_repo([_make_record()])
     gateway = MagicMock()
     gateway.call.return_value = _good_output()
