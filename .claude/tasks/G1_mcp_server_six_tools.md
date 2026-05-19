@@ -43,12 +43,13 @@ P2 (channel-agnostic value layer) and ADR-08 (MCP-only for capstone) both conver
 
 ## Implementation notes
 
-- Use the Anthropic Python MCP SDK (`mcp` dep from A1). Server type is `stdio` for Claude Desktop.
-- Each tool is a thin wrapper: validate inputs (Pydantic), call the appropriate Orchestration workflow, format the response. NO logic beyond that. NO calls to Anthropic from this layer.
+- Use the Anthropic Python MCP SDK (`mcp` dep from A1). Transport: `stdio` for local Claude Desktop, `sse` for remote deployment — controlled by `MCP_TRANSPORT` env var.
+- `upload_document` accepts `file_content_base64 + filename` (not `file_path`). User attaches PDF in Claude chat → Claude encodes it → calls the tool. Works for both local and remote deployment with no separate upload UI.
+- Each tool is a thin wrapper: validate inputs, call the appropriate Orchestration workflow, format the response. NO logic beyond that. NO calls to Anthropic from this layer.
 - Orchestration layer (architecture §5.6) holds the workflow coordinators. The MCP tool is `(input) → (workflow call) → (response)`. The workflow is `(workflow) → (compose service calls)`. Strict separation.
 - For PDF export, the MCP tool returns the bytes inline (base64) so Claude Desktop can present a downloadable file. Don't try to render the PDF inline as text.
 - Tool descriptions in the MCP registration must be precise — Claude Desktop uses these to decide when to call them. Document each tool with a one-line description + one parameter description per arg.
-- For capstone, all 6 tools operate on `patient_id="mark_capstone"` (a hardcoded UUID — G2). The MCP tool signatures accept patient_id but capstone validates it against the hardcoded value.
+- For capstone, all 6 tools operate on `patient_id` = `MARK_PATIENT_ID` (hardcoded UUID from G2). The MCP tool signatures accept patient_id but capstone validates it against the hardcoded value in `_guard.py`.
 
 ## Verification
 
@@ -76,4 +77,22 @@ P2 (channel-agnostic value layer) and ADR-08 (MCP-only for capstone) both conver
 
 ## Notes / changelog
 
-_(append after work is done)_
+### Implementation (2026-05-18)
+
+**Files created:**
+- `src/orchestration/container.py` — `ServiceContainer` dataclass + `build_container()` (lru_cache singleton)
+- `src/orchestration/workflows.py` — 5 workflow functions + `UploadResult` / `GenerateSummaryResult` schemas; full normalization+persistence pipeline wired in `_normalize_and_persist()`
+- `src/orchestration/__init__.py` — replaced placeholder; re-exports all public symbols
+- `src/mcp_server/server.py` — FastMCP instance, 6 `@mcp.tool` registrations, lazy container singleton
+- `src/mcp_server/tools/__init__.py`, `upload.py`, `list_biomarkers.py`, `get_trend.py`, `query.py`, `prepare_summary.py`, `export.py`
+- `src/mcp_server/tools/_guard.py` — `validate_patient_id()` capstone patient-ID guard
+- `scripts/run_mcp_server.py` — entry point; stdio (default) or SSE via `MCP_TRANSPORT` env var
+- `tests/mcp_server/test_tools_smoke.py` — 18 smoke tests (all pass)
+
+**Key design decisions:**
+- `upload_document` uses `file_content_base64 + filename` (not `file_path`) so the flow works for remote deployment: user attaches PDF in Claude → Claude encodes it → tool decodes and runs pipeline. No separate upload UI.
+- Transport switching via `MCP_TRANSPORT` env var (`stdio` for local, `sse` for deployed).
+- Patient-ID guard lives in `src/mcp_server/tools/_guard.py` — capstone auth concern, not orchestration business logic.
+- `VerifiedBy` type annotation required on `verified_by` local variable to satisfy mypy strict mode.
+
+**Layering check passed:** `grep -rE "anthropic|supabase|Gateway|Repository" src/mcp_server/` → zero matches outside `src.orchestration` imports (AC8 ✅).

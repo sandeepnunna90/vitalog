@@ -1,6 +1,5 @@
-"""MCP server package — exposes Vitalog tools to Claude Desktop via the MCP protocol.
+"""MCP server package — exposes Vitalog's 6 tools to Claude Desktop / Claude.ai.
 
-Placeholder: per architecture §4, the MCP server layer is capstone-scope deferred.
-The demo interface is Claude Desktop direct; this package will host the MCP tool
-registrations when that layer is implemented.
+Transport: stdio (local) or SSE (remote), controlled by MCP_TRANSPORT env var.
+Entry point: scripts/run_mcp_server.py
 """
