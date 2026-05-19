@@ -137,11 +137,15 @@ def test_upload_workflow_not_supported_early_return() -> None:
     assert result.category == "not_supported"
 
 
-def test_upload_tool_no_input() -> None:
-    """Passing neither file_path nor file_content_base64 returns a clear error."""
+def test_upload_tool_no_input(monkeypatch: pytest.MonkeyPatch) -> None:
+    """When no input given and Downloads is empty, returns a clear error."""
+    monkeypatch.setattr(
+        "src.mcp_server.tools.upload.Path.home",
+        lambda: pytest.importorskip("pathlib").Path("/tmp/empty_downloads_test"),
+    )
     container = _mock_container()
     result = upload_tool.run(None, "test.pdf", container)
-    assert "provide either" in result
+    assert "No PDF found" in result
 
 
 # ── list_biomarkers_workflow ──────────────────────────────────────────────────

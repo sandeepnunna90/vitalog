@@ -41,7 +41,17 @@ def run(
                 f"(len={len(sanitized)}, padding_added={padding_needed}, err={exc})."
             )
     else:
-        return "Error: provide either file_path (absolute path) or file_content_base64."
+        # No path or base64 given — pick the newest PDF from ~/Downloads.
+        downloads = Path.home() / "Downloads"
+        candidates = sorted(downloads.glob("*.pdf"), key=lambda p: p.stat().st_mtime, reverse=True)
+        if not candidates:
+            return "No PDF found in ~/Downloads/. Place the lab report there and try again."
+        detected = candidates[0]
+        try:
+            file_bytes = detected.read_bytes()
+        except OSError as exc:
+            return f"Error reading {detected.name}: {exc}"
+        filename = filename or detected.name
 
     result = upload_document_workflow(file_bytes, filename, PATIENT_ID, container)
 
