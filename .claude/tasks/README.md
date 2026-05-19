@@ -67,6 +67,7 @@ Status legend: ⬜ pending · 🟡 in progress · ✅ done · ⏸ blocked
 |---|---|---|---|---|
 | [G1](G1_mcp_server_six_tools.md) | MCP server + 6 tools wired | 8 | ✅ | D, E, F complete |
 | [G2](G2_patient_profile_mark.md) | Patient profile (Mark hardcoded) | 3 | ✅ | A3 |
+| [G3](G3_configurable_patient_id.md) | Configurable patient ID via env var | 1 | ✅ | G2 |
 
 ### Epic H — Demo (8 pts)
 
