@@ -12,7 +12,7 @@ from src.orchestration import ServiceContainer, upload_document_workflow
 
 def run(
     file_content_base64: str | None,
-    filename: str,
+    filename: str | None,
     container: ServiceContainer,
     *,
     file_path: str | None = None,
@@ -53,7 +53,7 @@ def run(
             return f"Error reading {detected.name}: {exc}"
         filename = filename or detected.name
 
-    result = upload_document_workflow(file_bytes, filename, PATIENT_ID, container)
+    result = upload_document_workflow(file_bytes, filename or "document.pdf", PATIENT_ID, container)
 
     lines = [f"Document processed ({result.category})."]
     if result.auto_accepted or result.pending_user or result.rejected or result.pending_taxonomy:
