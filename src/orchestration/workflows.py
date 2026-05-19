@@ -50,7 +50,6 @@ class GenerateSummaryResult(BaseModel):
     summary_id: uuid.UUID
     is_fallback: bool
     conditions_section: str
-    medications_section: str
     results_section: str
     trends_section: str
     data_gaps_section: str
@@ -187,7 +186,6 @@ def generate_summary_workflow(
         summary_id=row.summary_id,
         is_fallback=summary.is_fallback,
         conditions_section=summary.conditions_section,
-        medications_section=summary.medications_section,
         results_section=summary.results_section,
         trends_section=summary.trends_section,
         data_gaps_section=summary.data_gaps_section,

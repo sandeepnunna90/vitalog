@@ -16,7 +16,6 @@ from src.persistence.summary_repository import SummaryRepository
 _VALID_SECTIONS = frozenset(
     {
         "conditions_section",
-        "medications_section",
         "results_section",
         "trends_section",
         "data_gaps_section",

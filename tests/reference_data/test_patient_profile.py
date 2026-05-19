@@ -6,7 +6,6 @@ All tests are purely in-process: no network calls, no Supabase writes.
 from __future__ import annotations
 
 import re
-from datetime import date
 
 from src.reference_data import load_biomarker_groups
 from src.reference_data.patient_profile import MARK_PATIENT_ID, load_patient_profile
@@ -31,17 +30,15 @@ def test_conditions_are_exact_and_in_groups() -> None:
         assert code in groups, f"{code!r} not in biomarker_groups.json"
 
 
-def test_rosuvastatin_present_with_correct_start_date() -> None:
+def test_profile_version_is_1_1_0() -> None:
     profile = load_patient_profile()
-    statins = [m for m in profile.medications if m.name == "Rosuvastatin"]
-    assert len(statins) == 1
-    assert statins[0].start_date == date(2026, 2, 15)
+    assert profile.profile_version == "1.1.0"
 
 
-def test_penicillin_allergy_present() -> None:
+def test_profile_has_no_medications_or_allergies() -> None:
     profile = load_patient_profile()
-    substances = [a.substance for a in profile.allergies]
-    assert "Penicillin" in substances
+    assert not hasattr(profile, "medications")
+    assert not hasattr(profile, "allergies")
 
 
 def test_profile_version_hash_is_sha256_hex() -> None:

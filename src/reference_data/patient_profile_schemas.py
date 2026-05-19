@@ -12,17 +12,6 @@ class _Base(BaseModel):
     model_config = ConfigDict(strict=True)
 
 
-class Medication(_Base):
-    name: str
-    dose: str
-    start_date: date
-
-
-class Allergy(_Base):
-    substance: str
-    severity: str
-
-
 class PatientProfile(_Base):
     patient_id: uuid.UUID
     name: str
@@ -31,5 +20,3 @@ class PatientProfile(_Base):
     profile_version_hash: str  # SHA-256 of raw JSON bytes, injected by loader
     note: str  # human-readable label (e.g. "DEMO PROFILE — synthetic data")
     conditions: list[str]  # condition codes matching biomarker_groups.json condition keys
-    medications: list[Medication]
-    allergies: list[Allergy]

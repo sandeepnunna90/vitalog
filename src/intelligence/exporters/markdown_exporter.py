@@ -9,7 +9,6 @@ from src.persistence.models import SummaryRow
 
 _SECTION_LABELS = {
     "conditions_section": "Active Conditions",
-    "medications_section": "Current Medications",
     "results_section": "Biomarker Results",
     "trends_section": "Trends",
     "data_gaps_section": "Data Gaps",

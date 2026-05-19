@@ -31,7 +31,6 @@ class SummaryOutput(BaseModel):
     model_config = ConfigDict(strict=True)
 
     conditions_section: str
-    medications_section: str
     results_section: str
     trends_section: str
     data_gaps_section: str
@@ -46,7 +45,6 @@ class Summary(BaseModel):
 
     patient_id: uuid.UUID
     conditions_section: str
-    medications_section: str
     results_section: str
     trends_section: str
     data_gaps_section: str

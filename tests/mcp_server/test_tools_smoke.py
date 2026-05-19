@@ -288,7 +288,6 @@ def test_generate_summary_workflow_returns_summary_id() -> None:
     mock_summary = MagicMock()
     mock_summary.is_fallback = False
     mock_summary.conditions_section = "Type 2 Diabetes"
-    mock_summary.medications_section = "Metformin"
     mock_summary.results_section = "HbA1c 6.8%"
     mock_summary.trends_section = ""
     mock_summary.data_gaps_section = ""
@@ -318,7 +317,6 @@ def test_prepare_summary_tool_includes_summary_id() -> None:
     container.summary_generator.generate.return_value = MagicMock(
         is_fallback=False,
         conditions_section="T2D",
-        medications_section="",
         results_section="HbA1c 6.8%",
         trends_section="",
         data_gaps_section="",
