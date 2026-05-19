@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 import uuid
-from typing import List
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
 from src.gateway.citation_schemas import Citation
 
@@ -36,7 +35,7 @@ class SummaryOutput(BaseModel):
     trends_section: str
     data_gaps_section: str
     patient_notes: str
-    citations: list[SummaryOutputCitation] = Field(default_factory=list)
+    citations: list[SummaryOutputCitation]
 
 
 class Summary(BaseModel):
