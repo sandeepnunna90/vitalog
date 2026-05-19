@@ -18,21 +18,14 @@ from src.mcp_server.tools import list_biomarkers as _list_biomarkers
 from src.mcp_server.tools import prepare_summary as _prepare_summary
 from src.mcp_server.tools import query as _query
 from src.mcp_server.tools import upload as _upload
-from src.orchestration import ServiceContainer
+from src.orchestration import ServiceContainer, build_container
 
 mcp: FastMCP = FastMCP("Vitalog")
 
-# Lazy singleton — build_container() is expensive; defer until first tool call.
-_container: ServiceContainer | None = None
-
 
 def _get_container() -> ServiceContainer:
-    global _container
-    if _container is None:
-        from src.orchestration import build_container
-
-        _container = build_container()
-    return _container
+    # build_container is @lru_cache(maxsize=1) — thread-safe, built once per process.
+    return build_container()
 
 
 # ── Tool registrations ────────────────────────────────────────────────────────
@@ -53,7 +46,8 @@ def upload_document(file_content_base64: str, filename: str, patient_id: str) ->
 @mcp.tool(
     description=(
         "List all biomarkers the patient has data for, with the latest value and date. "
-        "Optionally filter by biomarker ID prefix (e.g. 'hba' to see HbA1c)."
+        "Optionally filter by a substring of the biomarker ID "
+        "(e.g. 'glucose' matches fasting_glucose)."
     )
 )
 def list_biomarkers(patient_id: str, filter: str | None = None) -> str:
@@ -100,5 +94,5 @@ def prepare_summary(patient_id: str) -> str:
         "PDF is returned as base64-encoded content; markdown and JSON are returned as text."
     )
 )
-def export_summary(summary_id: str, format: str) -> str:
-    return _export.run(summary_id, format, _get_container())
+def export_summary(summary_id: str, format: str, patient_id: str) -> str:
+    return _export.run(summary_id, format, patient_id, _get_container())

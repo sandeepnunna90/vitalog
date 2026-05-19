@@ -15,6 +15,9 @@ def run(
     container: ServiceContainer,
 ) -> str:
     pid = validate_patient_id(patient_id)
+    # ~7 MB decoded limit; base64 overhead is ~4/3, so cap at 10 MB encoded.
+    if len(file_content_base64) > 10 * 1024 * 1024:
+        return "Error: file too large (max ~7 MB)."
     try:
         file_bytes = base64.b64decode(file_content_base64)
     except Exception:

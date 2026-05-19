@@ -136,7 +136,7 @@ def list_biomarkers_workflow(
 
     results: list[dict[str, Any]] = []
     for key, group_rows in sorted(groups.items()):
-        if filter and not key.lower().startswith(filter.lower()):
+        if filter and filter.lower() not in key.lower():
             continue
         # Latest record by collection_date (None dates sort last)
         latest = max(
@@ -200,9 +200,16 @@ def generate_summary_workflow(
 def export_workflow(
     summary_id: uuid.UUID,
     format: str,
+    patient_id: uuid.UUID,
     container: ServiceContainer,
 ) -> bytes:
-    """Export a persisted summary as PDF, markdown, or JSON bytes."""
+    """Export a persisted summary as PDF, markdown, or JSON bytes.
+
+    Raises ValueError if the summary does not belong to patient_id.
+    """
+    row = container.summary_repo.get(summary_id)
+    if row is None or row.patient_id != patient_id:
+        raise ValueError("summary not found")
     return _export_summary(
         summary_id=summary_id,
         format=format,

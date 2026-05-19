@@ -337,45 +337,37 @@ def test_prepare_summary_tool_includes_summary_id() -> None:
 # ── export_workflow ───────────────────────────────────────────────────────────
 
 
-def test_export_workflow_returns_bytes() -> None:
+def test_export_workflow_ownership_check() -> None:
+    """export_workflow raises ValueError when summary belongs to a different patient."""
+    from src.orchestration.workflows import export_workflow
+
     summary_id = uuid.uuid4()
-    pdf_bytes = b"%PDF-1.4 fake pdf content"
+    other_patient_id = uuid.uuid4()
 
     container = _mock_container()
     container.summary_repo.get.return_value = MagicMock(
         summary_id=summary_id,
-        patient_id=_PATIENT_ID,
-        content_json={
-            "conditions_section": "",
-            "medications_section": "",
-            "results_section": "",
-            "trends_section": "",
-            "data_gaps_section": "",
-            "patient_notes": "",
-            "citations": [],
-            "disclaimer": "",
-        },
-        patient_annotations=None,
-        exported_formats=[],
-        generated_at=datetime(2026, 3, 12, 10, 0, 0),
+        patient_id=other_patient_id,
     )
 
-    with (
-        pytest.MonkeyPatch().context() as mp,
-    ):
-        mp.setattr(
-            "src.intelligence.exporters.pdf_exporter.export_pdf",
-            lambda row: pdf_bytes,
-            raising=False,
-        )
-        # Test at the tool level with invalid summary_id to verify error path
-        result = export_tool.run("not-a-uuid", "pdf", container)
-        assert "Invalid summary_id" in result
+    with pytest.raises(ValueError, match="summary not found"):
+        export_workflow(summary_id, "pdf", _PATIENT_ID, container)
+
+
+def test_export_workflow_not_found() -> None:
+    """export_workflow raises ValueError when summary_repo returns None."""
+    from src.orchestration.workflows import export_workflow
+
+    container = _mock_container()
+    container.summary_repo.get.return_value = None
+
+    with pytest.raises(ValueError, match="summary not found"):
+        export_workflow(uuid.uuid4(), "pdf", _PATIENT_ID, container)
 
 
 def test_export_tool_invalid_format() -> None:
     container = _mock_container()
-    result = export_tool.run(str(uuid.uuid4()), "docx", container)
+    result = export_tool.run(str(uuid.uuid4()), "docx", _PATIENT_ID_STR, container)
     assert "Unsupported format" in result
 
 
@@ -384,6 +376,10 @@ def test_export_tool_pdf_returns_base64() -> None:
     pdf_bytes = b"PDF content"
 
     container = _mock_container()
+    container.summary_repo.get.return_value = MagicMock(
+        summary_id=summary_id,
+        patient_id=_PATIENT_ID,
+    )
 
     with pytest.MonkeyPatch().context() as mp:
         mp.setattr(
@@ -391,6 +387,6 @@ def test_export_tool_pdf_returns_base64() -> None:
             lambda **kwargs: pdf_bytes,
             raising=False,
         )
-        result = export_tool.run(str(summary_id), "pdf", container)
+        result = export_tool.run(str(summary_id), "pdf", _PATIENT_ID_STR, container)
     assert "Base64" in result
     assert base64.b64encode(pdf_bytes).decode("ascii") in result
