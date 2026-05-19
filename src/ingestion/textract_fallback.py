@@ -64,10 +64,10 @@ class FallbackExtractionResult(BaseModel):
     model_config = ConfigDict(strict=True)
 
     text_lines: list[str]  # Verbatim text lines extracted from the document
-    kv_pairs: list[FallbackKVPair]
-    tables: list[FallbackTable]
-    overall_confidence: float = Field(ge=0.0, le=100.0)  # 0–100 LLM self-reported
-    extraction_notes: str  # Quality issues or unreadable regions; empty string if none
+    kv_pairs: list[FallbackKVPair] = []
+    tables: list[FallbackTable] = []
+    overall_confidence: float = Field(default=85.0, ge=0.0, le=100.0)
+    extraction_notes: str = ""
 
 
 # ── Adapter ───────────────────────────────────────────────────────────────────
