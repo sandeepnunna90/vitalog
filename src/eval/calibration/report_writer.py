@@ -127,9 +127,9 @@ def write_constants(ta: float, tr: float, structurer_path: Path) -> None:
         tr=tr,
     )
     new_text, count = pattern.subn(replacement, text)
-    if count == 0:
+    if count != 1:
         raise ValueError(
-            f"calibrate markers not found in {structurer_path}. "
-            f"Expected '{_MARKER_START}' ... '{_MARKER_END}'."
+            f"Expected exactly one calibrate marker block in {structurer_path} "
+            f"(found {count}). Expected '{_MARKER_START}' ... '{_MARKER_END}'."
         )
     structurer_path.write_text(new_text)

@@ -57,7 +57,10 @@ def pick_best(cells: list[GridCell]) -> GridCell | None:
     ]
     if not qualifying:
         return None
-    return max(qualifying, key=lambda c: c.aa_precision)
+    return max(
+        qualifying,
+        key=lambda c: (c.aa_precision, c.threshold_auto_accept, c.threshold_reject),
+    )
 
 
 def _eval_pair(doc_results: list[DocResult], ta: float, tr: float) -> GridCell:
