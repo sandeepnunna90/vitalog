@@ -140,15 +140,8 @@ def test_upload_workflow_not_supported_early_return() -> None:
 def test_upload_tool_no_input() -> None:
     """Passing neither file_path nor file_content_base64 returns a clear error."""
     container = _mock_container()
-    result = upload_tool.run(None, "test.pdf", _PATIENT_ID_STR, container)
+    result = upload_tool.run(None, "test.pdf", container)
     assert "provide either" in result
-
-
-def test_upload_tool_wrong_patient_id() -> None:
-    valid_b64 = base64.b64encode(b"fake pdf").decode()
-    container = _mock_container()
-    with pytest.raises(ValueError, match="not registered"):
-        upload_tool.run(valid_b64, "test.pdf", str(uuid.uuid4()), container)
 
 
 # ── list_biomarkers_workflow ──────────────────────────────────────────────────
@@ -188,7 +181,7 @@ def test_list_biomarkers_workflow_filter() -> None:
 def test_list_biomarkers_tool_empty() -> None:
     container = _mock_container()
     container.biomarker_repo.list_for_patient.return_value = []
-    result = list_biomarkers_tool.run(_PATIENT_ID_STR, container)
+    result = list_biomarkers_tool.run(container)
     assert "No biomarker records" in result
 
 
@@ -252,7 +245,7 @@ def test_get_trend_tool_formats_json() -> None:
     container = _mock_container()
     container.trend_engine.get_trend.return_value = trend
 
-    result = get_trend_tool.run(_PATIENT_ID_STR, "hba1c", container)
+    result = get_trend_tool.run("hba1c", container)
     import json
 
     payload = json.loads(result)
@@ -287,7 +280,7 @@ def test_query_tool_returns_text() -> None:
         is_fallback=False,
         matched_condition_names=[],
     )
-    result = query_tool.run(_PATIENT_ID_STR, "test question", container)
+    result = query_tool.run("test question", container)
     assert result == "Answer text"
 
 
@@ -339,7 +332,7 @@ def test_prepare_summary_tool_includes_summary_id() -> None:
     )
     container.annotator.persist.return_value = MagicMock(summary_id=summary_id)
 
-    result = prepare_summary_tool.run(_PATIENT_ID_STR, container)
+    result = prepare_summary_tool.run(container)
     assert str(summary_id) in result
     assert "T2D" in result
 
@@ -377,7 +370,7 @@ def test_export_workflow_not_found() -> None:
 
 def test_export_tool_invalid_format() -> None:
     container = _mock_container()
-    result = export_tool.run(str(uuid.uuid4()), "docx", _PATIENT_ID_STR, container)
+    result = export_tool.run(str(uuid.uuid4()), "docx", container)
     assert "Unsupported format" in result
 
 
@@ -397,6 +390,6 @@ def test_export_tool_pdf_returns_base64() -> None:
             lambda **kwargs: pdf_bytes,
             raising=False,
         )
-        result = export_tool.run(str(summary_id), "pdf", _PATIENT_ID_STR, container)
+        result = export_tool.run(str(summary_id), "pdf", container)
     assert "Base64" in result
     assert base64.b64encode(pdf_bytes).decode("ascii") in result

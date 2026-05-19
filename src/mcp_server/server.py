@@ -1,15 +1,12 @@
 """Vitalog MCP server — exposes 6 tools to Claude Desktop / Claude.ai via FastMCP.
 
-This module is a thin protocol adapter: each tool delegates immediately to a
-tool module, which calls the orchestration layer. No business logic here.
-
 Transport is selected by MCP_TRANSPORT env var:
   stdio (default) — for local Claude Desktop
   sse             — for remote deployment (Railway, Fly.io, etc.)
 
-patient_id is resolved from VITALOG_PATIENT_ID env var (or Mark's capstone UUID
-as fallback) and injected internally — not exposed as a tool parameter.
-When auth is added, replace ACCEPTED_PATIENT_ID_STR with a session-derived value.
+Patient identity is resolved from VITALOG_PATIENT_ID env var inside each tool
+module. It is not exposed as a parameter — tools work without the caller
+supplying any identity information.
 """
 
 from __future__ import annotations
@@ -22,14 +19,12 @@ from src.mcp_server.tools import list_biomarkers as _list_biomarkers
 from src.mcp_server.tools import prepare_summary as _prepare_summary
 from src.mcp_server.tools import query as _query
 from src.mcp_server.tools import upload as _upload
-from src.mcp_server.tools._guard import ACCEPTED_PATIENT_ID_STR
 from src.orchestration import ServiceContainer, build_container
 
 mcp: FastMCP = FastMCP("Vitalog")
 
 
 def _get_container() -> ServiceContainer:
-    # build_container is @lru_cache(maxsize=1) — thread-safe, built once per process.
     return build_container()
 
 
@@ -50,13 +45,7 @@ def upload_document(
     file_path: str | None = None,
     file_content_base64: str | None = None,
 ) -> str:
-    return _upload.run(
-        file_content_base64,
-        filename,
-        ACCEPTED_PATIENT_ID_STR,
-        _get_container(),
-        file_path=file_path,
-    )
+    return _upload.run(file_content_base64, filename, _get_container(), file_path=file_path)
 
 
 @mcp.tool(
@@ -67,7 +56,7 @@ def upload_document(
     )
 )
 def list_biomarkers(filter: str | None = None) -> str:
-    return _list_biomarkers.run(ACCEPTED_PATIENT_ID_STR, _get_container(), filter=filter)
+    return _list_biomarkers.run(_get_container(), filter=filter)
 
 
 @mcp.tool(
@@ -78,7 +67,7 @@ def list_biomarkers(filter: str | None = None) -> str:
     )
 )
 def get_trend(biomarker_id: str) -> str:
-    return _get_trend.run(ACCEPTED_PATIENT_ID_STR, biomarker_id, _get_container())
+    return _get_trend.run(biomarker_id, _get_container())
 
 
 @mcp.tool(
@@ -89,7 +78,7 @@ def get_trend(biomarker_id: str) -> str:
     )
 )
 def query_records(question: str) -> str:
-    return _query.run(ACCEPTED_PATIENT_ID_STR, question, _get_container())
+    return _query.run(question, _get_container())
 
 
 @mcp.tool(
@@ -100,7 +89,7 @@ def query_records(question: str) -> str:
     )
 )
 def prepare_summary() -> str:
-    return _prepare_summary.run(ACCEPTED_PATIENT_ID_STR, _get_container())
+    return _prepare_summary.run(_get_container())
 
 
 @mcp.tool(
@@ -111,4 +100,4 @@ def prepare_summary() -> str:
     )
 )
 def export_summary(summary_id: str, format: str) -> str:
-    return _export.run(summary_id, format, ACCEPTED_PATIENT_ID_STR, _get_container())
+    return _export.run(summary_id, format, _get_container())

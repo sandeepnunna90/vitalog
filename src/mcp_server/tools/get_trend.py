@@ -4,13 +4,12 @@ from __future__ import annotations
 
 import json
 
-from src.mcp_server.tools._guard import validate_patient_id
+from src.mcp_server.tools._guard import PATIENT_ID
 from src.orchestration import ServiceContainer, view_trend_workflow
 
 
-def run(patient_id: str, biomarker_id: str, container: ServiceContainer) -> str:
-    pid = validate_patient_id(patient_id)
-    trend = view_trend_workflow(pid, biomarker_id, container)
+def run(biomarker_id: str, container: ServiceContainer) -> str:
+    trend = view_trend_workflow(PATIENT_ID, biomarker_id, container)
 
     points = [
         {

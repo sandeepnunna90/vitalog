@@ -23,9 +23,7 @@ def _load_accepted_patient_id() -> uuid.UUID:
 
 
 _ACCEPTED_PATIENT_ID: uuid.UUID = _load_accepted_patient_id()
-
-# Exposed so server.py can use it as a parameter default value.
-ACCEPTED_PATIENT_ID_STR: str = str(_ACCEPTED_PATIENT_ID)
+PATIENT_ID: uuid.UUID = _ACCEPTED_PATIENT_ID
 
 
 def validate_patient_id(patient_id: str) -> uuid.UUID:

@@ -6,20 +6,17 @@ import base64
 import re
 from pathlib import Path
 
-from src.mcp_server.tools._guard import validate_patient_id
+from src.mcp_server.tools._guard import PATIENT_ID
 from src.orchestration import ServiceContainer, upload_document_workflow
 
 
 def run(
     file_content_base64: str | None,
     filename: str,
-    patient_id: str,
     container: ServiceContainer,
     *,
     file_path: str | None = None,
 ) -> str:
-    pid = validate_patient_id(patient_id)
-
     if file_path is not None:
         try:
             file_bytes = Path(file_path).read_bytes()
@@ -46,7 +43,7 @@ def run(
     else:
         return "Error: provide either file_path (absolute path) or file_content_base64."
 
-    result = upload_document_workflow(file_bytes, filename, pid, container)
+    result = upload_document_workflow(file_bytes, filename, PATIENT_ID, container)
 
     lines = [f"Document processed ({result.category})."]
     if result.auto_accepted or result.pending_user or result.rejected or result.pending_taxonomy:

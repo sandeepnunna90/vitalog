@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-from src.mcp_server.tools._guard import validate_patient_id
+from src.mcp_server.tools._guard import PATIENT_ID
 from src.orchestration import ServiceContainer, query_workflow
 
 
-def run(patient_id: str, question: str, container: ServiceContainer) -> str:
-    pid = validate_patient_id(patient_id)
-    response = query_workflow(pid, question, container)
+def run(question: str, container: ServiceContainer) -> str:
+    response = query_workflow(PATIENT_ID, question, container)
     return response.text
