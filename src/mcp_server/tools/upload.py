@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import base64
+import re
 
 from src.mcp_server.tools._guard import validate_patient_id
 from src.orchestration import ServiceContainer, upload_document_workflow
@@ -20,9 +21,10 @@ def run(
     if len(file_content_base64) > 10 * 1024 * 1024:
         return "Error: file too large (max ~7 MB)."
 
-    # Claude Desktop injects literal \n (backslash + n) as line separators in base64
-    # strings. Strip those and any real whitespace before decoding.
-    sanitized = file_content_base64.replace("\\n", "").replace("\n", "").replace("\r", "")
+    # Strip everything that is not a valid base64 character. Claude Desktop injects
+    # various whitespace and escape sequences (\n, \\n, \r) as line separators;
+    # enumerating them is fragile. Keeping only [A-Za-z0-9+/=] is exhaustive.
+    sanitized = re.sub(r"[^A-Za-z0-9+/=]", "", file_content_base64)
     try:
         file_bytes = base64.b64decode(sanitized)
     except Exception:
