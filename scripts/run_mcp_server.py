@@ -42,6 +42,13 @@ import os
 
 _log = logging.getLogger(__name__)
 
+# PyMuPDF prints MuPDF error messages to C-level stdout, which corrupts the
+# stdio JSON-RPC channel used by Claude Desktop. Suppress before any imports
+# that may trigger fitz.
+import fitz  # noqa: E402
+
+fitz.TOOLS.mupdf_display_errors(False)
+
 from src.mcp_server.server import mcp  # noqa: E402
 
 if __name__ == "__main__":
