@@ -11,7 +11,7 @@ from src.orchestration import ServiceContainer, export_workflow
 _VALID_FORMATS = frozenset({"pdf", "markdown", "json"})
 
 
-def run(summary_id: str, format: str, patient_id: str, container: ServiceContainer) -> str:
+def run(summary_id: str, format: str, patient_id: str | None, container: ServiceContainer) -> str:
     if format not in _VALID_FORMATS:
         return f"Unsupported format {format!r}. Choose from: pdf, markdown, json."
     try:

@@ -6,7 +6,7 @@ from src.mcp_server.tools._guard import validate_patient_id
 from src.orchestration import ServiceContainer, generate_summary_workflow
 
 
-def run(patient_id: str, container: ServiceContainer) -> str:
+def run(patient_id: str | None, container: ServiceContainer) -> str:
     pid = validate_patient_id(patient_id)
     result = generate_summary_workflow(pid, container)
 

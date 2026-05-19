@@ -25,12 +25,15 @@ def _load_accepted_patient_id() -> uuid.UUID:
 _ACCEPTED_PATIENT_ID: uuid.UUID = _load_accepted_patient_id()
 
 
-def validate_patient_id(patient_id: str) -> uuid.UUID:
+def validate_patient_id(patient_id: str | None) -> uuid.UUID:
     """Return the parsed UUID if patient_id matches the accepted patient.
 
-    Raises ValueError if the UUID is malformed or not registered.
-    Accepts the UUID in any standard string form (with or without hyphens).
+    If patient_id is None, returns the configured VITALOG_PATIENT_ID (env var or
+    Mark's capstone default). Raises ValueError if the UUID is malformed or not
+    registered.
     """
+    if patient_id is None:
+        return _ACCEPTED_PATIENT_ID
     try:
         parsed = uuid.UUID(patient_id)
     except ValueError:

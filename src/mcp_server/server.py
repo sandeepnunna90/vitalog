@@ -34,17 +34,22 @@ def _get_container() -> ServiceContainer:
 @mcp.tool(
     description=(
         "Upload a lab report (PDF or image) to Vitalog. "
-        "Pass the file as base64-encoded content and provide the original filename. "
+        "Provide either file_path (absolute path on the local filesystem) or "
+        "file_content_base64 (base64-encoded file content). "
+        "patient_id is optional — omit it to use the VITALOG_PATIENT_ID env var. "
         "Returns a summary of extracted biomarker records "
         "(auto-accepted, pending review, pending taxonomy, rejected)."
     )
 )
 def upload_document(
-    patient_id: str,
     filename: str,
-    file_content_base64: str,
+    patient_id: str | None = None,
+    file_path: str | None = None,
+    file_content_base64: str | None = None,
 ) -> str:
-    return _upload.run(file_content_base64, filename, patient_id, _get_container())
+    return _upload.run(
+        file_content_base64, filename, patient_id, _get_container(), file_path=file_path
+    )
 
 
 @mcp.tool(
@@ -54,7 +59,7 @@ def upload_document(
         "(e.g. 'glucose' matches fasting_glucose)."
     )
 )
-def list_biomarkers(patient_id: str, filter: str | None = None) -> str:
+def list_biomarkers(patient_id: str | None = None, filter: str | None = None) -> str:
     return _list_biomarkers.run(patient_id, _get_container(), filter=filter)
 
 
@@ -65,7 +70,7 @@ def list_biomarkers(patient_id: str, filter: str | None = None) -> str:
         "Use canonical biomarker IDs such as 'hba1c', 'fasting_glucose', 'ldl_cholesterol'."
     )
 )
-def get_trend(patient_id: str, biomarker_id: str) -> str:
+def get_trend(biomarker_id: str, patient_id: str | None = None) -> str:
     return _get_trend.run(patient_id, biomarker_id, _get_container())
 
 
@@ -76,7 +81,7 @@ def get_trend(patient_id: str, biomarker_id: str) -> str:
         "'Do I have any thyroid results?'"
     )
 )
-def query_records(patient_id: str, question: str) -> str:
+def query_records(question: str, patient_id: str | None = None) -> str:
     return _query.run(patient_id, question, _get_container())
 
 
@@ -87,7 +92,7 @@ def query_records(patient_id: str, question: str) -> str:
         "All numeric values are citation-verified against stored records."
     )
 )
-def prepare_summary(patient_id: str) -> str:
+def prepare_summary(patient_id: str | None = None) -> str:
     return _prepare_summary.run(patient_id, _get_container())
 
 
@@ -98,5 +103,5 @@ def prepare_summary(patient_id: str) -> str:
         "PDF is returned as base64-encoded content; markdown and JSON are returned as text."
     )
 )
-def export_summary(summary_id: str, format: str, patient_id: str) -> str:
+def export_summary(summary_id: str, format: str, patient_id: str | None = None) -> str:
     return _export.run(summary_id, format, patient_id, _get_container())

@@ -8,7 +8,7 @@ from src.mcp_server.tools._guard import validate_patient_id
 from src.orchestration import ServiceContainer, view_trend_workflow
 
 
-def run(patient_id: str, biomarker_id: str, container: ServiceContainer) -> str:
+def run(patient_id: str | None, biomarker_id: str, container: ServiceContainer) -> str:
     pid = validate_patient_id(patient_id)
     trend = view_trend_workflow(pid, biomarker_id, container)
 

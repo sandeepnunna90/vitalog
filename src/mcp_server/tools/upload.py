@@ -1,40 +1,50 @@
-"""upload_document MCP tool — decode base64 file and run the full ingestion pipeline."""
+"""upload_document MCP tool — ingest a lab report from file path or base64 content."""
 
 from __future__ import annotations
 
 import base64
 import re
+from pathlib import Path
 
 from src.mcp_server.tools._guard import validate_patient_id
 from src.orchestration import ServiceContainer, upload_document_workflow
 
 
 def run(
-    file_content_base64: str,
+    file_content_base64: str | None,
     filename: str,
-    patient_id: str,
+    patient_id: str | None,
     container: ServiceContainer,
+    *,
+    file_path: str | None = None,
 ) -> str:
     pid = validate_patient_id(patient_id)
 
-    # ~7 MB decoded limit; base64 overhead is ~4/3, so cap at 10 MB encoded.
-    if len(file_content_base64) > 10 * 1024 * 1024:
-        return "Error: file too large (max ~7 MB)."
-
-    # Strip everything that is not a valid base64 character. Claude Desktop injects
-    # various whitespace and escape sequences (\n, \\n, \r) as line separators;
-    # enumerating them is fragile. Keeping only [A-Za-z0-9+/=] is exhaustive.
-    sanitized = re.sub(r"[^A-Za-z0-9+/=]", "", file_content_base64)
-    # Re-add padding — some encoders omit trailing = and b64decode requires it.
-    padding_needed = (4 - len(sanitized) % 4) % 4
-    sanitized += "=" * padding_needed
-    try:
-        file_bytes = base64.b64decode(sanitized, validate=False)
-    except Exception as exc:
-        return (
-            f"Error: file_content_base64 is not valid base64 "
-            f"(len={len(sanitized)}, padding_added={padding_needed}, err={exc})."
-        )
+    if file_path is not None:
+        try:
+            file_bytes = Path(file_path).read_bytes()
+        except OSError as exc:
+            return f"Error: could not read file at {file_path!r}: {exc}"
+    elif file_content_base64 is not None:
+        # ~7 MB decoded limit; base64 overhead is ~4/3, so cap at 10 MB encoded.
+        if len(file_content_base64) > 10 * 1024 * 1024:
+            return "Error: file too large (max ~7 MB)."
+        # Strip everything that is not a valid base64 character. Claude Desktop injects
+        # various whitespace and escape sequences (\n, \\n, \r) as line separators;
+        # enumerating them is fragile. Keeping only [A-Za-z0-9+/=] is exhaustive.
+        sanitized = re.sub(r"[^A-Za-z0-9+/=]", "", file_content_base64)
+        # Re-add padding — some encoders omit trailing = and b64decode requires it.
+        padding_needed = (4 - len(sanitized) % 4) % 4
+        sanitized += "=" * padding_needed
+        try:
+            file_bytes = base64.b64decode(sanitized, validate=False)
+        except Exception as exc:
+            return (
+                f"Error: file_content_base64 is not valid base64 "
+                f"(len={len(sanitized)}, padding_added={padding_needed}, err={exc})."
+            )
+    else:
+        return "Error: provide either file_path (absolute path) or file_content_base64."
 
     result = upload_document_workflow(file_bytes, filename, pid, container)
 

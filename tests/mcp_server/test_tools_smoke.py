@@ -137,10 +137,11 @@ def test_upload_workflow_not_supported_early_return() -> None:
     assert result.category == "not_supported"
 
 
-def test_upload_tool_invalid_base64() -> None:
+def test_upload_tool_no_input() -> None:
+    """Passing neither file_path nor file_content_base64 returns a clear error."""
     container = _mock_container()
-    result = upload_tool.run("not-valid-base64!!!", "test.pdf", _PATIENT_ID_STR, container)
-    assert "not valid base64" in result
+    result = upload_tool.run(None, "test.pdf", _PATIENT_ID_STR, container)
+    assert "provide either" in result
 
 
 def test_upload_tool_wrong_patient_id() -> None:
