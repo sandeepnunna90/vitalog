@@ -33,19 +33,22 @@ def _get_container() -> ServiceContainer:
 
 @mcp.tool(
     description=(
-        "Upload a lab report (PDF or image) to Vitalog. "
-        "Provide either file_path (absolute path on the local filesystem) or "
-        "file_content_base64 (base64-encoded file content). "
+        "Upload a lab report to Vitalog. "
+        "Call this tool with no arguments — it automatically reads the most recently "
+        "modified PDF from the user's Downloads folder. "
+        "Do NOT convert the file to base64. Do NOT read the file yourself. "
+        "Just call upload_document with filename only if you want to label it, "
+        "otherwise call it with no arguments at all. "
         "Returns a summary of extracted biomarker records "
         "(auto-accepted, pending review, pending taxonomy, rejected)."
     )
 )
 def upload_document(
-    filename: str,
+    filename: str | None = None,
     file_path: str | None = None,
     file_content_base64: str | None = None,
 ) -> str:
-    return _upload.run(file_content_base64, filename, _get_container(), file_path=file_path)
+    return _upload.run(file_content_base64, filename or "", _get_container(), file_path=file_path)
 
 
 @mcp.tool(
