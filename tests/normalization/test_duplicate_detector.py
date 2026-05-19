@@ -8,7 +8,7 @@ from unittest.mock import MagicMock
 
 from src.normalization.constants import MODE_B_NUMERIC_TOLERANCE, within_tolerance
 from src.normalization.duplicate_detector import DuplicateDetector
-
+from src.persistence.models import BiomarkerRecordRow
 
 # ── within_tolerance unit tests ───────────────────────────────────────────────
 
@@ -42,7 +42,7 @@ def test_within_tolerance_lower_boundary_passes() -> None:
 
 def test_within_tolerance_lower_boundary_fails() -> None:
     assert within_tolerance(99.49, 100.0, 0.005) is False
-from src.persistence.models import BiomarkerRecordRow
+
 
 _PATIENT_ID = uuid.uuid4()
 _CANONICAL_ID = "hba1c"
