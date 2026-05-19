@@ -407,7 +407,10 @@
       "estimated glomerular filtration rate",
       "eGFR (CKD-EPI)",
       "kidney function",
-      "glomerular filtration rate"
+      "glomerular filtration rate",
+      "eGFR If NonAfricn Am",
+      "eGFR Non-African American",
+      "eGFR (Non-African American)"
     ],
     "conditions": [
       "CKD",
@@ -1396,6 +1399,488 @@
       "source": "ADA Standards of Care in Diabetes 2024",
       "verified_date": "2024-01-01",
       "notes": "Reflects 2-3 week average glucose; used when HbA1c is unreliable (e.g., hemolytic anemia, hemoglobin variants)"
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "rbc",
+    "canonical_name": "Red Blood Cell Count",
+    "definition": "The number of red blood cells per unit volume of blood.",
+    "loinc_code": "789-8",
+    "ucum_unit": "x10E6/uL",
+    "unit_conversions": [],
+    "physiological_min": 2.0,
+    "physiological_max": 8.0,
+    "aliases": [
+      "RBC",
+      "rbc",
+      "Red Blood Cell Count",
+      "Erythrocyte Count",
+      "red blood cells"
+    ],
+    "conditions": [],
+    "guideline_ranges": {},
+    "guideline_citations": {},
+    "provenance": {
+      "source": "standard CBC panel",
+      "verified_date": "2024-01-01",
+      "notes": ""
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "hematocrit",
+    "canonical_name": "Hematocrit",
+    "definition": "The proportion of red blood cells in the total blood volume, expressed as a percentage.",
+    "loinc_code": "4544-3",
+    "ucum_unit": "%",
+    "unit_conversions": [],
+    "physiological_min": 15.0,
+    "physiological_max": 65.0,
+    "aliases": [
+      "Hematocrit",
+      "HCT",
+      "hct",
+      "Hct",
+      "PCV",
+      "packed cell volume"
+    ],
+    "conditions": [],
+    "guideline_ranges": {},
+    "guideline_citations": {},
+    "provenance": {
+      "source": "standard CBC panel",
+      "verified_date": "2024-01-01",
+      "notes": ""
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "mcv",
+    "canonical_name": "Mean Corpuscular Volume",
+    "definition": "Average volume of a red blood cell, used to classify anaemia types.",
+    "loinc_code": "787-2",
+    "ucum_unit": "fL",
+    "unit_conversions": [],
+    "physiological_min": 50.0,
+    "physiological_max": 130.0,
+    "aliases": [
+      "MCV",
+      "mcv",
+      "Mean Corpuscular Volume",
+      "mean cell volume"
+    ],
+    "conditions": [],
+    "guideline_ranges": {},
+    "guideline_citations": {},
+    "provenance": {
+      "source": "standard CBC panel",
+      "verified_date": "2024-01-01",
+      "notes": ""
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "mch",
+    "canonical_name": "Mean Corpuscular Hemoglobin",
+    "definition": "Average mass of hemoglobin per red blood cell.",
+    "loinc_code": "785-6",
+    "ucum_unit": "pg",
+    "unit_conversions": [],
+    "physiological_min": 15.0,
+    "physiological_max": 50.0,
+    "aliases": [
+      "MCH",
+      "mch",
+      "Mean Corpuscular Hemoglobin",
+      "mean cell hemoglobin"
+    ],
+    "conditions": [],
+    "guideline_ranges": {},
+    "guideline_citations": {},
+    "provenance": {
+      "source": "standard CBC panel",
+      "verified_date": "2024-01-01",
+      "notes": ""
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "mchc",
+    "canonical_name": "Mean Corpuscular Hemoglobin Concentration",
+    "definition": "Average concentration of hemoglobin in red blood cells.",
+    "loinc_code": "786-4",
+    "ucum_unit": "g/dL",
+    "unit_conversions": [],
+    "physiological_min": 20.0,
+    "physiological_max": 45.0,
+    "aliases": [
+      "MCHC",
+      "mchc",
+      "Mean Corpuscular Hemoglobin Concentration",
+      "mean cell hemoglobin concentration"
+    ],
+    "conditions": [],
+    "guideline_ranges": {},
+    "guideline_citations": {},
+    "provenance": {
+      "source": "standard CBC panel",
+      "verified_date": "2024-01-01",
+      "notes": ""
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "rdw",
+    "canonical_name": "Red Cell Distribution Width",
+    "definition": "Measure of variation in red blood cell size, used to help diagnose anaemia.",
+    "loinc_code": "788-0",
+    "ucum_unit": "%",
+    "unit_conversions": [],
+    "physiological_min": 8.0,
+    "physiological_max": 30.0,
+    "aliases": [
+      "RDW",
+      "rdw",
+      "Red Cell Distribution Width",
+      "red blood cell distribution width",
+      "RDW-CV"
+    ],
+    "conditions": [],
+    "guideline_ranges": {},
+    "guideline_citations": {},
+    "provenance": {
+      "source": "standard CBC panel",
+      "verified_date": "2024-01-01",
+      "notes": ""
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "neutrophils_pct",
+    "canonical_name": "Neutrophils Percent",
+    "definition": "Percentage of neutrophils in the white blood cell differential count.",
+    "loinc_code": "770-8",
+    "ucum_unit": "%",
+    "unit_conversions": [],
+    "physiological_min": 0.0,
+    "physiological_max": 100.0,
+    "aliases": [
+      "Neutrophils",
+      "neutrophils",
+      "Neutrophils %",
+      "Neut%",
+      "NEUT%",
+      "PMN%"
+    ],
+    "conditions": [],
+    "guideline_ranges": {},
+    "guideline_citations": {},
+    "provenance": {
+      "source": "standard CBC panel",
+      "verified_date": "2024-01-01",
+      "notes": ""
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "lymphocytes_pct",
+    "canonical_name": "Lymphocytes Percent",
+    "definition": "Percentage of lymphocytes in the white blood cell differential count.",
+    "loinc_code": "736-9",
+    "ucum_unit": "%",
+    "unit_conversions": [],
+    "physiological_min": 0.0,
+    "physiological_max": 100.0,
+    "aliases": [
+      "Lymphs",
+      "lymphs",
+      "Lymphocytes",
+      "lymphocytes",
+      "Lymphocytes %",
+      "Lymph%",
+      "LYMPH%"
+    ],
+    "conditions": [],
+    "guideline_ranges": {},
+    "guideline_citations": {},
+    "provenance": {
+      "source": "standard CBC panel",
+      "verified_date": "2024-01-01",
+      "notes": ""
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "monocytes_pct",
+    "canonical_name": "Monocytes Percent",
+    "definition": "Percentage of monocytes in the white blood cell differential count.",
+    "loinc_code": "5905-5",
+    "ucum_unit": "%",
+    "unit_conversions": [],
+    "physiological_min": 0.0,
+    "physiological_max": 100.0,
+    "aliases": [
+      "Monocytes",
+      "monocytes",
+      "Monocytes %",
+      "Mono%",
+      "MONO%"
+    ],
+    "conditions": [],
+    "guideline_ranges": {},
+    "guideline_citations": {},
+    "provenance": {
+      "source": "standard CBC panel",
+      "verified_date": "2024-01-01",
+      "notes": ""
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "eosinophils_pct",
+    "canonical_name": "Eosinophils Percent",
+    "definition": "Percentage of eosinophils in the white blood cell differential count.",
+    "loinc_code": "713-8",
+    "ucum_unit": "%",
+    "unit_conversions": [],
+    "physiological_min": 0.0,
+    "physiological_max": 30.0,
+    "aliases": [
+      "Eos",
+      "eos",
+      "Eosinophils",
+      "eosinophils",
+      "Eos %",
+      "EOS%"
+    ],
+    "conditions": [],
+    "guideline_ranges": {},
+    "guideline_citations": {},
+    "provenance": {
+      "source": "standard CBC panel",
+      "verified_date": "2024-01-01",
+      "notes": ""
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "basophils_pct",
+    "canonical_name": "Basophils Percent",
+    "definition": "Percentage of basophils in the white blood cell differential count.",
+    "loinc_code": "706-2",
+    "ucum_unit": "%",
+    "unit_conversions": [],
+    "physiological_min": 0.0,
+    "physiological_max": 5.0,
+    "aliases": [
+      "Basos",
+      "basos",
+      "Basophils",
+      "basophils",
+      "Baso%",
+      "BASO%"
+    ],
+    "conditions": [],
+    "guideline_ranges": {},
+    "guideline_citations": {},
+    "provenance": {
+      "source": "standard CBC panel",
+      "verified_date": "2024-01-01",
+      "notes": ""
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "neutrophils_abs",
+    "canonical_name": "Neutrophils Absolute",
+    "definition": "Absolute count of neutrophils per unit volume of blood.",
+    "loinc_code": "751-8",
+    "ucum_unit": "x10E3/uL",
+    "unit_conversions": [],
+    "physiological_min": 0.0,
+    "physiological_max": 20.0,
+    "aliases": [
+      "NEUT#",
+      "ANC",
+      "Absolute Neutrophils",
+      "neutrophils absolute"
+    ],
+    "conditions": [],
+    "guideline_ranges": {},
+    "guideline_citations": {},
+    "provenance": {
+      "source": "standard CBC panel",
+      "verified_date": "2024-01-01",
+      "notes": ""
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "lymphocytes_abs",
+    "canonical_name": "Lymphocytes Absolute",
+    "definition": "Absolute count of lymphocytes per unit volume of blood.",
+    "loinc_code": "731-0",
+    "ucum_unit": "x10E3/uL",
+    "unit_conversions": [],
+    "physiological_min": 0.0,
+    "physiological_max": 10.0,
+    "aliases": [
+      "LYMPH#",
+      "ALC",
+      "Absolute Lymphocytes",
+      "lymphs absolute",
+      "lymphocytes absolute"
+    ],
+    "conditions": [],
+    "guideline_ranges": {},
+    "guideline_citations": {},
+    "provenance": {
+      "source": "standard CBC panel",
+      "verified_date": "2024-01-01",
+      "notes": ""
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "monocytes_abs",
+    "canonical_name": "Monocytes Absolute",
+    "definition": "Absolute count of monocytes per unit volume of blood.",
+    "loinc_code": "742-7",
+    "ucum_unit": "x10E3/uL",
+    "unit_conversions": [],
+    "physiological_min": 0.0,
+    "physiological_max": 5.0,
+    "aliases": [
+      "MONO#",
+      "AMC",
+      "Absolute Monocytes",
+      "monocytes absolute"
+    ],
+    "conditions": [],
+    "guideline_ranges": {},
+    "guideline_citations": {},
+    "provenance": {
+      "source": "standard CBC panel",
+      "verified_date": "2024-01-01",
+      "notes": ""
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "eosinophils_abs",
+    "canonical_name": "Eosinophils Absolute",
+    "definition": "Absolute count of eosinophils per unit volume of blood.",
+    "loinc_code": "711-2",
+    "ucum_unit": "x10E3/uL",
+    "unit_conversions": [],
+    "physiological_min": 0.0,
+    "physiological_max": 3.0,
+    "aliases": [
+      "EOS#",
+      "AEC",
+      "Absolute Eosinophils",
+      "eos absolute"
+    ],
+    "conditions": [],
+    "guideline_ranges": {},
+    "guideline_citations": {},
+    "provenance": {
+      "source": "standard CBC panel",
+      "verified_date": "2024-01-01",
+      "notes": ""
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "basophils_abs",
+    "canonical_name": "Basophils Absolute",
+    "definition": "Absolute count of basophils per unit volume of blood.",
+    "loinc_code": "704-7",
+    "ucum_unit": "x10E3/uL",
+    "unit_conversions": [],
+    "physiological_min": 0.0,
+    "physiological_max": 1.0,
+    "aliases": [
+      "BASO#",
+      "ABC",
+      "Absolute Basophils",
+      "baso absolute"
+    ],
+    "conditions": [],
+    "guideline_ranges": {},
+    "guideline_citations": {},
+    "provenance": {
+      "source": "standard CBC panel",
+      "verified_date": "2024-01-01",
+      "notes": ""
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "immature_granulocytes_pct",
+    "canonical_name": "Immature Granulocytes Percent",
+    "definition": "Percentage of immature granulocytes (bands, metamyelocytes, myelocytes) in the differential count.",
+    "loinc_code": "71695-1",
+    "ucum_unit": "%",
+    "unit_conversions": [],
+    "physiological_min": 0.0,
+    "physiological_max": 10.0,
+    "aliases": [
+      "Immature Granulocytes",
+      "immature granulocytes",
+      "IG%",
+      "Bands%"
+    ],
+    "conditions": [],
+    "guideline_ranges": {},
+    "guideline_citations": {},
+    "provenance": {
+      "source": "standard CBC panel",
+      "verified_date": "2024-01-01",
+      "notes": ""
+    },
+    "verification_tier": "canonical",
+    "verified": true
+  },
+  {
+    "vitalog_id": "immature_granulocytes_abs",
+    "canonical_name": "Immature Granulocytes Absolute",
+    "definition": "Absolute count of immature granulocytes per unit volume of blood.",
+    "loinc_code": "53115-2",
+    "ucum_unit": "x10E3/uL",
+    "unit_conversions": [],
+    "physiological_min": 0.0,
+    "physiological_max": 1.0,
+    "aliases": [
+      "IG#",
+      "Immature Granulocytes Absolute",
+      "immature grans abs"
+    ],
+    "conditions": [],
+    "guideline_ranges": {},
+    "guideline_citations": {},
+    "provenance": {
+      "source": "standard CBC panel",
+      "verified_date": "2024-01-01",
+      "notes": ""
     },
     "verification_tier": "canonical",
     "verified": true

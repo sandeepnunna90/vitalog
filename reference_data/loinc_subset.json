@@ -333,6 +333,204 @@
       "system": "Ser/Plas",
       "scale": "Qn",
       "method": null
+    },
+    "789-8": {
+      "loinc_code": "789-8",
+      "long_common_name": "Erythrocytes [#/volume] in Blood by Automated count",
+      "short_name": "RBC # Bld Auto",
+      "component": "Erythrocytes",
+      "property": "NCnc",
+      "time_aspect": "Pt",
+      "system": "Bld",
+      "scale": "Qn",
+      "method": "Automated count"
+    },
+    "4544-3": {
+      "loinc_code": "4544-3",
+      "long_common_name": "Hematocrit [Volume Fraction] of Blood by Automated count",
+      "short_name": "Hct Fr Bld Auto",
+      "component": "Hematocrit",
+      "property": "VFr",
+      "time_aspect": "Pt",
+      "system": "Bld",
+      "scale": "Qn",
+      "method": "Automated count"
+    },
+    "787-2": {
+      "loinc_code": "787-2",
+      "long_common_name": "MCV [Entitic volume] by Automated count",
+      "short_name": "MCV RBC Auto",
+      "component": "MCV",
+      "property": "EntVol",
+      "time_aspect": "Pt",
+      "system": "RBC",
+      "scale": "Qn",
+      "method": "Automated count"
+    },
+    "785-6": {
+      "loinc_code": "785-6",
+      "long_common_name": "MCH [Entitic mass] by Automated count",
+      "short_name": "MCH RBC Auto",
+      "component": "MCH",
+      "property": "EntMass",
+      "time_aspect": "Pt",
+      "system": "RBC",
+      "scale": "Qn",
+      "method": "Automated count"
+    },
+    "786-4": {
+      "loinc_code": "786-4",
+      "long_common_name": "MCHC [Mass/volume] by Automated count",
+      "short_name": "MCHC RBC Auto",
+      "component": "MCHC",
+      "property": "MCnc",
+      "time_aspect": "Pt",
+      "system": "RBC",
+      "scale": "Qn",
+      "method": "Automated count"
+    },
+    "788-0": {
+      "loinc_code": "788-0",
+      "long_common_name": "Erythrocyte distribution width [Ratio] by Automated count",
+      "short_name": "RDW RBC Auto",
+      "component": "Erythrocyte distribution width",
+      "property": "Ratio",
+      "time_aspect": "Pt",
+      "system": "RBC",
+      "scale": "Qn",
+      "method": "Automated count"
+    },
+    "770-8": {
+      "loinc_code": "770-8",
+      "long_common_name": "Neutrophils/100 leukocytes in Blood by Automated count",
+      "short_name": "Neutrophils % Bld Auto",
+      "component": "Neutrophils",
+      "property": "NFr",
+      "time_aspect": "Pt",
+      "system": "Bld",
+      "scale": "Qn",
+      "method": "Automated count"
+    },
+    "736-9": {
+      "loinc_code": "736-9",
+      "long_common_name": "Lymphocytes/100 leukocytes in Blood by Automated count",
+      "short_name": "Lymphocytes % Bld Auto",
+      "component": "Lymphocytes",
+      "property": "NFr",
+      "time_aspect": "Pt",
+      "system": "Bld",
+      "scale": "Qn",
+      "method": "Automated count"
+    },
+    "5905-5": {
+      "loinc_code": "5905-5",
+      "long_common_name": "Monocytes/100 leukocytes in Blood by Automated count",
+      "short_name": "Monocytes % Bld Auto",
+      "component": "Monocytes",
+      "property": "NFr",
+      "time_aspect": "Pt",
+      "system": "Bld",
+      "scale": "Qn",
+      "method": "Automated count"
+    },
+    "713-8": {
+      "loinc_code": "713-8",
+      "long_common_name": "Eosinophils/100 leukocytes in Blood by Automated count",
+      "short_name": "Eosinophils % Bld Auto",
+      "component": "Eosinophils",
+      "property": "NFr",
+      "time_aspect": "Pt",
+      "system": "Bld",
+      "scale": "Qn",
+      "method": "Automated count"
+    },
+    "706-2": {
+      "loinc_code": "706-2",
+      "long_common_name": "Basophils/100 leukocytes in Blood by Automated count",
+      "short_name": "Basophils % Bld Auto",
+      "component": "Basophils",
+      "property": "NFr",
+      "time_aspect": "Pt",
+      "system": "Bld",
+      "scale": "Qn",
+      "method": "Automated count"
+    },
+    "751-8": {
+      "loinc_code": "751-8",
+      "long_common_name": "Neutrophils [#/volume] in Blood by Automated count",
+      "short_name": "Neutrophils # Bld Auto",
+      "component": "Neutrophils",
+      "property": "NCnc",
+      "time_aspect": "Pt",
+      "system": "Bld",
+      "scale": "Qn",
+      "method": "Automated count"
+    },
+    "731-0": {
+      "loinc_code": "731-0",
+      "long_common_name": "Lymphocytes [#/volume] in Blood by Automated count",
+      "short_name": "Lymphocytes # Bld Auto",
+      "component": "Lymphocytes",
+      "property": "NCnc",
+      "time_aspect": "Pt",
+      "system": "Bld",
+      "scale": "Qn",
+      "method": "Automated count"
+    },
+    "742-7": {
+      "loinc_code": "742-7",
+      "long_common_name": "Monocytes [#/volume] in Blood by Automated count",
+      "short_name": "Monocytes # Bld Auto",
+      "component": "Monocytes",
+      "property": "NCnc",
+      "time_aspect": "Pt",
+      "system": "Bld",
+      "scale": "Qn",
+      "method": "Automated count"
+    },
+    "711-2": {
+      "loinc_code": "711-2",
+      "long_common_name": "Eosinophils [#/volume] in Blood by Automated count",
+      "short_name": "Eosinophils # Bld Auto",
+      "component": "Eosinophils",
+      "property": "NCnc",
+      "time_aspect": "Pt",
+      "system": "Bld",
+      "scale": "Qn",
+      "method": "Automated count"
+    },
+    "704-7": {
+      "loinc_code": "704-7",
+      "long_common_name": "Basophils [#/volume] in Blood by Automated count",
+      "short_name": "Basophils # Bld Auto",
+      "component": "Basophils",
+      "property": "NCnc",
+      "time_aspect": "Pt",
+      "system": "Bld",
+      "scale": "Qn",
+      "method": "Automated count"
+    },
+    "71695-1": {
+      "loinc_code": "71695-1",
+      "long_common_name": "Immature granulocytes/100 leukocytes in Blood by Automated count",
+      "short_name": "Immature granulocytes % Bld Auto",
+      "component": "Immature granulocytes",
+      "property": "NFr",
+      "time_aspect": "Pt",
+      "system": "Bld",
+      "scale": "Qn",
+      "method": "Automated count"
+    },
+    "53115-2": {
+      "loinc_code": "53115-2",
+      "long_common_name": "Immature granulocytes [#/volume] in Blood by Automated count",
+      "short_name": "Immature granulocytes # Bld Auto",
+      "component": "Immature granulocytes",
+      "property": "NCnc",
+      "time_aspect": "Pt",
+      "system": "Bld",
+      "scale": "Qn",
+      "method": "Automated count"
     }
   }
 }

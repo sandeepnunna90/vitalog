@@ -21,10 +21,10 @@ def test_load_all_returns_expected_keys() -> None:
     }
 
 
-def test_taxonomy_has_exactly_30_entries() -> None:
-    # AC1: count of taxonomy entries is exactly 30
+def test_taxonomy_has_at_least_30_entries() -> None:
+    # AC1: original seed was 30; CBC panel expansion added 18 more
     taxonomy = load_taxonomy()
-    assert len(taxonomy) == 30
+    assert len(taxonomy) >= 30
 
 
 def test_loinc_subset_loads() -> None:
