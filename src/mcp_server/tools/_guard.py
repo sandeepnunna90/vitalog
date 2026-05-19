@@ -18,9 +18,7 @@ def _load_accepted_patient_id() -> uuid.UUID:
         try:
             return uuid.UUID(raw)
         except ValueError:
-            raise ValueError(
-                f"VITALOG_PATIENT_ID env var is not a valid UUID: {raw!r}"
-            ) from None
+            raise ValueError(f"VITALOG_PATIENT_ID env var is not a valid UUID: {raw!r}") from None
     return MARK_PATIENT_ID
 
 
