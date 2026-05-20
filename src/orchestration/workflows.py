@@ -323,7 +323,7 @@ def _normalize_and_persist(
         conv = convert(canonical_id, candidate.raw_value, candidate.raw_unit or None)
         canonical_value = conv.canonical_value
         canonical_unit = conv.canonical_unit
-    except (UnitConversionError, UnitMissingError) as exc:
+    except (UnitConversionError, UnitMissingError, ValueError) as exc:
         _log.warning("unit conversion skipped for %r: %s", canonical_id, exc)
 
     # Physiological range check (log only — never block persistence)
