@@ -3,8 +3,13 @@
 from __future__ import annotations
 
 from enum import StrEnum
+from typing import Annotated, Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, BeforeValidator, ConfigDict, Field
+
+
+def _to_float(v: Any) -> float:
+    return float(v)
 
 
 class Band(StrEnum):
@@ -28,7 +33,7 @@ class RawBiomarkerCandidate(BaseModel):
     raw_reference_range: str
     collection_date: str  # LLM-emitted string; must be ISO 8601 (YYYY-MM-DD) for DB insert
     lab_source: str
-    llm_confidence: float = Field(ge=0.0, le=100.0)
+    llm_confidence: Annotated[float, BeforeValidator(_to_float)] = Field(ge=0.0, le=100.0)
     source_page: int | None
 
 

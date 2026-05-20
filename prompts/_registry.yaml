@@ -29,3 +29,6 @@ prompts:
   - prompt_id: summary
     version: v3
     path: summary/v3.md
+  - prompt_id: summary
+    version: v4
+    path: summary/v4.md

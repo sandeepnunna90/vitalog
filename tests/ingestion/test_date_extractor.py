@@ -16,7 +16,8 @@ def test_collection_date_label() -> None:
 
 
 def test_date_of_service_label() -> None:
-    assert extract_collection_date("Date of Service: 01/15/2022\nSomething else") == date(2022, 1, 15)
+    result = extract_collection_date("Date of Service: 01/15/2022\nSomething else")
+    assert result == date(2022, 1, 15)
 
 
 def test_specimen_collected_label() -> None:

@@ -11,7 +11,6 @@ from src.gateway.citation_schemas import Citation
 from src.gateway.citation_verifier_mode_a import verify as verify_mode_a
 from src.gateway.errors import BannedPhraseViolation, ModeAVerificationError, OutputValidationError
 from src.gateway.gateway import Gateway
-from src.intelligence.retrieval import canonical_name
 from src.intelligence.summary_schemas import Summary, SummaryOutput, SummaryOutputCitation
 from src.persistence.biomarker_repository import BiomarkerRepository
 from src.persistence.models import BiomarkerRecordRow
@@ -26,7 +25,7 @@ DISCLAIMER = (
 )
 
 _PROMPT_ID = "summary"
-_PROMPT_VERSION = "v3"
+_PROMPT_VERSION = "v4"
 _ACCEPTED_VERIFIED_BY = frozenset({"auto", "user", "admin"})
 
 _audit_log = logging.getLogger("audit")
@@ -171,7 +170,6 @@ def _convert_citations(raw: list[SummaryOutputCitation]) -> list[Citation]:
     ]
 
 
-
 def _build_inputs(
     patient: Any,
     accepted_records: list[BiomarkerRecordRow],
@@ -202,5 +200,8 @@ def _build_inputs(
     return {
         "profile_text": profile_text,
         "records_text": "\n".join(record_lines) if record_lines else "No records available.",
+        # Hardcoded to "None" — conditions are no longer in the patient profile after
+        # moving to DB-loaded patient (name/dob only). Gap detection is deferred until
+        # conditions are stored in the patient table.
         "data_gaps_text": "None",
     }

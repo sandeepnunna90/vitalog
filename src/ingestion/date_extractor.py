@@ -13,9 +13,9 @@ _log = logging.getLogger(__name__)
 # The label regex is case-insensitive; patterns are checked in priority order so
 # more specific labels (e.g. "Date collected") win over shorter ones ("Collected").
 _DATE_CAPTURE = (
-    r"(\d{1,2}/\d{1,2}/\d{4}"       # MM/DD/YYYY  (LabCorp, Quest)
-    r"|\d{4}-\d{2}-\d{2}"            # YYYY-MM-DD  (ISO)
-    r"|[A-Za-z]+ +\d{1,2},? +\d{4}" # Month DD YYYY  (some hospital systems)
+    r"(\d{1,2}/\d{1,2}/\d{4}"  # MM/DD/YYYY  (LabCorp, Quest)
+    r"|\d{4}-\d{2}-\d{2}"  # YYYY-MM-DD  (ISO)
+    r"|[A-Za-z]+ +\d{1,2},? +\d{4}"  # Month DD YYYY  (some hospital systems)
     r")"
 )
 

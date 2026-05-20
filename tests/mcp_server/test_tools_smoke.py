@@ -140,7 +140,11 @@ def test_upload_workflow_not_supported_early_return() -> None:
 def test_upload_tool_no_input(monkeypatch: pytest.MonkeyPatch) -> None:
     """When no input given and Downloads is empty, returns a clear error."""
     from pathlib import Path as _Path
-    monkeypatch.setattr("src.mcp_server.tools.upload.Path.home", lambda: _Path("/tmp/empty_downloads_test"))
+
+    monkeypatch.setattr(
+        "src.mcp_server.tools.upload.Path.home",
+        lambda: _Path("/tmp/empty_downloads_test"),  # noqa: S108
+    )
     container = _mock_container()
     result = upload_tool.run(None, None, container)
     assert "No PDF found" in result

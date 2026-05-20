@@ -244,6 +244,8 @@ def _extract_full_text(upload: ValidatedUpload, textract_result: TextractResult)
     if upload.mime == "application/pdf":
         try:
             import fitz  # PyMuPDF — deferred import, consistent with project conventions
+
+            fitz.TOOLS.mupdf_display_errors(False)  # suppress C-level stderr in all contexts
             with fitz.open(stream=upload.file_bytes, filetype="pdf") as doc:
                 return "\n".join(page.get_text() for page in doc)
         except Exception as exc:  # noqa: BLE001
@@ -281,13 +283,10 @@ def _normalize_and_persist(
         if collection_date is None:
             try:
                 from dateutil import parser as _du
-                collection_date = _du.parse(
-                    candidate.collection_date, dayfirst=False
-                ).date()
+
+                collection_date = _du.parse(candidate.collection_date, dayfirst=False).date()
             except Exception:  # noqa: BLE001
-                _log.warning(
-                    "unparseable collection_date from LLM: %r", candidate.collection_date
-                )
+                _log.warning("unparseable collection_date from LLM: %r", candidate.collection_date)
     # Attempt 3: document-level date extracted via regex from raw PDF text
     if collection_date is None and document_date is not None:
         collection_date = document_date

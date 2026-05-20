@@ -3,10 +3,15 @@
 from __future__ import annotations
 
 import uuid
+from typing import Annotated, Any
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, BeforeValidator, ConfigDict
 
 from src.gateway.citation_schemas import Citation
+
+
+def _to_float(v: Any) -> float:
+    return float(v)
 
 
 class SummaryOutputCitation(BaseModel):
@@ -19,7 +24,7 @@ class SummaryOutputCitation(BaseModel):
 
     model_config = ConfigDict(strict=True)
 
-    value: float
+    value: Annotated[float, BeforeValidator(_to_float)]
     unit: str
     collection_date: str  # "YYYY-MM-DD" string from LLM
     source_record_id: str  # UUID string from LLM

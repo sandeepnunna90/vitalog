@@ -98,7 +98,7 @@ def test_happy_path(mock_verify: MagicMock) -> None:
     assert summary.is_fallback is False
     assert summary.disclaimer == DISCLAIMER
     assert summary.citation_count == 1
-    assert summary.prompt_version == "v3"
+    assert summary.prompt_version == "v4"
     mock_verify.assert_called_once()
 
 

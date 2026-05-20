@@ -12,12 +12,17 @@ from __future__ import annotations
 import base64
 import time
 import uuid
-from typing import Any
+from typing import Annotated, Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, BeforeValidator, ConfigDict, Field
 
 from src.ingestion.textract_schemas import Block, KVPair, Table, TableCell, TextractResult
 from src.ingestion.upload_validator import ValidatedUpload
+
+
+def _to_float(v: Any) -> float:
+    return float(v)
+
 
 # Calibrated against the eval set in C5. Matches the auto-accept band lower bound
 # (architecture §5.1): if any field is below this, we can't auto-accept, so the
@@ -39,7 +44,8 @@ class FallbackKVPair(BaseModel):
 
     key: str
     value: str
-    confidence: float = Field(ge=0.0, le=100.0)  # LLM self-reported 0–100 scale
+    # BeforeValidator coerces int→float before strict type check (LLMs emit bare integers).
+    confidence: Annotated[float, BeforeValidator(_to_float)] = Field(ge=0.0, le=100.0)
 
 
 class FallbackRow(BaseModel):
@@ -52,7 +58,7 @@ class FallbackTable(BaseModel):
     model_config = ConfigDict(strict=True)
 
     rows: list[FallbackRow]
-    confidence: float = Field(ge=0.0, le=100.0)  # LLM self-reported 0–100 scale
+    confidence: Annotated[float, BeforeValidator(_to_float)] = Field(ge=0.0, le=100.0)
 
 
 class FallbackExtractionResult(BaseModel):
@@ -67,7 +73,9 @@ class FallbackExtractionResult(BaseModel):
     text_lines: list[str]  # Verbatim text lines extracted from the document
     kv_pairs: list[FallbackKVPair] = []
     tables: list[FallbackTable] = []
-    overall_confidence: float = Field(default=85.0, ge=0.0, le=100.0)
+    overall_confidence: Annotated[float, BeforeValidator(_to_float)] = Field(
+        default=85.0, ge=0.0, le=100.0
+    )
     extraction_notes: str = ""
 
 

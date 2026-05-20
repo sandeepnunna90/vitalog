@@ -47,22 +47,26 @@ class DocumentClassifier:
             image_block = self._pdf_first_page_image(upload.file_bytes)
             if image_block:
                 logger.info("classifier: using vision path (first page rendered)")
-                return {"document_text": "Classify the provided lab report page image."}, [image_block]
+                return (
+                    {"document_text": "Classify the provided lab report page image."},
+                    [image_block],
+                )
             logger.info("classifier: vision render failed, using placeholder")
             return {"document_text": "[PDF has no extractable text]"}, None
 
         import base64
 
         b64 = base64.standard_b64encode(upload.file_bytes).decode()
-        image_block: dict[str, Any] = {
+        image_content: dict[str, Any] = {
             "type": "image",
             "source": {"type": "base64", "media_type": upload.mime, "data": b64},
         }
-        return {"document_text": "Classify the provided document image."}, [image_block]
+        return {"document_text": "Classify the provided document image."}, [image_content]
 
     def _pdf_first_page_image(self, file_bytes: bytes) -> dict[str, Any] | None:
-        import base64
-        import fitz
+        import base64  # noqa: PLC0415
+
+        import fitz  # noqa: PLC0415
 
         try:
             doc = fitz.open(stream=file_bytes, filetype="pdf")
@@ -75,7 +79,10 @@ class DocumentClassifier:
             logger.info("classifier: vision render error: %s", exc)
             return None
         b64 = base64.standard_b64encode(png_bytes).decode()
-        return {"type": "image", "source": {"type": "base64", "media_type": "image/png", "data": b64}}
+        return {
+            "type": "image",
+            "source": {"type": "base64", "media_type": "image/png", "data": b64},
+        }  # noqa: E501
 
     def _extract_pdf_text(self, file_bytes: bytes) -> str:
         import fitz  # deferred; already a project dep from D1

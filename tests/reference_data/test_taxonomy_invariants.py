@@ -63,7 +63,9 @@ def test_all_entries_have_at_least_one_citation() -> None:
         # CBC panel markers (e.g. RBC, MCV, neutrophils) have no formal guideline targets
         if not entry.get("guideline_ranges"):
             continue
-        assert citations, f"Entry '{entry['vitalog_id']}' has guideline_ranges but empty guideline_citations"
+        assert citations, (
+            f"Entry '{entry['vitalog_id']}' has guideline_ranges but empty guideline_citations"
+        )
         for _org, citation_str in citations.items():
             assert "http" in citation_str, (
                 f"Citation for '{entry['vitalog_id']}' missing URL: {citation_str}"

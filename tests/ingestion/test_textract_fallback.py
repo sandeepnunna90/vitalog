@@ -20,10 +20,10 @@ from src.ingestion.textract_fallback import (
     _compute_min_confidence,
     _to_textract_result,
 )
-
-_PYMUPDF_PATH = "src.ingestion.textract_fallback._extract_with_pymupdf"
 from src.ingestion.textract_schemas import Block, KVPair, Table, TableCell, TextractResult
 from src.ingestion.upload_validator import ValidatedUpload
+
+_PYMUPDF_PATH = "src.ingestion.textract_fallback._extract_with_pymupdf"
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -302,7 +302,9 @@ def test_pdf_upload_builds_png_image_content() -> None:
     gateway.call.side_effect = capture
 
     with patch(_PYMUPDF_PATH, return_value=_empty_pymupdf()):
-        with patch("src.ingestion.textract_fallback._pdf_to_png", return_value=(fake_png, "image/png")):
+        with patch(  # noqa: E501
+            "src.ingestion.textract_fallback._pdf_to_png", return_value=(fake_png, "image/png")
+        ):
             adapter.extract(upload, _DOC_ID, low_conf)
 
     content = capture.image_content  # type: ignore[attr-defined]
@@ -324,7 +326,9 @@ def test_heic_upload_builds_png_image_content() -> None:
     gateway.call.side_effect = capture
 
     with patch(_PYMUPDF_PATH, return_value=_empty_pymupdf()):
-        with patch("src.ingestion.textract_fallback._pdf_to_png", return_value=(fake_png, "image/png")):
+        with patch(  # noqa: E501
+            "src.ingestion.textract_fallback._pdf_to_png", return_value=(fake_png, "image/png")
+        ):
             adapter.extract(upload, _DOC_ID, low_conf)
 
     content = capture.image_content  # type: ignore[attr-defined]
