@@ -15,7 +15,7 @@ from src.intelligence.retrieval import canonical_name
 from src.intelligence.summary_schemas import Summary, SummaryOutput, SummaryOutputCitation
 from src.persistence.biomarker_repository import BiomarkerRepository
 from src.persistence.models import BiomarkerRecordRow
-from src.reference_data import load_biomarker_groups, load_patient_profile
+from src.persistence.patient_repository import PatientRepository
 
 # Scope: AI generation provenance (this output came from an LLM, not a clinician).
 # Deliberately different from context_cards.DISCLAIMER which covers reference-data accuracy.
@@ -37,10 +37,12 @@ class SummaryGenerator:
         self,
         gateway: Gateway,
         biomarker_repo: BiomarkerRepository,
+        patient_repo: PatientRepository,
         audit_repo: Any | None = None,
     ) -> None:
         self._gateway = gateway
         self._repo = biomarker_repo
+        self._patient_repo = patient_repo
         self._audit = audit_repo
 
     def generate(self, patient_id: uuid.UUID) -> Summary:
@@ -51,7 +53,7 @@ class SummaryGenerator:
         with is_fallback=True and empty sections.
         Disclaimer is always appended by code — never LLM-generated.
         """
-        profile = load_patient_profile()
+        patient = self._patient_repo.get(patient_id)
         all_records = self._repo.list_for_patient(patient_id)
 
         accepted = [
@@ -78,8 +80,7 @@ class SummaryGenerator:
             )
 
         retrieval_set: dict[uuid.UUID, BiomarkerRecordRow] = {r.record_id: r for r in accepted}
-        gaps = _detect_data_gaps(profile.conditions, accepted)
-        inputs = _build_inputs(profile, accepted, gaps)
+        inputs = _build_inputs(patient, accepted)
 
         result = self._attempt(inputs, retrieval_set, patient_id)
         if result is None:
@@ -170,44 +171,18 @@ def _convert_citations(raw: list[SummaryOutputCitation]) -> list[Citation]:
     ]
 
 
-def _detect_data_gaps(
-    conditions: list[str],
-    accepted_records: list[BiomarkerRecordRow],
-) -> list[str]:
-    """Return canonical names of condition-relevant biomarkers with no accepted records."""
-    recorded_ids: set[str] = {
-        r.canonical_biomarker_id for r in accepted_records if r.canonical_biomarker_id is not None
-    }
-    groups = load_biomarker_groups()["conditions"]
-    seen: set[str] = set()
-    gaps: list[str] = []
-    for cond in conditions:
-        if cond not in groups:
-            _audit_log.warning("unknown condition code in profile, skipping: %s", cond)
-            continue
-        for cid in groups[cond].get("biomarkers", []):
-            if cid not in recorded_ids and cid not in seen:
-                seen.add(cid)
-                gaps.append(canonical_name(cid))
-    return gaps
-
 
 def _build_inputs(
-    profile: Any,
+    patient: Any,
     accepted_records: list[BiomarkerRecordRow],
-    gaps: list[str],
 ) -> dict[str, str]:
-    """Format LLM prompt inputs from the patient profile, records, and data gaps."""
-    groups = load_biomarker_groups()["conditions"]
+    """Format LLM prompt inputs from patient info and records."""
+    if patient is not None:
+        dob_str = patient.dob.strftime("%B %d, %Y") if patient.dob else "Unknown"
+        profile_text = f"Name: {patient.name}, Date of Birth: {dob_str}"
+    else:
+        profile_text = "Name: Unknown"
 
-    condition_lines: list[str] = []
-    for cond in profile.conditions:
-        display = groups[cond]["display_name"] if cond in groups else cond
-        condition_lines.append(display)
-
-    profile_text = f"Conditions: {', '.join(condition_lines) if condition_lines else 'None'}"
-
-    # Assert non-None before sort; the accepted filter guarantees this but mypy can't see it.
     for r in accepted_records:
         assert r.collection_date is not None, f"record {r.record_id} slipped past accepted filter"
     sorted_records = sorted(
@@ -224,10 +199,8 @@ def _build_inputs(
         value_unit = f"{value_str} {unit_str}".rstrip()
         record_lines.append(f"{r.original_name}: {value_unit} — {date_str} [id={r.record_id}]")
 
-    data_gaps_text = "\n".join(gaps) if gaps else "None"
-
     return {
         "profile_text": profile_text,
         "records_text": "\n".join(record_lines) if record_lines else "No records available.",
-        "data_gaps_text": data_gaps_text,
+        "data_gaps_text": "None",
     }
