@@ -1,4 +1,4 @@
-"""upload_document MCP tool — ingest a lab report from file path or base64 content."""
+"""upload_document MCP tool — ingest a lab report from URL, file path, or base64 content."""
 
 from __future__ import annotations
 
@@ -10,18 +10,49 @@ from src.mcp_server.tools._guard import PATIENT_ID
 from src.orchestration import ServiceContainer, upload_document_workflow
 
 
+def _normalize_share_url(url: str) -> str:
+    """Convert share-page URLs to direct-download URLs for known providers.
+
+    Most URLs pass through unchanged. Only Google Drive and Dropbox share
+    links need rewriting — their default share URLs serve HTML, not the file.
+    """
+    m = re.match(r"https://drive\.google\.com/file/d/([^/?]+)", url)
+    if m:
+        return f"https://drive.google.com/uc?export=download&id={m.group(1)}"
+    m = re.search(r"drive\.google\.com/open\?id=([^&]+)", url)
+    if m:
+        return f"https://drive.google.com/uc?export=download&id={m.group(1)}"
+    if "dropbox.com" in url:
+        url = re.sub(r"\bdl=0\b", "dl=1", url)
+        if "dl=" not in url:
+            url += ("&" if "?" in url else "?") + "dl=1"
+    return url
+
+
+def _fetch_url(url: str) -> bytes:
+    """Download file bytes from any URL. Follows redirects."""
+    import httpx
+
+    normalized = _normalize_share_url(url)
+    with httpx.Client(follow_redirects=True, timeout=30) as client:
+        resp = client.get(normalized)
+        resp.raise_for_status()
+        return resp.content
+
+
 def run(
     file_content_base64: str | None,
-    filename: str | None,
     container: ServiceContainer,
     *,
     file_path: str | None = None,
+    url: str | None = None,
 ) -> str:
-    if file_path is None and filename:
-        # Resolve filename → ~/Downloads/<filename>
-        file_path = str(Path.home() / "Downloads" / filename)
-
-    if file_path is not None:
+    if url is not None:
+        try:
+            file_bytes = _fetch_url(url)
+        except Exception as exc:
+            return f"Error fetching file from URL: {exc}"
+    elif file_path is not None:
         try:
             file_bytes = Path(file_path).read_bytes()
         except OSError as exc:
@@ -45,19 +76,12 @@ def run(
                 f"(len={len(sanitized)}, padding_added={padding_needed}, err={exc})."
             )
     else:
-        # No path or base64 given — pick the newest PDF from ~/Downloads.
-        downloads = Path.home() / "Downloads"
-        candidates = sorted(downloads.glob("*.pdf"), key=lambda p: p.stat().st_mtime, reverse=True)
-        if not candidates:
-            return "No PDF found in ~/Downloads/. Place the lab report there and try again."
-        detected = candidates[0]
-        try:
-            file_bytes = detected.read_bytes()
-        except OSError as exc:
-            return f"Error reading {detected.name}: {exc}"
-        filename = filename or detected.name
+        return (
+            "No file provided. Share a Google Drive or Dropbox link, "
+            "provide an absolute file path, or attach a small image."
+        )
 
-    result = upload_document_workflow(file_bytes, filename or "document.pdf", PATIENT_ID, container)
+    result = upload_document_workflow(file_bytes, "document.pdf", PATIENT_ID, container)
 
     lines = [f"Document processed ({result.category})."]
     if result.auto_accepted or result.pending_user or result.rejected or result.pending_taxonomy:

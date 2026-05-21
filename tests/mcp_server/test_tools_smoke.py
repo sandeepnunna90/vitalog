@@ -137,17 +137,110 @@ def test_upload_workflow_not_supported_early_return() -> None:
     assert result.category == "not_supported"
 
 
-def test_upload_tool_no_input(monkeypatch: pytest.MonkeyPatch) -> None:
-    """When no input given and Downloads is empty, returns a clear error."""
-    from pathlib import Path as _Path
-
-    monkeypatch.setattr(
-        "src.mcp_server.tools.upload.Path.home",
-        lambda: _Path("/tmp/empty_downloads_test"),  # noqa: S108
-    )
+def test_upload_tool_no_source() -> None:
+    """When all sources are None, returns an error hint."""
     container = _mock_container()
-    result = upload_tool.run(None, None, container)
-    assert "No PDF found" in result
+    result = upload_tool.run(None, container)
+    assert "attach" in result.lower() or "file path" in result.lower()
+
+
+def test_upload_tool_url_fetch(monkeypatch: pytest.MonkeyPatch) -> None:
+    """URL source: _fetch_url is called and bytes are forwarded to the workflow."""
+    fake_bytes = b"%PDF-fake"
+    monkeypatch.setattr("src.mcp_server.tools.upload._fetch_url", lambda _url: fake_bytes)
+
+    container = _mock_container()
+    mock_result = MagicMock()
+    mock_result.category = "lab_report"
+    mock_result.auto_accepted = 1
+    mock_result.pending_user = 0
+    mock_result.rejected = 0
+    mock_result.pending_taxonomy = 0
+    mock_result.duplicate_skipped = 0
+    mock_result.document_id = None
+    mock_result.user_message = "Done."
+    container.classifier = MagicMock()
+
+    from unittest.mock import patch
+
+    _wf = "src.mcp_server.tools.upload.upload_document_workflow"
+    with patch(_wf, return_value=mock_result) as mock_wf:
+        upload_tool.run(None, container, url="https://example.com/report.pdf")
+        mock_wf.assert_called_once()
+        called_bytes = mock_wf.call_args[0][0]
+        assert called_bytes == fake_bytes
+
+
+def test_upload_tool_file_path(tmp_path: pytest.TempPathFactory) -> None:
+    """file_path source: file bytes are read and forwarded to the workflow."""
+    import pathlib
+
+    pdf = pathlib.Path(tmp_path) / "report.pdf"
+    pdf.write_bytes(b"%PDF-test")
+
+    container = _mock_container()
+    mock_result = MagicMock()
+    mock_result.category = "lab_report"
+    mock_result.auto_accepted = 1
+    mock_result.pending_user = 0
+    mock_result.rejected = 0
+    mock_result.pending_taxonomy = 0
+    mock_result.duplicate_skipped = 0
+    mock_result.document_id = None
+    mock_result.user_message = "Done."
+
+    from unittest.mock import patch
+
+    _wf = "src.mcp_server.tools.upload.upload_document_workflow"
+    with patch(_wf, return_value=mock_result) as mock_wf:
+        upload_tool.run(None, container, file_path=str(pdf))
+        mock_wf.assert_called_once()
+        called_bytes = mock_wf.call_args[0][0]
+        assert called_bytes == b"%PDF-test"
+
+
+def test_upload_tool_base64_content() -> None:
+    """base64 source: decoded bytes are forwarded to the workflow."""
+    raw = b"%PDF-b64test"
+    encoded = base64.b64encode(raw).decode("ascii")
+
+    container = _mock_container()
+    mock_result = MagicMock()
+    mock_result.category = "lab_report"
+    mock_result.auto_accepted = 1
+    mock_result.pending_user = 0
+    mock_result.rejected = 0
+    mock_result.pending_taxonomy = 0
+    mock_result.duplicate_skipped = 0
+    mock_result.document_id = None
+    mock_result.user_message = "Done."
+
+    from unittest.mock import patch
+
+    _wf = "src.mcp_server.tools.upload.upload_document_workflow"
+    with patch(_wf, return_value=mock_result) as mock_wf:
+        upload_tool.run(encoded, container)
+        mock_wf.assert_called_once()
+        called_bytes = mock_wf.call_args[0][0]
+        assert called_bytes == raw
+
+
+def test_normalize_share_url_gdrive() -> None:
+    url = "https://drive.google.com/file/d/ABC123xyz/view?usp=sharing"
+    result = upload_tool._normalize_share_url(url)
+    assert result == "https://drive.google.com/uc?export=download&id=ABC123xyz"
+
+
+def test_normalize_share_url_dropbox() -> None:
+    url = "https://www.dropbox.com/s/abc123/report.pdf?dl=0"
+    result = upload_tool._normalize_share_url(url)
+    assert "dl=1" in result
+    assert "dl=0" not in result
+
+
+def test_normalize_share_url_passthrough() -> None:
+    url = "https://mybucket.s3.amazonaws.com/reports/lab.pdf?X-Amz-Signature=abc"
+    assert upload_tool._normalize_share_url(url) == url
 
 
 # ── list_biomarkers_workflow ──────────────────────────────────────────────────

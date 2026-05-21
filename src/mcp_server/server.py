@@ -34,13 +34,18 @@ def _get_container() -> ServiceContainer:
 @mcp.tool(
     description=(
         "Upload a lab report to Vitalog. "
-        "Pass file_path (absolute path) or filename (looked up in ~/Downloads). "
-        "Call with no arguments to auto-pick the newest PDF in ~/Downloads. "
+        "Preferred: pass any cloud storage link (Google Drive, Dropbox, S3, etc.) as url. "
+        "For local use: pass file_path (absolute path on this machine). "
+        "For small images only: pass file_content_base64 (base64-encoded bytes). "
         "Returns a summary of extracted biomarker records."
     )
 )
-def upload_document(filename: str | None = None, file_path: str | None = None) -> str:
-    return _upload.run(None, filename, _get_container(), file_path=file_path)
+def upload_document(
+    url: str | None = None,
+    file_path: str | None = None,
+    file_content_base64: str | None = None,
+) -> str:
+    return _upload.run(file_content_base64, _get_container(), file_path=file_path, url=url)
 
 
 @mcp.tool(
