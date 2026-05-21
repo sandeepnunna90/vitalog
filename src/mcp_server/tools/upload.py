@@ -6,8 +6,12 @@ import base64
 import re
 from pathlib import Path
 
+import httpx
+
 from src.mcp_server.tools._guard import PATIENT_ID
 from src.orchestration import ServiceContainer, upload_document_workflow
+
+_URL_MAX_BYTES = 50 * 1024 * 1024  # 50 MB — matches Textract file-size limit
 
 
 def _normalize_share_url(url: str) -> str:
@@ -30,14 +34,21 @@ def _normalize_share_url(url: str) -> str:
 
 
 def _fetch_url(url: str) -> bytes:
-    """Download file bytes from any URL. Follows redirects."""
-    import httpx
-
+    """Download file bytes from any HTTPS URL. Follows redirects."""
+    if not url.lower().startswith("https://"):
+        raise ValueError("Only HTTPS URLs are accepted.")
     normalized = _normalize_share_url(url)
     with httpx.Client(follow_redirects=True, timeout=30) as client:
         resp = client.get(normalized)
         resp.raise_for_status()
-        return resp.content
+        chunks: list[bytes] = []
+        total = 0
+        for chunk in resp.iter_bytes(chunk_size=65536):
+            total += len(chunk)
+            if total > _URL_MAX_BYTES:
+                raise ValueError(f"Response exceeds {_URL_MAX_BYTES // (1024 * 1024)} MB limit.")
+            chunks.append(chunk)
+        return b"".join(chunks)
 
 
 def run(

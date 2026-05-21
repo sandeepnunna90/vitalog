@@ -9,6 +9,7 @@ from __future__ import annotations
 import base64
 import uuid
 from datetime import date, datetime
+from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock
 
@@ -171,11 +172,9 @@ def test_upload_tool_url_fetch(monkeypatch: pytest.MonkeyPatch) -> None:
         assert called_bytes == fake_bytes
 
 
-def test_upload_tool_file_path(tmp_path: pytest.TempPathFactory) -> None:
+def test_upload_tool_file_path(tmp_path: Path) -> None:
     """file_path source: file bytes are read and forwarded to the workflow."""
-    import pathlib
-
-    pdf = pathlib.Path(tmp_path) / "report.pdf"
+    pdf = tmp_path / "report.pdf"
     pdf.write_bytes(b"%PDF-test")
 
     container = _mock_container()
