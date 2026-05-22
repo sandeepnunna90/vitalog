@@ -22,7 +22,7 @@ Claude Desktop config (remote, via mcp-remote):
       "mcpServers": {
         "vitalog": {
           "command": "npx",
-          "args": ["mcp-remote", "https://vitalog.onrender.com/sse"]
+          "args": ["mcp-remote", "https://vitalog-9z6b.onrender.com/sse"]
         }
       }
     }

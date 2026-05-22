@@ -33,7 +33,7 @@ After H4, the server is deployed but open — anyone with the URL can call all t
 
 2. Add redirect URL for the registration page:
    - Supabase dashboard → Auth → URL Configuration → Redirect URLs
-   - Add: `https://vitalog.onrender.com/register`
+   - Add: `https://vitalog-9z6b.onrender.com/register`
 
 3. Run migration SQL in Supabase SQL editor:
 ```sql
@@ -280,7 +280,7 @@ Add `patient_repo` to `ServiceContainer` if not already present, so `auth.py` ca
   "mcpServers": {
     "vitalog": {
       "command": "npx",
-      "args": ["mcp-remote", "https://vitalog.onrender.com/sse?api_key=YOUR_KEY"]
+      "args": ["mcp-remote", "https://vitalog-9z6b.onrender.com/sse?api_key=YOUR_KEY"]
     }
   }
 }
@@ -303,7 +303,7 @@ Local stdio mode (unchanged):
 
 ## Verification
 
-1. Visit `https://vitalog.onrender.com/register` → "Sign in with Google" → redirected to Google → back to page with API key displayed
+1. Visit `https://vitalog-9z6b.onrender.com/register` → "Sign in with Google" → redirected to Google → back to page with API key displayed
 2. Check Supabase `patient` table — new row with `auth_user_id` + `api_key` populated
 3. Claude Desktop config updated with `?api_key=xxx` — restart Claude Desktop — Vitalog tools appear
 4. `list_biomarkers` returns the correct user's data (not Mark's)
