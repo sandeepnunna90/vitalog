@@ -73,10 +73,21 @@ def _find_entry(taxonomy: list[dict[str, Any]], vitalog_id: str) -> dict[str, An
     return next((e for e in taxonomy if e["vitalog_id"] == vitalog_id), None)
 
 
+_XEXP_RE = re.compile(r"x10e(\d+)", re.IGNORECASE)
+
+
+def _normalize_unit(u: str) -> str:
+    """Collapse common notation variants to a single form for comparison.
+
+    x10E3/uL → 10*3/uL (LabCorp scientific-notation style → UCUM multiply style)
+    """
+    return _XEXP_RE.sub(lambda m: f"10*{m.group(1)}", u.strip().lower())
+
+
 def _units_equal(a: str, b: str) -> bool:
     # Case-fold intentionally: UCUM is case-significant in strict mode, but real-world
     # lab reports routinely emit "MG/DL", "Mg/dL", etc. Pragmatic relaxation for capstone.
-    return a.strip().lower() == b.strip().lower()
+    return _normalize_unit(a) == _normalize_unit(b)
 
 
 def _find_rule(conversions: list[dict[str, Any]], raw_unit_norm: str) -> dict[str, Any] | None:

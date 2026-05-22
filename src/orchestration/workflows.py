@@ -14,7 +14,11 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
+from src.ingestion.date_extractor import extract_collection_date
+from src.ingestion.errors import TextractFailureError
 from src.ingestion.structurer_schemas import Band
+from src.ingestion.textract_schemas import TextractResult
+from src.ingestion.upload_validator import ValidatedUpload
 from src.intelligence.exporter import export_summary as _export_summary
 from src.intelligence.nlq_schemas import NlqResponse
 from src.intelligence.trend_schemas import TrendResult
@@ -90,11 +94,22 @@ def upload_document_workflow(
     doc_id = route.document_id
     assert doc_id is not None  # guaranteed when should_continue_pipeline=True
 
-    textract_result = container.textract.extract(upload, doc_id)
+    try:
+        textract_result = container.textract.extract(upload, doc_id)
+    except TextractFailureError as exc:
+        _log.warning("Textract unavailable (%s); routing to vision fallback.", exc)
+        textract_result = TextractResult(blocks=[], tables=[], kv_pairs=[], page_count=1)
     textract_result = container.fallback.extract(upload, doc_id, textract_result)
     structurer_result = container.structurer.structure(
         textract_result, doc_id, classification.confidence
     )
+
+    _full_text = _extract_full_text(upload, textract_result)
+    document_date: date | None = extract_collection_date(_full_text)
+    if document_date:
+        _log.info("document-level collection date extracted: %s", document_date)
+    else:
+        _log.warning("no collection date found in document text — records will have NULL date")
 
     stats: dict[str, int] = {
         "auto_accepted": 0,
@@ -105,7 +120,7 @@ def upload_document_workflow(
     }
 
     for candidate in structurer_result.candidates:
-        _normalize_and_persist(candidate, patient_id, doc_id, container, stats)
+        _normalize_and_persist(candidate, patient_id, doc_id, container, stats, document_date)
 
     return UploadResult(
         category=classification.category.value,
@@ -219,12 +234,32 @@ def export_workflow(
 # ── Private helpers ───────────────────────────────────────────────────────────
 
 
+def _extract_full_text(upload: ValidatedUpload, textract_result: TextractResult) -> str:
+    """Return all page text from the upload for date extraction.
+
+    For PDFs, uses PyMuPDF to read the text layer across all pages (headers on
+    every page typically repeat the collection date). Falls back to joining
+    Textract block texts for images or when PyMuPDF fails. Never raises.
+    """
+    if upload.mime == "application/pdf":
+        try:
+            import fitz  # PyMuPDF — deferred import, consistent with project conventions
+
+            fitz.TOOLS.mupdf_display_errors(False)  # suppress C-level stderr in all contexts
+            with fitz.open(stream=upload.file_bytes, filetype="pdf") as doc:
+                return "\n".join(page.get_text() for page in doc)
+        except Exception as exc:  # noqa: BLE001
+            _log.debug("_extract_full_text: PyMuPDF failed (%s), falling back to blocks", exc)
+    return "\n".join(b.text for b in textract_result.blocks)
+
+
 def _normalize_and_persist(
     candidate: Any,
     patient_id: uuid.UUID,
     doc_id: uuid.UUID,
     container: ServiceContainer,
     stats: dict[str, int],
+    document_date: date | None = None,
 ) -> None:
     """Normalize one BiomarkerCandidate and write it to the repository.
 
@@ -239,10 +274,22 @@ def _normalize_and_persist(
 
     collection_date: date | None = None
     if candidate.collection_date:
+        # Attempt 1: ISO 8601 (YYYY-MM-DD) — fastest, correct when LLM behaves
         try:
             collection_date = date.fromisoformat(candidate.collection_date)
         except ValueError:
-            _log.warning("non-ISO collection_date skipped: %r", candidate.collection_date)
+            pass
+        # Attempt 2: dateutil — handles MM/DD/YYYY, "June 5 2019", etc.
+        if collection_date is None:
+            try:
+                from dateutil import parser as _du
+
+                collection_date = _du.parse(candidate.collection_date, dayfirst=False).date()
+            except Exception:  # noqa: BLE001
+                _log.warning("unparseable collection_date from LLM: %r", candidate.collection_date)
+    # Attempt 3: document-level date extracted via regex from raw PDF text
+    if collection_date is None and document_date is not None:
+        collection_date = document_date
 
     if canonical_id is None:
         # Unrecognized biomarker — route to pending taxonomy queue
@@ -275,7 +322,7 @@ def _normalize_and_persist(
         conv = convert(canonical_id, candidate.raw_value, candidate.raw_unit or None)
         canonical_value = conv.canonical_value
         canonical_unit = conv.canonical_unit
-    except (UnitConversionError, UnitMissingError) as exc:
+    except (UnitConversionError, UnitMissingError, ValueError) as exc:
         _log.warning("unit conversion skipped for %r: %s", canonical_id, exc)
 
     # Physiological range check (log only — never block persistence)

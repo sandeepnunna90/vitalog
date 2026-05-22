@@ -715,7 +715,7 @@ For when you're mid-build and need to look up "what did we decide to do with X?"
 - Per-category storage policies (consent-based for genetic data, etc.)
 - Image content moderation
 - Subtype-specific user messaging
-- User-initiated document deletion
+- User-initiated document deletion (must also delete file from Supabase Storage bucket — currently DB row and storage file are deleted independently)
 - LOINC Tier 2 (fuzzy match)
 - LOINC Tier 3 (live LOINC lookup)
 - Confidence-based routing for taxonomy review
@@ -728,6 +728,7 @@ For when you're mid-build and need to look up "what did we decide to do with X?"
 - Follow-up delta summaries
 - Expanded specialist coverage
 - Real-user feedback loop into eval corpus
+- Admin UI for taxonomy and biomarker group management (add/edit canonical biomarkers, condition groups, guideline ranges without code deploys; currently all changes require editing JSON files and redeploying)
 
 ### Items deferred to v1.5
 - Supabase Team + HIPAA add-on
@@ -745,6 +746,7 @@ For when you're mid-build and need to look up "what did we decide to do with X?"
 - Provider-facing surface
 - Auto-promote logic for canonical taxonomy entries
 - Admin dashboard for taxonomy curation
+- `canonical_biomarker` schema hardening: add UUID surrogate PK, keep `vitalog_id` as a unique index; migrate `biomarker_record.canonical_biomarker_id` FK from text → UUID (current natural-key design works at demo scale but is fragile if any vitalog_id is ever renamed)
 - Support for unstructured medical content (visit notes, discharge summaries)
 - RAG for unstructured patient documents
 - Contextual health tips feature

@@ -12,17 +12,23 @@ from __future__ import annotations
 import base64
 import time
 import uuid
-from typing import Any
+from typing import Annotated, Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, BeforeValidator, ConfigDict, Field
 
 from src.ingestion.textract_schemas import Block, KVPair, Table, TableCell, TextractResult
 from src.ingestion.upload_validator import ValidatedUpload
+
+
+def _to_float(v: Any) -> float:
+    return float(v)
+
 
 # Calibrated against the eval set in C5. Matches the auto-accept band lower bound
 # (architecture §5.1): if any field is below this, we can't auto-accept, so the
 # vision fallback runs to try for a higher-quality extraction.
 THRESHOLD_FALLBACK: float = 95.0
+MIN_PYMUPDF_CHARS: int = 50  # below this → treat as scanned, use vision LLM
 
 # Anthropic-supported image media types (vision API constraint).
 _SUPPORTED_MEDIA_TYPES: frozenset[str] = frozenset(
@@ -38,7 +44,8 @@ class FallbackKVPair(BaseModel):
 
     key: str
     value: str
-    confidence: float = Field(ge=0.0, le=100.0)  # LLM self-reported 0–100 scale
+    # BeforeValidator coerces int→float before strict type check (LLMs emit bare integers).
+    confidence: Annotated[float, BeforeValidator(_to_float)] = Field(ge=0.0, le=100.0)
 
 
 class FallbackRow(BaseModel):
@@ -51,7 +58,7 @@ class FallbackTable(BaseModel):
     model_config = ConfigDict(strict=True)
 
     rows: list[FallbackRow]
-    confidence: float = Field(ge=0.0, le=100.0)  # LLM self-reported 0–100 scale
+    confidence: Annotated[float, BeforeValidator(_to_float)] = Field(ge=0.0, le=100.0)
 
 
 class FallbackExtractionResult(BaseModel):
@@ -64,10 +71,12 @@ class FallbackExtractionResult(BaseModel):
     model_config = ConfigDict(strict=True)
 
     text_lines: list[str]  # Verbatim text lines extracted from the document
-    kv_pairs: list[FallbackKVPair]
-    tables: list[FallbackTable]
-    overall_confidence: float = Field(ge=0.0, le=100.0)  # 0–100 LLM self-reported
-    extraction_notes: str  # Quality issues or unreadable regions; empty string if none
+    kv_pairs: list[FallbackKVPair] = []
+    tables: list[FallbackTable] = []
+    overall_confidence: Annotated[float, BeforeValidator(_to_float)] = Field(
+        default=85.0, ge=0.0, le=100.0
+    )
+    extraction_notes: str = ""
 
 
 # ── Adapter ───────────────────────────────────────────────────────────────────
@@ -92,8 +101,8 @@ class TextractFallbackAdapter:
     ) -> TextractResult:
         """Return textract_result unchanged if min_confidence >= THRESHOLD_FALLBACK.
 
-        Otherwise, invoke the vision-LLM via Gateway and return the result
-        normalized to TextractResult (same shape as the primary path).
+        Otherwise try PyMuPDF text extraction first; only use the vision LLM if
+        PyMuPDF yields fewer than MIN_PYMUPDF_CHARS (scanned/image-only PDF).
         """
         min_conf = _compute_min_confidence(textract_result)
 
@@ -108,6 +117,21 @@ class TextractFallbackAdapter:
                 },
             )
             return textract_result
+
+        # Try PyMuPDF before the vision LLM — cheaper and works on multi-page PDFs.
+        pymupdf_result = _extract_with_pymupdf(upload.file_bytes)
+        pymupdf_chars = sum(len(b.text) for b in pymupdf_result.blocks)
+        if pymupdf_chars >= MIN_PYMUPDF_CHARS:
+            self._audit.record(
+                "system",
+                "pymupdf_fallback_invoked",
+                {
+                    "document_id": str(document_id),
+                    "chars_extracted": pymupdf_chars,
+                    "page_count": pymupdf_result.page_count,
+                },
+            )
+            return pymupdf_result
 
         start = time.monotonic()
         image_content = self._build_image_content(upload)
@@ -157,6 +181,35 @@ class TextractFallbackAdapter:
 
 
 # ── Module-level helpers ──────────────────────────────────────────────────────
+
+
+def _extract_with_pymupdf(file_bytes: bytes) -> TextractResult:
+    """Extract text from all PDF pages using PyMuPDF and return as TextractResult.
+
+    Each non-empty text line becomes a Block. Confidence is set to 95.0 —
+    PyMuPDF reads the embedded text layer directly with no OCR uncertainty.
+    """
+    import fitz  # PyMuPDF — deferred import, consistent with project conventions
+
+    blocks: list[Block] = []
+    page_count = 0
+
+    with fitz.open(stream=file_bytes, filetype="pdf") as doc:
+        page_count = len(doc)
+        for page in doc:
+            for line in page.get_text().splitlines():
+                line = line.strip()
+                if line:
+                    blocks.append(
+                        Block(
+                            block_id=uuid.uuid4().hex,
+                            text=line,
+                            confidence=95.0,
+                            bbox=None,
+                        )
+                    )
+
+    return TextractResult(blocks=blocks, tables=[], kv_pairs=[], page_count=page_count)
 
 
 def _compute_min_confidence(result: TextractResult) -> float:

@@ -8,11 +8,7 @@ from typing import Any
 from unittest.mock import MagicMock, patch
 
 from src.gateway.errors import BannedPhraseViolation, OutputValidationError
-from src.intelligence.summary_generator import (
-    DISCLAIMER,
-    SummaryGenerator,
-    _detect_data_gaps,
-)
+from src.intelligence.summary_generator import DISCLAIMER, SummaryGenerator
 from src.intelligence.summary_schemas import Summary, SummaryOutput, SummaryOutputCitation
 from src.persistence.models import BiomarkerRecordRow
 
@@ -54,10 +50,10 @@ def _make_record(
 
 def _good_output() -> SummaryOutput:
     return SummaryOutput(
-        conditions_section="Type 2 Diabetes, Hypertension",
+        conditions_section="",
         results_section="HbA1c: 6.8% (March 12, 2026)",
         trends_section="HbA1c decreased from 7.1% to 6.8% over 6 months.",
-        data_gaps_section="postprandial_glucose",
+        data_gaps_section="",
         patient_notes="",
         citations=[
             SummaryOutputCitation(
@@ -71,7 +67,14 @@ def _good_output() -> SummaryOutput:
 
 
 def _make_generator(gateway: Any, repo: Any, audit_repo: Any = None) -> SummaryGenerator:
-    return SummaryGenerator(gateway=gateway, biomarker_repo=repo, audit_repo=audit_repo)
+    patient_repo = MagicMock()
+    patient_repo.get.return_value = MagicMock(name="Test Patient", dob=date(1969, 4, 15))
+    return SummaryGenerator(
+        gateway=gateway,
+        biomarker_repo=repo,
+        patient_repo=patient_repo,
+        audit_repo=audit_repo,
+    )
 
 
 def _mock_repo(records: list[BiomarkerRecordRow]) -> MagicMock:
@@ -80,11 +83,9 @@ def _mock_repo(records: list[BiomarkerRecordRow]) -> MagicMock:
     return repo
 
 
-@patch("src.intelligence.summary_generator.load_patient_profile")
 @patch("src.intelligence.summary_generator.verify_mode_a")
-def test_happy_path(mock_verify: MagicMock, mock_profile: MagicMock) -> None:
+def test_happy_path(mock_verify: MagicMock) -> None:
     """Valid SummaryOutput → Summary built with disclaimer and citation_count."""
-    mock_profile.return_value = MagicMock(conditions=["T2D"])
     record = _make_record()
     repo = _mock_repo([record])
     gateway = MagicMock()
@@ -97,16 +98,13 @@ def test_happy_path(mock_verify: MagicMock, mock_profile: MagicMock) -> None:
     assert summary.is_fallback is False
     assert summary.disclaimer == DISCLAIMER
     assert summary.citation_count == 1
-    assert summary.prompt_version == "v3"
-    assert summary.conditions_section == "Type 2 Diabetes, Hypertension"
+    assert summary.prompt_version == "v4"
     mock_verify.assert_called_once()
 
 
-@patch("src.intelligence.summary_generator.load_patient_profile")
 @patch("src.intelligence.summary_generator.verify_mode_a")
-def test_disclaimer_always_present(mock_verify: MagicMock, mock_profile: MagicMock) -> None:
+def test_disclaimer_always_present(mock_verify: MagicMock) -> None:
     """Disclaimer is verbatim even when is_fallback=True."""
-    mock_profile.return_value = MagicMock(conditions=[])
     repo = _mock_repo([])
     gateway = MagicMock()
     gateway.call.side_effect = OutputValidationError("bad output")
@@ -124,13 +122,9 @@ def test_disclaimer_not_in_llm_schema() -> None:
     assert "disclaimer" not in fields
 
 
-@patch("src.intelligence.summary_generator.load_patient_profile")
 @patch("src.intelligence.summary_generator.verify_mode_a")
-def test_no_records_returns_fallback_without_llm(
-    mock_verify: MagicMock, mock_profile: MagicMock
-) -> None:
+def test_no_records_returns_fallback_without_llm(mock_verify: MagicMock) -> None:
     """No accepted records → immediate fallback; LLM never called."""
-    mock_profile.return_value = MagicMock(conditions=[])
     repo = _mock_repo([])
     gateway = MagicMock()
 
@@ -144,11 +138,9 @@ def test_no_records_returns_fallback_without_llm(
     gateway.call.assert_not_called()
 
 
-@patch("src.intelligence.summary_generator.load_patient_profile")
 @patch("src.intelligence.summary_generator.verify_mode_a")
-def test_safe_refusal_on_failure(mock_verify: MagicMock, mock_profile: MagicMock) -> None:
+def test_safe_refusal_on_failure(mock_verify: MagicMock) -> None:
     """LLM attempt fails → is_fallback=True with empty sections and disclaimer."""
-    mock_profile.return_value = MagicMock(conditions=["T2D"])
     repo = _mock_repo([_make_record()])
     gateway = MagicMock()
     gateway.call.side_effect = OutputValidationError("bad")
@@ -163,13 +155,9 @@ def test_safe_refusal_on_failure(mock_verify: MagicMock, mock_profile: MagicMock
     assert gateway.call.call_count == 2  # two attempts before fallback
 
 
-@patch("src.intelligence.summary_generator.load_patient_profile")
 @patch("src.intelligence.summary_generator.verify_mode_a")
-def test_banned_phrase_from_gateway_produces_fallback(
-    mock_verify: MagicMock, mock_profile: MagicMock
-) -> None:
+def test_banned_phrase_from_gateway_produces_fallback(mock_verify: MagicMock) -> None:
     """BannedPhraseViolation raised by Gateway.call() → both attempts fail → is_fallback=True."""
-    mock_profile.return_value = MagicMock(conditions=["T2D"])
     repo = _mock_repo([_make_record()])
     gateway = MagicMock()
     gateway.call.side_effect = BannedPhraseViolation(phrases=["you should take"])
@@ -182,13 +170,11 @@ def test_banned_phrase_from_gateway_produces_fallback(
     assert gateway.call.call_count == 2  # two attempts before fallback
 
 
-@patch("src.intelligence.summary_generator.load_patient_profile")
 @patch("src.intelligence.summary_generator.verify_mode_a")
-def test_retry_succeeds_on_second_attempt(mock_verify: MagicMock, mock_profile: MagicMock) -> None:
+def test_retry_succeeds_on_second_attempt(mock_verify: MagicMock) -> None:
     """First attempt fails (Mode A rejects); second attempt succeeds → is_fallback=False."""
     from src.gateway.errors import ModeAVerificationError
 
-    mock_profile.return_value = MagicMock(conditions=["T2D"])
     repo = _mock_repo([_make_record()])
     gateway = MagicMock()
     gateway.call.return_value = _good_output()
@@ -201,42 +187,9 @@ def test_retry_succeeds_on_second_attempt(mock_verify: MagicMock, mock_profile: 
     assert gateway.call.call_count == 2
 
 
-@patch("src.intelligence.summary_generator.load_biomarker_groups")
-def test_data_gaps_detection(mock_groups: MagicMock) -> None:
-    """_detect_data_gaps returns canonical names for condition biomarkers with no records."""
-    mock_groups.return_value = {
-        "conditions": {
-            "T2D": {
-                "display_name": "Type 2 Diabetes",
-                "biomarkers": ["hba1c", "fasting_glucose", "egfr"],
-            }
-        }
-    }
-    records = [_make_record(canonical_biomarker_id="hba1c")]
-    gaps = _detect_data_gaps(["T2D"], records)
-    # hba1c is recorded; fasting_glucose and egfr are gaps
-    assert len(gaps) == 2
-
-
-@patch("src.intelligence.summary_generator.load_biomarker_groups")
-def test_data_gaps_unknown_condition_code_skipped(mock_groups: MagicMock) -> None:
-    """Unknown condition code in profile is silently skipped (no KeyError) and emits a warning."""
-    mock_groups.return_value = {"conditions": {"T2D": {"biomarkers": ["hba1c"]}}}
-    import logging
-
-    with patch.object(logging.getLogger("audit"), "warning") as mock_warn:
-        gaps = _detect_data_gaps(["T2D", "UNKNOWN_COND"], [])
-    # UNKNOWN_COND is not in biomarker_groups — warning emitted, no crash
-    assert mock_warn.call_count >= 1
-    # T2D gap still detected
-    assert len(gaps) == 1
-
-
-@patch("src.intelligence.summary_generator.load_patient_profile")
 @patch("src.intelligence.summary_generator.verify_mode_a")
-def test_audit_logged(mock_verify: MagicMock, mock_profile: MagicMock) -> None:
+def test_audit_logged(mock_verify: MagicMock) -> None:
     """audit_repo.record is called with event_type='summary_generated'."""
-    mock_profile.return_value = MagicMock(conditions=["T2D"])
     record = _make_record()
     repo = _mock_repo([record])
     gateway = MagicMock()

@@ -60,7 +60,12 @@ def test_all_entries_have_at_least_one_citation() -> None:
     taxonomy = load_taxonomy()
     for entry in taxonomy:
         citations = entry["guideline_citations"]
-        assert citations, f"Entry '{entry['vitalog_id']}' has empty guideline_citations"
+        # CBC panel markers (e.g. RBC, MCV, neutrophils) have no formal guideline targets
+        if not entry.get("guideline_ranges"):
+            continue
+        assert citations, (
+            f"Entry '{entry['vitalog_id']}' has guideline_ranges but empty guideline_citations"
+        )
         for _org, citation_str in citations.items():
             assert "http" in citation_str, (
                 f"Citation for '{entry['vitalog_id']}' missing URL: {citation_str}"
@@ -169,12 +174,15 @@ def test_all_aliases_non_empty() -> None:
         assert entry["aliases"], f"Entry '{entry['vitalog_id']}' has empty aliases list"
 
 
-def test_all_guideline_ranges_non_empty() -> None:
+def test_clinical_biomarkers_have_guideline_ranges() -> None:
+    # Biomarkers with conditions listed are expected to have guideline targets.
+    # CBC panel markers (no conditions) may omit guideline_ranges.
     taxonomy = load_taxonomy()
     for entry in taxonomy:
-        assert entry["guideline_ranges"], (
-            f"Entry '{entry['vitalog_id']}' has empty guideline_ranges"
-        )
+        if entry.get("conditions"):
+            assert entry["guideline_ranges"], (
+                f"Entry '{entry['vitalog_id']}' has conditions but empty guideline_ranges"
+            )
 
 
 @pytest.mark.parametrize(

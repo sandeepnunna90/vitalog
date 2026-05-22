@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
-from src.mcp_server.tools._guard import validate_patient_id
+from src.mcp_server.tools._guard import PATIENT_ID
 from src.orchestration import ServiceContainer, generate_summary_workflow
 
 
-def run(patient_id: str, container: ServiceContainer) -> str:
-    pid = validate_patient_id(patient_id)
-    result = generate_summary_workflow(pid, container)
+def run(container: ServiceContainer) -> str:
+    result = generate_summary_workflow(PATIENT_ID, container)
 
     if result.is_fallback:
         return (

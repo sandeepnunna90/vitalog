@@ -23,6 +23,8 @@ from src.ingestion.textract_fallback import (
 from src.ingestion.textract_schemas import Block, KVPair, Table, TableCell, TextractResult
 from src.ingestion.upload_validator import ValidatedUpload
 
+_PYMUPDF_PATH = "src.ingestion.textract_fallback._extract_with_pymupdf"
+
 # ── Constants ─────────────────────────────────────────────────────────────────
 
 _DOC_ID = uuid.UUID("00000000-0000-0000-0000-000000000005")
@@ -31,6 +33,10 @@ _JPEG_BYTES = b"\xff\xd8\xff fake jpeg"
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
+
+
+def _empty_pymupdf() -> TextractResult:
+    return TextractResult(blocks=[], tables=[], kv_pairs=[], page_count=0)
 
 
 def _make_upload(mime: str = "application/pdf", file_bytes: bytes = _PDF_BYTES) -> ValidatedUpload:
@@ -104,13 +110,14 @@ def test_high_confidence_writes_skipped_audit() -> None:
 
 
 def test_low_confidence_invokes_gateway() -> None:
-    """min_confidence < THRESHOLD_FALLBACK → Gateway.call() is invoked."""
+    """min_confidence < THRESHOLD_FALLBACK and PyMuPDF empty → Gateway.call() is invoked."""
     adapter, gateway, _ = _make_adapter()
     gateway.call.return_value = _make_fallback_result()
     low_conf_result = _textract_result_with_confidence(THRESHOLD_FALLBACK - 1.0)
 
-    with patch.object(adapter, "_build_image_content", return_value=[{"type": "image"}]):
-        adapter.extract(_make_upload(), _DOC_ID, low_conf_result)
+    with patch(_PYMUPDF_PATH, return_value=_empty_pymupdf()):
+        with patch.object(adapter, "_build_image_content", return_value=[{"type": "image"}]):
+            adapter.extract(_make_upload(), _DOC_ID, low_conf_result)
 
     gateway.call.assert_called_once()
     call_kwargs = gateway.call.call_args[1]
@@ -124,14 +131,14 @@ def test_low_confidence_writes_invoked_audit() -> None:
     gateway.call.return_value = _make_fallback_result(confidence=82.0)
     low_conf_result = _textract_result_with_confidence(70.0)
 
-    with patch.object(adapter, "_build_image_content", return_value=[]):
-        adapter.extract(_make_upload(), _DOC_ID, low_conf_result)
+    with patch(_PYMUPDF_PATH, return_value=_empty_pymupdf()):
+        with patch.object(adapter, "_build_image_content", return_value=[]):
+            adapter.extract(_make_upload(), _DOC_ID, low_conf_result)
 
-    # Two audit records: one for "skipped" is NOT called; one for "invoked" is called.
     audit.record.assert_called_once()
-    call_args = audit.record.call_args
-    assert call_args[0][1] == "vision_fallback_invoked"
-    payload = call_args[0][2]
+    last_call = audit.record.call_args
+    assert last_call[0][1] == "vision_fallback_invoked"
+    payload = last_call[0][2]
     assert payload["document_id"] == str(_DOC_ID)
     assert payload["min_confidence_textract"] == 70.0
     assert payload["fallback_overall_confidence"] == 82.0
@@ -144,10 +151,31 @@ def test_empty_textract_result_triggers_fallback() -> None:
     gateway.call.return_value = _make_fallback_result()
     empty = TextractResult(blocks=[], tables=[], kv_pairs=[], page_count=0)
 
-    with patch.object(adapter, "_build_image_content", return_value=[]):
-        adapter.extract(_make_upload(), _DOC_ID, empty)
+    with patch(_PYMUPDF_PATH, return_value=_empty_pymupdf()):
+        with patch.object(adapter, "_build_image_content", return_value=[]):
+            adapter.extract(_make_upload(), _DOC_ID, empty)
 
     gateway.call.assert_called_once()
+
+
+def test_pymupdf_success_skips_vision_llm() -> None:
+    """PyMuPDF extracts enough text → vision LLM not called."""
+    adapter, gateway, audit = _make_adapter()
+    low_conf = _textract_result_with_confidence(50.0)
+    rich_result = TextractResult(
+        blocks=[Block(block_id="b1", text="A" * 100, confidence=95.0, bbox=None)],
+        tables=[],
+        kv_pairs=[],
+        page_count=2,
+    )
+
+    with patch(_PYMUPDF_PATH, return_value=rich_result):
+        result = adapter.extract(_make_upload(), _DOC_ID, low_conf)
+
+    gateway.call.assert_not_called()
+    assert result is rich_result
+    audit.record.assert_called_once()
+    assert audit.record.call_args[0][1] == "pymupdf_fallback_invoked"
 
 
 def test_threshold_boundary_exactly_95_no_fallback() -> None:
@@ -241,14 +269,14 @@ def test_jpeg_upload_builds_jpeg_image_content() -> None:
     upload = _make_upload(mime="image/jpeg", file_bytes=_JPEG_BYTES)
     low_conf = _textract_result_with_confidence(50.0)
 
-    # Capture the image_content passed to gateway.call
     def capture(**kwargs: object) -> FallbackExtractionResult:
         capture.image_content = kwargs.get("image_content")  # type: ignore[attr-defined]
         return _make_fallback_result()
 
     gateway.call.side_effect = capture
 
-    adapter.extract(upload, _DOC_ID, low_conf)
+    with patch(_PYMUPDF_PATH, return_value=_empty_pymupdf()):
+        adapter.extract(upload, _DOC_ID, low_conf)
 
     content = capture.image_content  # type: ignore[attr-defined]
     assert content is not None
@@ -273,11 +301,11 @@ def test_pdf_upload_builds_png_image_content() -> None:
 
     gateway.call.side_effect = capture
 
-    with patch(
-        "src.ingestion.textract_fallback._pdf_to_png",
-        return_value=(fake_png, "image/png"),
-    ):
-        adapter.extract(upload, _DOC_ID, low_conf)
+    with patch(_PYMUPDF_PATH, return_value=_empty_pymupdf()):
+        with patch(  # noqa: E501
+            "src.ingestion.textract_fallback._pdf_to_png", return_value=(fake_png, "image/png")
+        ):
+            adapter.extract(upload, _DOC_ID, low_conf)
 
     content = capture.image_content  # type: ignore[attr-defined]
     assert content[0]["source"]["media_type"] == "image/png"
@@ -297,11 +325,11 @@ def test_heic_upload_builds_png_image_content() -> None:
 
     gateway.call.side_effect = capture
 
-    with patch(
-        "src.ingestion.textract_fallback._pdf_to_png",
-        return_value=(fake_png, "image/png"),
-    ):
-        adapter.extract(upload, _DOC_ID, low_conf)
+    with patch(_PYMUPDF_PATH, return_value=_empty_pymupdf()):
+        with patch(  # noqa: E501
+            "src.ingestion.textract_fallback._pdf_to_png", return_value=(fake_png, "image/png")
+        ):
+            adapter.extract(upload, _DOC_ID, low_conf)
 
     content = capture.image_content  # type: ignore[attr-defined]
     assert content[0]["source"]["media_type"] == "image/png"
@@ -343,6 +371,7 @@ def test_gateway_error_propagates() -> None:
     gateway.call.side_effect = RuntimeError("model error")
     low_conf = _textract_result_with_confidence(50.0)
 
-    with patch.object(adapter, "_build_image_content", return_value=[]):
-        with pytest.raises(RuntimeError, match="model error"):
-            adapter.extract(_make_upload(), _DOC_ID, low_conf)
+    with patch(_PYMUPDF_PATH, return_value=_empty_pymupdf()):
+        with patch.object(adapter, "_build_image_content", return_value=[]):
+            with pytest.raises(RuntimeError, match="model error"):
+                adapter.extract(_make_upload(), _DOC_ID, low_conf)

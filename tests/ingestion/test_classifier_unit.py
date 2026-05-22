@@ -123,15 +123,20 @@ def test_pdf_uses_text_not_image_content(text_pdf_bytes: bytes) -> None:
     assert len(positional_inputs["document_text"]) > 0
 
 
-def test_blank_pdf_uses_placeholder(image_pdf_bytes: bytes) -> None:
-    """Image-only PDF → PyMuPDF extracts empty text → placeholder injected."""
+def test_blank_pdf_uses_vision_fallback(image_pdf_bytes: bytes) -> None:
+    """Image-only PDF → PyMuPDF extracts empty text → first page rendered and sent as vision."""
     gateway = MagicMock()
     gateway.call.return_value = _make_result(Category.NOT_SUPPORTED, Subtype.BLANK, 0.85)
     classifier = DocumentClassifier(gateway=gateway)
     classifier.classify(_make_upload(image_pdf_bytes, is_text_extractable=False))
 
-    positional_inputs: dict[str, Any] = gateway.call.call_args.args[2]
-    assert positional_inputs["document_text"] == "[PDF has no extractable text]"
+    _, call_kwargs = gateway.call.call_args
+    image_content = call_kwargs.get("image_content")
+    assert image_content is not None
+    assert len(image_content) == 1
+    block = image_content[0]
+    assert block["type"] == "image"
+    assert block["source"]["media_type"] == "image/png"
 
 
 # ── Image path: vision block ──────────────────────────────────────────────────

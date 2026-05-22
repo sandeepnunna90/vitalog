@@ -23,6 +23,7 @@ def _load_accepted_patient_id() -> uuid.UUID:
 
 
 _ACCEPTED_PATIENT_ID: uuid.UUID = _load_accepted_patient_id()
+PATIENT_ID: uuid.UUID = _ACCEPTED_PATIENT_ID
 
 
 def validate_patient_id(patient_id: str) -> uuid.UUID:

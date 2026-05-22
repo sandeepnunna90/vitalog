@@ -28,6 +28,7 @@ from src.persistence.audit_log_repository import AuditLogRepository
 from src.persistence.biomarker_repository import BiomarkerRepository
 from src.persistence.document_repository import DocumentRepository
 from src.persistence.document_store import DocumentStore
+from src.persistence.patient_repository import PatientRepository
 from src.persistence.summary_repository import SummaryRepository
 from src.persistence.supabase_client import get_service_client
 from src.persistence.taxonomy_repository import TaxonomyRepository
@@ -42,6 +43,7 @@ class ServiceContainer:
     audit_repo: AuditLogRepository
     taxonomy_repo: TaxonomyRepository
     document_store: DocumentStore
+    patient_repo: PatientRepository
     # Ingestion
     validator: UploadValidator
     classifier: DocumentClassifier
@@ -76,6 +78,7 @@ def build_container() -> ServiceContainer:
     document_repo = DocumentRepository(client)
     taxonomy_repo = TaxonomyRepository(client)
     document_store = DocumentStore(client)
+    patient_repo = PatientRepository(client)
 
     # Gateway (shared by classifier, structurer, fallback, nlq, summary)
     gateway = Gateway(audit_repo=audit_repo, api_key=api_key)
@@ -106,6 +109,7 @@ def build_container() -> ServiceContainer:
     summary_generator = SummaryGenerator(
         gateway=gateway,
         biomarker_repo=biomarker_repo,
+        patient_repo=patient_repo,
         audit_repo=audit_repo,
     )
     annotator = SummaryAnnotator(summary_repo=summary_repo, audit_repo=audit_repo)
@@ -117,6 +121,7 @@ def build_container() -> ServiceContainer:
         audit_repo=audit_repo,
         taxonomy_repo=taxonomy_repo,
         document_store=document_store,
+        patient_repo=patient_repo,
         validator=validator,
         classifier=classifier,
         storage_router=storage_router,
