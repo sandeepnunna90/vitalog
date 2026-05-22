@@ -38,3 +38,6 @@ eval_corpus/runs/*
 
 # Supabase local dev
 supabase/.temp/
+
+# Private demo docs (contain personal links)
+docs/demo_queries.md
