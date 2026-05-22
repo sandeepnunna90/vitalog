@@ -30,6 +30,10 @@ from __future__ import annotations
 import logging
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 _log = logging.getLogger(__name__)
 
 # PyMuPDF prints MuPDF error messages to C-level stdout, which corrupts the
@@ -47,6 +51,7 @@ from src.mcp_server.auth import (  # noqa: E402
     auth_callback_handler,
     authorize_handler,
     oauth_metadata_handler,
+    registration_handler,
     token_handler,
 )
 from src.mcp_server.server import mcp  # noqa: E402
@@ -61,6 +66,7 @@ if __name__ == "__main__":
 
     app.add_route("/health", health)
     app.add_route("/.well-known/oauth-authorization-server", oauth_metadata_handler)
+    app.add_route("/register", registration_handler, methods=["POST"])
     app.add_route("/authorize", authorize_handler)
     app.add_route("/auth/callback", auth_callback_handler)
     app.add_route("/token", token_handler, methods=["POST"])

@@ -75,11 +75,36 @@ async def oauth_metadata_handler(request: Request) -> JSONResponse:
             "issuer": base,
             "authorization_endpoint": f"{base}/authorize",
             "token_endpoint": f"{base}/token",
+            "registration_endpoint": f"{base}/register",
             "response_types_supported": ["code"],
             "grant_types_supported": ["authorization_code"],
             "code_challenge_methods_supported": ["S256"],
             "token_endpoint_auth_methods_supported": ["none"],
         }
+    )
+
+
+# ── /register (RFC 7591 dynamic client registration) ─────────────────────────
+
+
+async def registration_handler(request: Request) -> JSONResponse:
+    """Accept any client registration — we don't track clients, auth is bearer-token based."""
+    body: dict[str, Any] = {}
+    try:
+        body = await request.json()
+    except Exception:  # noqa: BLE001, S110
+        pass  # non-JSON body is fine — all fields have defaults
+    return JSONResponse(
+        {
+            "client_id": str(uuid.uuid4()),
+            "client_id_issued_at": int(time.time()),
+            "client_secret_expires_at": 0,
+            "redirect_uris": body.get("redirect_uris", []),
+            "grant_types": body.get("grant_types", ["authorization_code"]),
+            "response_types": body.get("response_types", ["code"]),
+            "token_endpoint_auth_method": "none",
+        },
+        status_code=201,
     )
 
 
