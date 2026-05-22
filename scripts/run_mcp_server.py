@@ -50,7 +50,7 @@ import fitz  # noqa: E402
 fitz.TOOLS.mupdf_display_errors(False)
 
 from starlette.requests import Request  # noqa: E402
-from starlette.responses import PlainTextResponse  # noqa: E402
+from starlette.responses import PlainTextResponse, Response  # noqa: E402
 
 from src.mcp_server.server import mcp  # noqa: E402
 
@@ -65,10 +65,10 @@ if __name__ == "__main__":
 
         app = mcp.sse_app()
 
-        async def health(_: Request) -> PlainTextResponse:
+        async def health(_: Request) -> Response:
             return PlainTextResponse("ok")
 
-        app.add_route("/health", health)  # type: ignore[arg-type]
+        app.add_route("/health", health)
 
         import uvicorn  # noqa: PLC0415
 
