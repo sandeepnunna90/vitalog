@@ -77,7 +77,7 @@ Status legend: ⬜ pending · 🟡 in progress · ✅ done · ⏸ blocked
 | [H1](H1_hero_longitudinal_dataset.md) | Hero longitudinal dataset (HbA1c × 9 × 3 labs) | 3 | ⬜ | C1, A2 |
 | [H2](H2_demo_polish_and_rehearsal.md) | Demo polish + rehearsal | 5 | ⬜ | All |
 | [H3](H3_upload_multi_source.md) | Multi-source upload: URL + local file_path + base64 | 3 | ✅ | G1, G3 |
-| [H4](H4_render_deployment.md) | Render deployment (SSE, Docker, health check) | 3 | ⬜ | G1, H3 |
+| [H4](H4_render_deployment.md) | Render deployment (SSE, Docker, health check) | 3 | ✅ | G1, H3 |
 | [H5](H5_user_auth_dynamic_patient.md) | User auth + dynamic patient ID (Supabase OAuth + API key) | 5 | ⬜ | H4 |
 
 ## Suggested 10-day loading
