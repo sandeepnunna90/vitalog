@@ -67,7 +67,8 @@ class Layer3:
         Raises BannedPhraseViolation if any banned phrase appears in string output values.
         """
         try:
-            validated = output_schema.model_validate(raw)
+            # strict=False: LLM output always contains plain strings; allow str→StrEnum coercion.
+            validated = output_schema.model_validate(raw, strict=False)
         except ValidationError as exc:
             raise SchemaValidationError(exc.errors()) from exc
 

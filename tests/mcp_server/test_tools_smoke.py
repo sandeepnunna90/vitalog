@@ -78,7 +78,10 @@ def _mock_container(**overrides: Any) -> ServiceContainer:
 # ── patient_id guard ──────────────────────────────────────────────────────────
 
 
-def test_patient_id_guard_accepts_mark() -> None:
+def test_patient_id_guard_accepts_mark(monkeypatch: pytest.MonkeyPatch) -> None:
+    import src.mcp_server.tools._guard as guard_mod
+
+    monkeypatch.setattr(guard_mod, "_ACCEPTED_PATIENT_ID", _PATIENT_ID)
     assert validate_patient_id(_PATIENT_ID_STR) == _PATIENT_ID
 
 
@@ -473,13 +476,15 @@ def test_export_tool_invalid_format() -> None:
 
 
 def test_export_tool_pdf_returns_base64() -> None:
+    from src.mcp_server.tools._guard import PATIENT_ID as CONFIGURED_PATIENT_ID
+
     summary_id = uuid.uuid4()
     pdf_bytes = b"PDF content"
 
     container = _mock_container()
     container.summary_repo.get.return_value = MagicMock(
         summary_id=summary_id,
-        patient_id=_PATIENT_ID,
+        patient_id=CONFIGURED_PATIENT_ID,
     )
 
     with pytest.MonkeyPatch().context() as mp:
