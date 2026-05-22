@@ -282,3 +282,43 @@ First connection: browser opens automatically for Google login. Subsequent conne
 - Pure ASGI middleware avoids `BaseHTTPMiddleware` SSE buffering issue
 - HTTPS enforced by Render; bearer token never travels over plain HTTP
 - H5 is still "you have the token" not "you prove you own the token per-request" — full JWT validation is v1+ scope
+
+---
+
+### Implementation (2026-05-22)
+
+**PR:** #39 — `feat(auth): MCP OAuth 2.0 + per-request patient_id via contextvar (H5)`  
+**Branch:** `feat/h5-user-auth` → merged to `main`
+
+**Files created:**
+- `src/mcp_server/auth.py` — `BearerMiddleware` (pure ASGI) + 4 OAuth route handlers (`oauth_metadata_handler`, `authorize_handler`, `auth_callback_handler`, `token_handler`) + RFC 7591 `registration_handler`
+- `migrations/004_add_auth_columns.sql` — `ALTER TABLE patient ADD COLUMN auth_user_id text UNIQUE; ALTER TABLE patient ADD COLUMN api_key uuid UNIQUE DEFAULT gen_random_uuid();`
+- `tests/mcp_server/test_auth.py` — 16 tests covering metadata shape, redirect_uri allowlist, single-use auth codes, 401 on invalid bearer, middleware passthrough
+
+**Files modified:**
+- `src/mcp_server/tools/_guard.py` — replaced `PATIENT_ID` module-level constant with `ContextVar[uuid.UUID]`; added `get_patient_id()` and `set_patient_id()`; removed env-var fallback (LookupError if middleware didn't set it)
+- `src/persistence/models.py` — added `auth_user_id: str | None`, `api_key: uuid.UUID | None` to `PatientRow`; added `PatientAuthCreate` model
+- `src/persistence/patient_repository.py` — added `get_by_api_key()` and `upsert_from_auth()`
+- All 6 tool modules (upload, list_biomarkers, get_trend, query, prepare_summary, export) — `PATIENT_ID` → `get_patient_id()`
+- `scripts/run_mcp_server.py` — added `load_dotenv()`, mounted all OAuth routes + `/register`
+- `render.yaml` — removed `VITALOG_PATIENT_ID`; added `BASE_URL`, `RENDER_MAX_INSTANCES=1`
+- `.gitignore` — added `docs/demo_queries.md`
+
+**Key design decisions:**
+- Pure ASGI `BearerMiddleware` (not `BaseHTTPMiddleware`) — avoids SSE response buffering
+- RFC 7591 `/register` endpoint required by mcp-remote before OAuth flow starts
+- Dual PKCE: mcp-remote↔server and server↔Supabase use independent verifier/challenge pairs
+- PKCE re-validation skipped at `/token` — UUID4 `auth_code` is single-use and unguessable (documented inline as v1+ hardening item)
+- `_RENDER_MAX_INSTANCES=1` in render.yaml documents that in-memory OAuth state (`_authorize_state`, `_auth_codes`) breaks in multi-instance deployments
+
+**PR review findings addressed:**
+1. Open redirect — validated `redirect_uri` against localhost allowlist in `authorize_handler`
+2. Auth tests — added `tests/mcp_server/test_auth.py` with 16 tests
+3. DB migration — `migrations/004_add_auth_columns.sql` tracks the schema change in git
+
+**Testing:**
+- Deployed to Render (`https://vitalog-9z6b.onrender.com`)
+- Full OAuth flow verified: Claude Desktop → mcp-remote → `/register` → `/authorize` → Google login → `/auth/callback` → `/token` → Bearer on `/sse`
+- Uploaded two lab reports via Google Drive URLs; biomarkers extracted and stored
+- Trend queries, NLQ handler, and summary generator all working per `docs/demo_queries.md`
+- Guardrails confirmed: out-of-scope queries (medications, diet, appointments) return safe refusal without calling LLM

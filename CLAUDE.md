@@ -67,8 +67,10 @@ Storage policy (classification-gated, §7.6):
 | `scripts/run_accuracy.py` | Harness CLI (C3 ✅): `--dry-run` for GT self-comparison (~100% F1, no API calls); live mode runs D1–D6 against full corpus |
 | `src/reference_data/` | Taxonomy loader (cached); `biomarker_taxonomy.json` — 30-biomarker seed; `patient_profile.py` + `patient_profile_schemas.py` — Mark's hardcoded profile (G2 ✅); `biomarker_groups.json` — 9-condition grouping reference with embedded guideline citations (F5 ✅) |
 | `src/orchestration/` | Workflow coordinators (G1 ✅): `container.py` (ServiceContainer + build_container), `workflows.py` (upload/list/trend/query/summary/export workflows) |
-| `src/mcp_server/` | MCP server (G1 ✅): `server.py` (FastMCP, 6 tools), `tools/` (one module per tool: upload, list_biomarkers, get_trend, query, prepare_summary, export); upload tool supports URL/file_path/base64 multi-source (H3 ✅) |
-| `scripts/run_mcp_server.py` | MCP entry point (G1 ✅): stdio (local) or SSE (remote) via MCP_TRANSPORT env var |
+| `src/mcp_server/` | MCP server (G1 ✅): `server.py` (FastMCP, 6 tools), `tools/` (one module per tool: upload, list_biomarkers, get_trend, query, prepare_summary, export); upload tool supports URL/file_path/base64 multi-source (H3 ✅); deployed to Render via SSE (H4 ✅); MCP OAuth 2.0 + per-request `patient_id` via contextvar (H5 ✅) |
+| `src/mcp_server/auth.py` | MCP OAuth 2.0 server (H5 ✅): RFC 7591 `/register`, `/authorize` → Supabase Google OAuth, `/auth/callback` code exchange + patient upsert, `/token` bearer issuance, `BearerMiddleware` (pure ASGI, sets `patient_id` contextvar per SSE connection) |
+| `migrations/` | Numbered SQL migration files applied manually to Supabase; `004_add_auth_columns.sql` adds `auth_user_id` + `api_key` to `patient` table (H5 ✅) |
+| `scripts/run_mcp_server.py` | MCP entry point (G1 ✅): SSE mode (Render) or local SSE via MCP_TRANSPORT env var; mounts OAuth routes + BearerMiddleware (H5 ✅) |
 | `scripts/` | Admin CLI (`resolve_pending`, `generate_synthetic`) |
 | `prompts/` | Versioned prompt templates — bump version on every edit |
 
