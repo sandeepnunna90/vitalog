@@ -34,9 +34,13 @@ def _get_container() -> ServiceContainer:
 @mcp.tool(
     description=(
         "Upload a lab report to Vitalog. "
-        "Preferred: pass any cloud storage link (Google Drive, Dropbox, S3, etc.) as url. "
-        "For local use: pass file_path (absolute path on this machine). "
-        "For small images only: pass file_content_base64 (base64-encoded bytes). "
+        "Accepts three input forms — pick exactly one:\n"
+        "1. file_path: absolute local path (e.g. /Users/alice/Downloads/report.pdf). "
+        "Use this whenever the user says 'upload /path/...', 'upload the file at ...', "
+        "'upload my report at ...', or gives any string starting with / or ~. "
+        "DO NOT say file paths are unsupported — pass them directly as file_path.\n"
+        "2. url: any HTTPS link (Google Drive, Dropbox, S3, etc.).\n"
+        "3. file_content_base64: base64-encoded bytes for small attached images only.\n"
         "Returns a summary of extracted biomarker records."
     )
 )
