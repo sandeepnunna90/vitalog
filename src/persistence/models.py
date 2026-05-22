@@ -30,12 +30,21 @@ class PatientRow(_Base):
     name: str
     dob: date | None
     created_at: datetime
+    auth_user_id: str | None = None
+    api_key: uuid.UUID | None = None
 
 
 class PatientCreate(_Base):
     patient_id: uuid.UUID
     name: str
     dob: date | None = None
+
+
+class PatientAuthCreate(_Base):
+    patient_id: uuid.UUID
+    name: str
+    auth_user_id: str
+    api_key: uuid.UUID
 
 
 # ── Patient profile ───────────────────────────────────────────────────────────

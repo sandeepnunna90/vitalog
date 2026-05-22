@@ -8,7 +8,7 @@ from pathlib import Path
 
 import httpx
 
-from src.mcp_server.tools._guard import PATIENT_ID
+from src.mcp_server.tools._guard import get_patient_id
 from src.orchestration import ServiceContainer, upload_document_workflow
 
 _URL_MAX_BYTES = 50 * 1024 * 1024  # 50 MB — matches Textract file-size limit
@@ -92,7 +92,7 @@ def run(
             "provide an absolute file path, or attach a small image."
         )
 
-    result = upload_document_workflow(file_bytes, "document.pdf", PATIENT_ID, container)
+    result = upload_document_workflow(file_bytes, "document.pdf", get_patient_id(), container)
 
     lines = [f"Document processed ({result.category})."]
     if result.auto_accepted or result.pending_user or result.rejected or result.pending_taxonomy:
