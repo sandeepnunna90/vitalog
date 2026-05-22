@@ -34,13 +34,22 @@ def _get_container() -> ServiceContainer:
 @mcp.tool(
     description=(
         "Upload a lab report to Vitalog. "
-        "Pass file_path (absolute path) or filename (looked up in ~/Downloads). "
-        "Call with no arguments to auto-pick the newest PDF in ~/Downloads. "
+        "Accepts three input forms — pick exactly one:\n"
+        "1. file_path: absolute local path (e.g. /Users/alice/Downloads/report.pdf). "
+        "Use this whenever the user says 'upload /path/...', 'upload the file at ...', "
+        "'upload my report at ...', or gives any string starting with / or ~. "
+        "DO NOT say file paths are unsupported — pass them directly as file_path.\n"
+        "2. url: any HTTPS link (Google Drive, Dropbox, S3, etc.).\n"
+        "3. file_content_base64: base64-encoded bytes for small attached images only.\n"
         "Returns a summary of extracted biomarker records."
     )
 )
-def upload_document(filename: str | None = None, file_path: str | None = None) -> str:
-    return _upload.run(None, filename, _get_container(), file_path=file_path)
+def upload_document(
+    url: str | None = None,
+    file_path: str | None = None,
+    file_content_base64: str | None = None,
+) -> str:
+    return _upload.run(file_content_base64, _get_container(), file_path=file_path, url=url)
 
 
 @mcp.tool(
