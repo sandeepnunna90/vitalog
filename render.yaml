@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: vitalog-mcp
+    runtime: docker
+    healthCheckPath: /health
+    envVars:
+      - key: MCP_TRANSPORT
+        value: sse
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_REGION
+        sync: false
+      - key: VITALOG_PATIENT_ID
+        sync: false

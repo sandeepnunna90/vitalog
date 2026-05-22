@@ -17,10 +17,13 @@ Claude Desktop config (local):
       }
     }
 
-Claude Desktop / claude.ai config (remote):
+Claude Desktop config (remote, via mcp-remote):
     {
       "mcpServers": {
-        "vitalog": { "url": "https://vitalog.yourdomain.com/sse" }
+        "vitalog": {
+          "command": "npx",
+          "args": ["mcp-remote", "https://vitalog-9z6b.onrender.com/sse"]
+        }
       }
     }
 
@@ -29,10 +32,7 @@ Optional env vars: MCP_TRANSPORT (stdio|sse), PORT (default 8000), AWS_REGION
 
 SECURITY NOTE (SSE mode):
     The SSE endpoint has no built-in authentication — any caller who knows the URL
-    can invoke all tools. For production deployments, place the server behind a
-    reverse proxy that enforces authentication (e.g. Fly.io or Railway basic-auth /
-    token header). Never expose the SSE port directly to the public internet without
-    a proxy auth layer.
+    can invoke all tools. H5 adds API-key auth; until then keep the URL private.
 """
 
 from __future__ import annotations
@@ -49,6 +49,9 @@ import fitz  # noqa: E402
 
 fitz.TOOLS.mupdf_display_errors(False)
 
+from starlette.requests import Request  # noqa: E402
+from starlette.responses import PlainTextResponse, Response  # noqa: E402
+
 from src.mcp_server.server import mcp  # noqa: E402
 
 if __name__ == "__main__":
@@ -56,9 +59,19 @@ if __name__ == "__main__":
     if transport == "sse":
         _log.warning(
             "SSE mode: no built-in authentication. "
-            "Ensure this endpoint is behind an authenticated reverse proxy."
+            "Keep the SSE URL private until H5 API-key auth is deployed."
         )
         port = int(os.environ.get("PORT", "8000"))
-        mcp.run(transport="sse", host="0.0.0.0", port=port)  # noqa: S104
+
+        app = mcp.sse_app()
+
+        async def health(_: Request) -> Response:
+            return PlainTextResponse("ok")
+
+        app.add_route("/health", health)
+
+        import uvicorn  # noqa: PLC0415
+
+        uvicorn.run(app, host="0.0.0.0", port=port)  # noqa: S104
     else:
         mcp.run()

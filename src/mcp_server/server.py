@@ -12,6 +12,7 @@ supplying any identity information.
 from __future__ import annotations
 
 from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
 
 from src.mcp_server.tools import export as _export
 from src.mcp_server.tools import get_trend as _get_trend
@@ -21,7 +22,14 @@ from src.mcp_server.tools import query as _query
 from src.mcp_server.tools import upload as _upload
 from src.orchestration import ServiceContainer, build_container
 
-mcp: FastMCP = FastMCP("Vitalog")
+# DNS rebinding protection is disabled: Render enforces HTTPS (rebinding requires
+# plain HTTP), and H5 adds API-key auth as the actual access-control layer.
+mcp: FastMCP = FastMCP(
+    "Vitalog",
+    transport_security=TransportSecuritySettings(
+        enable_dns_rebinding_protection=False,
+    ),
+)
 
 
 def _get_container() -> ServiceContainer:
