@@ -2289,6 +2289,7 @@ dependencies = [
     { name = "reportlab" },
     { name = "supabase" },
     { name = "types-python-dateutil" },
+    { name = "uvicorn" },
 ]
 
 [package.dev-dependencies]
@@ -2317,6 +2318,7 @@ requires-dist = [
     { name = "reportlab", specifier = ">=4.0.0" },
     { name = "supabase", specifier = ">=2.0.0" },
     { name = "types-python-dateutil", specifier = ">=2.9.0.20260518" },
+    { name = "uvicorn", specifier = ">=0.29.0" },
 ]
 
 [package.metadata.requires-dev]
