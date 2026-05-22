@@ -95,6 +95,11 @@ async def authorize_handler(request: Request) -> Response:
     if not (mcp_code_challenge and state and redirect_uri):
         return PlainTextResponse("Missing code_challenge, state, or redirect_uri", status_code=400)
 
+    if not (
+        redirect_uri.startswith("http://127.0.0.1") or redirect_uri.startswith("http://localhost")
+    ):
+        return PlainTextResponse("redirect_uri must be a localhost address", status_code=400)
+
     _purge_expired()
 
     # Generate Supabase PKCE pair (separate from MCP's PKCE)
