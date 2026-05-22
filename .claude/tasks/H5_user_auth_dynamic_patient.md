@@ -8,17 +8,54 @@
 
 ## Context
 
-After H4, the server is deployed but open — anyone with the URL can call all tools and all requests resolve to Mark's patient ID. H5 adds Google OAuth via Supabase Auth, creates a patient record per user on first login, and issues a long-lived API key the user puts in their Claude Desktop MCP URL. The server resolves `patient_id` from the API key per-session using Python `contextvars`, replacing the env-var constant.
+After H4, the server is deployed but open — anyone with the URL can call all tools and all requests resolve to Mark's patient ID. H5 adds proper MCP OAuth 2.0 authentication (the same flow used by GitHub and Slack MCP integrations). The user configures Claude Desktop with just the server URL — no credentials in the config. On first connection `mcp-remote` opens a browser window for Google login automatically. After login, a patient row is created and a bearer token is issued; `mcp-remote` stores it locally and sends it on every subsequent SSE connection. The server resolves `patient_id` from the bearer token per-session using Python `contextvars`.
 
 ---
 
 ## Goal
 
-- Users sign up via Google OAuth (Supabase Auth)
-- First login auto-creates a patient row + generates an API key
-- Claude Desktop connects with `?api_key=xxx` in the MCP URL
-- Server resolves correct `patient_id` per connection; rejects missing/invalid keys
-- Local stdio mode (Claude Desktop + env var) still works unchanged
+- Claude Desktop config contains only the server URL — no API keys, no headers
+- First connection: browser opens automatically for Google login
+- Patient row auto-created on first login; existing users get the same token
+- Server resolves correct `patient_id` per connection from `Authorization: Bearer` header
+- Invalid / missing token → 401; connection refused
+- `patient_id` is always resolved from the DB — no env var fallback, no hardcoded IDs
+
+---
+
+## MCP OAuth 2.0 Flow
+
+```
+mcp-remote                  Our server              Supabase / Google
+    │                           │                           │
+    │── GET /sse ──────────────►│                           │
+    │◄─ 401 (with metadata) ────│                           │
+    │                           │                           │
+    │  (opens browser)          │                           │
+    │── GET /authorize?         │                           │
+    │   code_challenge=...  ───►│                           │
+    │   state=...               │── redirect to Google ────►│
+    │   redirect_uri=localhost  │                           │
+    │                           │◄── GET /auth/callback ────│
+    │                           │    (Supabase code)        │
+    │                           │── exchange code ─────────►│
+    │                           │◄── user info + session ───│
+    │                           │   (upsert patient row)    │
+    │◄── redirect to localhost ─│                           │
+    │    ?code=<auth_code>      │                           │
+    │                           │                           │
+    │── POST /token ───────────►│                           │
+    │   code=<auth_code>        │                           │
+    │   code_verifier=...       │                           │
+    │◄── access_token ──────────│                           │
+    │    (= patient api_key)    │                           │
+    │                           │                           │
+    │── GET /sse ───────────────│                           │
+    │   Authorization: Bearer   │                           │
+    │◄── 200 SSE stream ────────│                           │
+```
+
+`mcp-remote` stores the access token locally — subsequent connections are silent (no browser).
 
 ---
 
@@ -26,14 +63,14 @@ After H4, the server is deployed but open — anyone with the URL can call all t
 
 ### 1. Supabase setup (dashboard — not code)
 
-1. Enable **Google OAuth** provider in Supabase dashboard → Auth → Providers → Google
-   - Create a Google Cloud OAuth 2.0 client (console.cloud.google.com)
-   - Set authorised redirect URI to: `https://<project>.supabase.co/auth/v1/callback`
+1. Enable **Google OAuth** provider: Auth → Providers → Google
+   - Create Google Cloud OAuth 2.0 client at console.cloud.google.com
+   - Set authorised redirect URI to: `https://<supabase-project>.supabase.co/auth/v1/callback`
    - Paste Client ID + Secret into Supabase dashboard
 
-2. Add redirect URL for the registration page:
-   - Supabase dashboard → Auth → URL Configuration → Redirect URLs
-   - Add: `https://vitalog-9z6b.onrender.com/register`
+2. Auth → URL Configuration → Redirect URLs → add both:
+   - `https://vitalog-9z6b.onrender.com/auth/callback` (production)
+   - `http://localhost:8000/auth/callback` (local dev)
 
 3. Run migration SQL in Supabase SQL editor:
 ```sql
@@ -67,194 +104,117 @@ Add two methods:
 
 ```python
 def get_by_api_key(self, api_key: uuid.UUID) -> PatientRow | None:
-    data = (
-        self._client.table(_TABLE)
-        .select("*")
-        .eq("api_key", str(api_key))
-        .execute()
-        .data
-    )
-    if not data:
-        return None
-    return PatientRow.model_validate(data[0], strict=False)
+    # lookup by api_key (used as bearer token)
 
 def upsert_from_auth(self, auth_user_id: str, name: str) -> PatientRow:
-    # Check if already exists
-    data = (
-        self._client.table(_TABLE)
-        .select("*")
-        .eq("auth_user_id", auth_user_id)
-        .execute()
-        .data
-    )
-    if data:
-        return PatientRow.model_validate(data[0], strict=False)
-    # Create new
-    new = PatientAuthCreate(
-        patient_id=uuid.uuid4(),
-        name=name,
-        auth_user_id=auth_user_id,
-        api_key=uuid.uuid4(),
-    )
-    result = (
-        self._client.table(_TABLE)
-        .insert(new.model_dump(mode="json"))
-        .execute()
-        .data
-    )
-    return PatientRow.model_validate(result[0], strict=False)
+    # return existing row if auth_user_id already present, else insert new
 ```
 
 ### 4. `src/mcp_server/tools/_guard.py`
 
-Replace the module-level `PATIENT_ID` constant with a contextvar + getter:
+Replace the module-level `PATIENT_ID` constant with a contextvar + getter. No fallback — if the contextvar is not set the call raises `LookupError`, which is the correct failure mode when a request reaches a tool without going through auth middleware.
 
 ```python
-import contextvars
-import os
-import uuid
-
-from src.reference_data.patient_profile import MARK_PATIENT_ID
-
 _patient_id_var: contextvars.ContextVar[uuid.UUID] = contextvars.ContextVar("patient_id")
 
-
-def _load_env_patient_id() -> uuid.UUID | None:
-    val = os.environ.get("VITALOG_PATIENT_ID")
-    if val:
-        return uuid.UUID(val)
-    return None
-
-
 def get_patient_id() -> uuid.UUID:
-    try:
-        return _patient_id_var.get()
-    except LookupError:
-        # Fallback for local stdio mode: env var → Mark hardcoded
-        return _load_env_patient_id() or MARK_PATIENT_ID
-
+    return _patient_id_var.get()  # raises LookupError if middleware didn't set it
 
 def set_patient_id(patient_id: uuid.UUID) -> contextvars.Token[uuid.UUID]:
     return _patient_id_var.set(patient_id)
 ```
 
-Remove the old `PATIENT_ID` constant and `validate_patient_id()` (no longer needed).
+Remove: `PATIENT_ID` constant, `validate_patient_id()`, `_load_env_patient_id()`, any `MARK_PATIENT_ID` import, any `VITALOG_PATIENT_ID` reference.
 
 ### 5. All 6 tool modules
 
-In each of: `upload.py`, `list_biomarkers.py`, `get_trend.py`, `query.py`, `prepare_summary.py`, `export.py`
+In each of `upload.py`, `list_biomarkers.py`, `get_trend.py`, `query.py`, `prepare_summary.py`, `export.py`:
 
-Change:
 ```python
+# before
 from src.mcp_server.tools._guard import PATIENT_ID
-```
-To:
-```python
+# after
 from src.mcp_server.tools._guard import get_patient_id
 ```
 
-Change every call site:
-```python
-# before
-some_workflow(..., PATIENT_ID, ...)
-# after
-some_workflow(..., get_patient_id(), ...)
-```
+Change every call site: `PATIENT_ID` → `get_patient_id()`.
 
 ### 6. `src/mcp_server/auth.py` (new)
 
-Contains:
-- `ApiKeyMiddleware` — Starlette `BaseHTTPMiddleware` that intercepts SSE connections at `/sse`, reads `?api_key=`, validates against DB, sets contextvar
-- `auth_callback_handler` — ASGI handler for `GET /auth/callback?token=...` that validates the Supabase session token, upserts patient, returns the API key as JSON
+Three responsibilities:
 
-```python
-import uuid
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.requests import Request
-from starlette.responses import JSONResponse, Response
+**a) `BearerMiddleware`** — Pure ASGI middleware (not `BaseHTTPMiddleware`, which buffers SSE):
+- On `/sse` requests: read `Authorization: Bearer <token>`, validate UUID, lookup patient via `get_by_api_key()`, set contextvar, yield to next handler, reset contextvar after
+- Missing / invalid token → immediate 401
 
-from src.mcp_server.tools._guard import set_patient_id
-from src.orchestration import build_container
+**b) OAuth 2.0 endpoints:**
 
-
-class ApiKeyMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        if request.url.path == "/sse":
-            raw = request.query_params.get("api_key")
-            if not raw:
-                return Response("Missing api_key", status_code=401)
-            try:
-                api_key = uuid.UUID(raw)
-            except ValueError:
-                return Response("Invalid api_key", status_code=401)
-            container = build_container()
-            row = container.patient_repo.get_by_api_key(api_key)
-            if row is None:
-                return Response("Unknown api_key", status_code=401)
-            token = set_patient_id(row.patient_id)
-            try:
-                return await call_next(request)
-            finally:
-                # Reset contextvar after request completes
-                _patient_id_var.reset(token)
-        return await call_next(request)
-
-
-async def auth_callback_handler(request: Request) -> JSONResponse:
-    token = request.query_params.get("token")
-    if not token:
-        return JSONResponse({"error": "missing token"}, status_code=400)
-    container = build_container()
-    user = container.supabase.auth.get_user(token)
-    if not user or not user.user:
-        return JSONResponse({"error": "invalid token"}, status_code=401)
-    auth_user_id = user.user.id
-    name = user.user.user_metadata.get("full_name") or user.user.email or "User"
-    row = container.patient_repo.upsert_from_auth(auth_user_id, name)
-    return JSONResponse({"api_key": str(row.api_key)})
+`GET /.well-known/oauth-authorization-server` — metadata JSON built dynamically from `BASE_URL` env var (defaults to `http://localhost:8000`):
+```json
+{
+  "issuer": "<BASE_URL>",
+  "authorization_endpoint": "<BASE_URL>/authorize",
+  "token_endpoint": "<BASE_URL>/token",
+  "response_types_supported": ["code"],
+  "code_challenge_methods_supported": ["S256"]
+}
 ```
 
-Note: `_patient_id_var` import needs to be added to auth.py — import from `_guard`.
+`GET /authorize?code_challenge=...&state=...&redirect_uri=...`:
+- Store `{state → (code_challenge, redirect_uri)}` in in-memory dict (TTL ~10 min)
+- Generate Supabase Google OAuth URL with our `/auth/callback` + encoded `state` as redirect
+- Redirect browser there
 
-### 7. `src/mcp_server/static/register.html` (new)
+`GET /auth/callback?code=...&state=...`:
+- Supabase posts back here after Google login with a `code`
+- Exchange code via `supabase.auth.exchange_code_for_session(code)`
+- Get user info (`auth_user_id`, `name`/`email`)
+- Upsert patient row → get `api_key`
+- Generate short-lived `auth_code` UUID, store `{auth_code → api_key}` in memory
+- Retrieve original `redirect_uri` from state, redirect to `redirect_uri?code=<auth_code>&state=<state>`
 
-Minimal single-page HTML:
-- Supabase JS SDK (CDN)
-- "Sign in with Google" button
-- After OAuth callback: POST token to `/auth/callback`, display API key
-- Show ready-to-paste Claude Desktop config snippet
+`POST /token` (form body: `code=...`, `code_verifier=...`):
+- Look up `api_key` by `auth_code` (single-use, delete after lookup)
+- Validate `code_verifier` against stored `code_challenge` (S256)
+- Return `{"access_token": str(api_key), "token_type": "bearer"}`
+
+**c) In-memory state store** — simple `dict` for `authorize_state` and `auth_codes`. These are short-lived (minutes); no persistence needed. Add TTL cleanup on lookup.
+
+### 7. `render.yaml`
+
+- Remove `VITALOG_PATIENT_ID` — no longer needed after H5.
+- Add `BASE_URL` with value `https://vitalog-9z6b.onrender.com` (used to build OAuth metadata and callback URLs dynamically). Set it in the Render dashboard too.
+
+Local dev: set `BASE_URL=http://localhost:8000` in `.env` (or omit — `auth.py` defaults to `http://localhost:8000`).
 
 ### 8. `scripts/run_mcp_server.py`
 
-In SSE mode, wrap the FastMCP ASGI app with middleware and mount extra routes:
+In SSE mode, wrap the app and mount OAuth routes:
 
 ```python
-from starlette.applications import Starlette
-from starlette.routing import Route, Mount
-from starlette.staticfiles import StaticFiles
-from src.mcp_server.auth import ApiKeyMiddleware, auth_callback_handler
+from src.mcp_server.auth import (
+    BearerMiddleware,
+    oauth_metadata_handler,
+    authorize_handler,
+    auth_callback_handler,
+    token_handler,
+)
 
-if transport == "sse":
-    # Get the FastMCP ASGI app (exact API TBD — check mcp.sse_app() or similar)
-    fastmcp_app = mcp.sse_app()
-    
-    app = Starlette(routes=[
-        Route("/health", lambda r: PlainTextResponse("ok")),
-        Route("/auth/callback", auth_callback_handler),
-        Mount("/register", StaticFiles(directory="src/mcp_server/static", html=True)),
-        Mount("/", fastmcp_app),
-    ])
-    app.add_middleware(ApiKeyMiddleware)
-    
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=port)
+app = mcp.sse_app()
+app.add_route("/.well-known/oauth-authorization-server", oauth_metadata_handler)
+app.add_route("/authorize", authorize_handler)
+app.add_route("/auth/callback", auth_callback_handler)
+app.add_route("/token", token_handler, methods=["POST"])
+app.add_route("/health", health)
+# Wrap with pure-ASGI bearer middleware
+app = BearerMiddleware(app)
+
+uvicorn.run(app, host="0.0.0.0", port=port)
 ```
-
-**Implementation note:** The exact FastMCP API for extracting the ASGI app must be confirmed during implementation by checking the installed `mcp` package version. Look for `mcp.sse_app()`, `mcp.starlette_app()`, or similar. If FastMCP doesn't expose this, use `uvicorn` directly on the wrapped app.
 
 ### 9. `src/orchestration/container.py`
 
-Add `patient_repo` to `ServiceContainer` if not already present, so `auth.py` can access it via `container.patient_repo`.
+Verify `patient_repo` is accessible on `ServiceContainer` (likely already present — check during implementation).
 
 ---
 
@@ -262,53 +222,103 @@ Add `patient_repo` to `ServiceContainer` if not already present, so `auth.py` ca
 
 | File | Change |
 |------|--------|
-| Supabase dashboard | Enable Google OAuth; add migration SQL |
-| `src/persistence/models.py` | Add `auth_user_id`, `api_key` to PatientRow; add PatientAuthCreate |
+| Supabase dashboard | Enable Google OAuth; add callback redirect URL; run migration SQL |
+| `src/persistence/models.py` | Add `auth_user_id`, `api_key` to `PatientRow`; add `PatientAuthCreate` |
 | `src/persistence/patient_repository.py` | Add `get_by_api_key`, `upsert_from_auth` |
-| `src/mcp_server/tools/_guard.py` | Replace PATIENT_ID constant with contextvar + `get_patient_id()` |
-| `upload.py`, `list_biomarkers.py`, `get_trend.py`, `query.py`, `prepare_summary.py`, `export.py` | Update PATIENT_ID → get_patient_id() |
-| `src/mcp_server/auth.py` | New — middleware + auth callback handler |
-| `src/mcp_server/static/register.html` | New — registration page |
-| `scripts/run_mcp_server.py` | Wrap app with middleware, mount /health, /auth/callback, /register |
+| `src/mcp_server/tools/_guard.py` | Replace `PATIENT_ID` constant with contextvar + `get_patient_id()` |
+| `upload.py`, `list_biomarkers.py`, `get_trend.py`, `query.py`, `prepare_summary.py`, `export.py` | `PATIENT_ID` → `get_patient_id()` |
+| `src/mcp_server/auth.py` | New — `BearerMiddleware` + 4 OAuth route handlers |
+| `render.yaml` | Remove `VITALOG_PATIENT_ID`; add `BASE_URL=https://vitalog-9z6b.onrender.com` |
+| `scripts/run_mcp_server.py` | Mount OAuth routes + wrap with `BearerMiddleware` |
 
 ---
 
-## Claude Desktop config (remote + auth)
+## Claude Desktop config
 
+Remote (Render):
 ```json
 {
   "mcpServers": {
     "vitalog": {
       "command": "npx",
-      "args": ["mcp-remote", "https://vitalog-9z6b.onrender.com/sse?api_key=YOUR_KEY"]
+      "args": ["mcp-remote", "https://vitalog-9z6b.onrender.com/sse"]
     }
   }
 }
 ```
 
-Local stdio mode (unchanged):
+Local dev (run `MCP_TRANSPORT=sse PORT=8000 uv run python scripts/run_mcp_server.py` first):
 ```json
 {
   "mcpServers": {
     "vitalog": {
-      "command": "uv",
-      "args": ["run", "python", "scripts/run_mcp_server.py"],
-      "cwd": "/absolute/path/to/vitalog"
+      "command": "npx",
+      "args": ["mcp-remote", "http://localhost:8000/sse"]
     }
   }
 }
 ```
+
+First connection: browser opens automatically for Google login. Subsequent connections: silent (token cached by `mcp-remote`). SSE + OAuth is the only supported mode after H5.
 
 ---
 
 ## Verification
 
-1. Visit `https://vitalog-9z6b.onrender.com/register` → "Sign in with Google" → redirected to Google → back to page with API key displayed
-2. Check Supabase `patient` table — new row with `auth_user_id` + `api_key` populated
-3. Claude Desktop config updated with `?api_key=xxx` — restart Claude Desktop — Vitalog tools appear
-4. `list_biomarkers` returns the correct user's data (not Mark's)
-5. Second user registers → gets a different API key → different patient row → tools isolated
-6. Invalid API key in URL → Claude Desktop shows connection error (server returns 401)
-7. Local stdio mode: `VITALOG_PATIENT_ID` env var still resolves correctly without API key
-8. `make test` passes — no regressions
-9. `make typecheck` passes
+1. Claude Desktop config has only the URL — no API key, no header
+2. First connection → browser opens → Google login → lands back on a success page
+3. Supabase `patient` table has new row with `auth_user_id` + `api_key` populated
+4. Claude Desktop tools appear — `list_biomarkers` returns the correct user's data
+5. Second user logs in → gets a different `api_key` → different patient row → tools isolated
+6. Tampered / missing bearer token → 401 → Claude Desktop shows connection error
+7. `make test` passes; `make typecheck` passes
+
+---
+
+## Security notes
+
+- Bearer token = patient `api_key` UUID (128-bit random) — not a Supabase JWT
+- In-memory OAuth state has TTL; auth codes are single-use
+- Pure ASGI middleware avoids `BaseHTTPMiddleware` SSE buffering issue
+- HTTPS enforced by Render; bearer token never travels over plain HTTP
+- H5 is still "you have the token" not "you prove you own the token per-request" — full JWT validation is v1+ scope
+
+---
+
+### Implementation (2026-05-22)
+
+**PR:** #39 — `feat(auth): MCP OAuth 2.0 + per-request patient_id via contextvar (H5)`  
+**Branch:** `feat/h5-user-auth` → merged to `main`
+
+**Files created:**
+- `src/mcp_server/auth.py` — `BearerMiddleware` (pure ASGI) + 4 OAuth route handlers (`oauth_metadata_handler`, `authorize_handler`, `auth_callback_handler`, `token_handler`) + RFC 7591 `registration_handler`
+- `migrations/004_add_auth_columns.sql` — `ALTER TABLE patient ADD COLUMN auth_user_id text UNIQUE; ALTER TABLE patient ADD COLUMN api_key uuid UNIQUE DEFAULT gen_random_uuid();`
+- `tests/mcp_server/test_auth.py` — 16 tests covering metadata shape, redirect_uri allowlist, single-use auth codes, 401 on invalid bearer, middleware passthrough
+
+**Files modified:**
+- `src/mcp_server/tools/_guard.py` — replaced `PATIENT_ID` module-level constant with `ContextVar[uuid.UUID]`; added `get_patient_id()` and `set_patient_id()`; removed env-var fallback (LookupError if middleware didn't set it)
+- `src/persistence/models.py` — added `auth_user_id: str | None`, `api_key: uuid.UUID | None` to `PatientRow`; added `PatientAuthCreate` model
+- `src/persistence/patient_repository.py` — added `get_by_api_key()` and `upsert_from_auth()`
+- All 6 tool modules (upload, list_biomarkers, get_trend, query, prepare_summary, export) — `PATIENT_ID` → `get_patient_id()`
+- `scripts/run_mcp_server.py` — added `load_dotenv()`, mounted all OAuth routes + `/register`
+- `render.yaml` — removed `VITALOG_PATIENT_ID`; added `BASE_URL`, `RENDER_MAX_INSTANCES=1`
+- `.gitignore` — added `docs/demo_queries.md`
+
+**Key design decisions:**
+- Pure ASGI `BearerMiddleware` (not `BaseHTTPMiddleware`) — avoids SSE response buffering
+- RFC 7591 `/register` endpoint required by mcp-remote before OAuth flow starts
+- Dual PKCE: mcp-remote↔server and server↔Supabase use independent verifier/challenge pairs
+- PKCE re-validation skipped at `/token` — UUID4 `auth_code` is single-use and unguessable (documented inline as v1+ hardening item)
+- `_RENDER_MAX_INSTANCES=1` in render.yaml documents that in-memory OAuth state (`_authorize_state`, `_auth_codes`) breaks in multi-instance deployments
+
+**PR review findings addressed:**
+1. Open redirect — validated `redirect_uri` against localhost allowlist in `authorize_handler`
+2. Auth tests — added `tests/mcp_server/test_auth.py` with 16 tests
+3. DB migration — `migrations/004_add_auth_columns.sql` tracks the schema change in git
+
+**Testing:**
+- Deployed to Render (`https://vitalog-9z6b.onrender.com`)
+- Full OAuth flow verified: Claude Desktop → mcp-remote → `/register` → `/authorize` → Google login → `/auth/callback` → `/token` → Bearer on `/sse`
+- Uploaded two lab reports via Google Drive URLs; biomarkers extracted and stored
+- Trend queries, NLQ handler, and summary generator all working per `docs/demo_queries.md`
+- Guardrails confirmed: out-of-scope queries (medications, diet, appointments) return safe refusal without calling LLM

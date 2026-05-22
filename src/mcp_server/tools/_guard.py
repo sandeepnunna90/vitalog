@@ -1,44 +1,21 @@
-"""Patient-ID guard — validates against the configured patient UUID.
+"""Patient-ID contextvar — set per-request by BearerMiddleware in SSE mode.
 
-VITALOG_PATIENT_ID env var sets the accepted UUID at runtime.
-Falls back to Mark's hardcoded capstone UUID if the env var is not set.
+get_patient_id() raises LookupError if called without BearerMiddleware having
+first set the contextvar. This is the intended failure mode: tools must not
+run without an authenticated patient context.
 """
 
 from __future__ import annotations
 
-import os
+import contextvars
 import uuid
 
-from src.reference_data.patient_profile import MARK_PATIENT_ID
+_patient_id_var: contextvars.ContextVar[uuid.UUID] = contextvars.ContextVar("patient_id")
 
 
-def _load_accepted_patient_id() -> uuid.UUID:
-    raw = os.environ.get("VITALOG_PATIENT_ID")
-    if raw:
-        try:
-            return uuid.UUID(raw)
-        except ValueError:
-            raise ValueError(f"VITALOG_PATIENT_ID env var is not a valid UUID: {raw!r}") from None
-    return MARK_PATIENT_ID
+def get_patient_id() -> uuid.UUID:
+    return _patient_id_var.get()
 
 
-_ACCEPTED_PATIENT_ID: uuid.UUID = _load_accepted_patient_id()
-PATIENT_ID: uuid.UUID = _ACCEPTED_PATIENT_ID
-
-
-def validate_patient_id(patient_id: str) -> uuid.UUID:
-    """Return the parsed UUID if patient_id matches the accepted patient.
-
-    Raises ValueError if the UUID is malformed or not registered.
-    Accepts the UUID in any standard string form (with or without hyphens).
-    """
-    try:
-        parsed = uuid.UUID(patient_id)
-    except ValueError:
-        raise ValueError(f"Invalid patient_id format: {patient_id!r}") from None
-    if parsed != _ACCEPTED_PATIENT_ID:
-        raise ValueError(
-            f"patient_id {patient_id!r} is not registered in this system. "
-            f"Set VITALOG_PATIENT_ID env var to register a patient UUID."
-        )
-    return parsed
+def set_patient_id(patient_id: uuid.UUID) -> contextvars.Token[uuid.UUID]:
+    return _patient_id_var.set(patient_id)

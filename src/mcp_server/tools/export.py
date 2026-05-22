@@ -5,7 +5,7 @@ from __future__ import annotations
 import base64
 import uuid
 
-from src.mcp_server.tools._guard import PATIENT_ID
+from src.mcp_server.tools._guard import get_patient_id
 from src.orchestration import ServiceContainer, export_workflow
 
 _VALID_FORMATS = frozenset({"pdf", "markdown", "json"})
@@ -20,7 +20,7 @@ def run(summary_id: str, format: str, container: ServiceContainer) -> str:
         return f"Invalid summary_id: {summary_id!r}"
 
     try:
-        data = export_workflow(sid, format, PATIENT_ID, container)
+        data = export_workflow(sid, format, get_patient_id(), container)
     except ValueError as exc:
         return f"Export failed: {exc}"
 

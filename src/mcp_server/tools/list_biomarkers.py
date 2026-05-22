@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from src.mcp_server.tools._guard import PATIENT_ID
+from src.mcp_server.tools._guard import get_patient_id
 from src.orchestration import ServiceContainer, list_biomarkers_workflow
 
 
 def run(container: ServiceContainer, filter: str | None = None) -> str:
-    items = list_biomarkers_workflow(PATIENT_ID, container, filter=filter)
+    items = list_biomarkers_workflow(get_patient_id(), container, filter=filter)
 
     if not items:
         return "No biomarker records found for this patient."

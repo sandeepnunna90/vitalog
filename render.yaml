@@ -18,5 +18,9 @@ services:
         sync: false
       - key: AWS_REGION
         sync: false
-      - key: VITALOG_PATIENT_ID
-        sync: false
+      - key: BASE_URL
+        value: https://vitalog-9z6b.onrender.com
+      # OAuth state is kept in-memory: must stay single-instance.
+      # Scale to >1 instance only after migrating state to Redis/DB.
+      - key: RENDER_MAX_INSTANCES
+        value: "1"

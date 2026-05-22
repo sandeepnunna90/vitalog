@@ -23,7 +23,7 @@ from src.mcp_server.tools import list_biomarkers as list_biomarkers_tool
 from src.mcp_server.tools import prepare_summary as prepare_summary_tool
 from src.mcp_server.tools import query as query_tool
 from src.mcp_server.tools import upload as upload_tool
-from src.mcp_server.tools._guard import validate_patient_id
+from src.mcp_server.tools._guard import _patient_id_var, get_patient_id, set_patient_id
 from src.orchestration.container import ServiceContainer
 from src.orchestration.workflows import (
     UploadResult,
@@ -38,7 +38,6 @@ from src.reference_data.patient_profile import MARK_PATIENT_ID
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 _PATIENT_ID = MARK_PATIENT_ID
-_PATIENT_ID_STR = str(_PATIENT_ID)
 
 
 def _make_row(
@@ -78,32 +77,30 @@ def _mock_container(**overrides: Any) -> ServiceContainer:
 # ── patient_id guard ──────────────────────────────────────────────────────────
 
 
-def test_patient_id_guard_accepts_mark(monkeypatch: pytest.MonkeyPatch) -> None:
-    import src.mcp_server.tools._guard as guard_mod
-
-    monkeypatch.setattr(guard_mod, "_ACCEPTED_PATIENT_ID", _PATIENT_ID)
-    assert validate_patient_id(_PATIENT_ID_STR) == _PATIENT_ID
-
-
-def test_patient_id_guard_rejects_unknown() -> None:
-    with pytest.raises(ValueError, match="not registered"):
-        validate_patient_id(str(uuid.uuid4()))
+def test_get_patient_id_raises_when_not_set() -> None:
+    """get_patient_id() raises LookupError when the contextvar has not been set."""
+    token = _patient_id_var.set(uuid.uuid4())
+    _patient_id_var.reset(token)  # ensure clean state
+    with pytest.raises(LookupError):
+        get_patient_id()
 
 
-def test_patient_id_guard_rejects_malformed() -> None:
-    with pytest.raises(ValueError, match="Invalid patient_id"):
-        validate_patient_id("not-a-uuid")
+def test_set_and_get_patient_id_round_trip() -> None:
+    """set_patient_id() + get_patient_id() returns the same UUID."""
+    pid = uuid.uuid4()
+    token = set_patient_id(pid)
+    try:
+        assert get_patient_id() == pid
+    finally:
+        _patient_id_var.reset(token)
 
 
-def test_patient_id_guard_accepts_env_var_uuid(monkeypatch: pytest.MonkeyPatch) -> None:
-    """When VITALOG_PATIENT_ID is set, the guard accepts that UUID instead of Mark's."""
-    import src.mcp_server.tools._guard as guard_mod
-
-    custom_id = uuid.uuid4()
-    monkeypatch.setattr(guard_mod, "_ACCEPTED_PATIENT_ID", custom_id)
-    assert validate_patient_id(str(custom_id)) == custom_id
-    with pytest.raises(ValueError, match="not registered"):
-        validate_patient_id(_PATIENT_ID_STR)
+@pytest.fixture()
+def patient_id_ctx() -> pytest.FixtureRequest:
+    """Set _PATIENT_ID as the contextvar for tests that call tool run() functions."""
+    token = set_patient_id(_PATIENT_ID)
+    yield  # type: ignore[misc]
+    _patient_id_var.reset(token)
 
 
 # ── upload_document_workflow ──────────────────────────────────────────────────
@@ -148,7 +145,7 @@ def test_upload_tool_no_source() -> None:
     assert "attach" in result.lower() or "file path" in result.lower()
 
 
-def test_upload_tool_url_fetch(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_upload_tool_url_fetch(patient_id_ctx: None, monkeypatch: pytest.MonkeyPatch) -> None:
     """URL source: _fetch_url is called and bytes are forwarded to the workflow."""
     fake_bytes = b"%PDF-fake"
     monkeypatch.setattr("src.mcp_server.tools.upload._fetch_url", lambda _url: fake_bytes)
@@ -175,7 +172,7 @@ def test_upload_tool_url_fetch(monkeypatch: pytest.MonkeyPatch) -> None:
         assert called_bytes == fake_bytes
 
 
-def test_upload_tool_file_path(tmp_path: Path) -> None:
+def test_upload_tool_file_path(patient_id_ctx: None, tmp_path: Path) -> None:
     """file_path source: file bytes are read and forwarded to the workflow."""
     pdf = tmp_path / "report.pdf"
     pdf.write_bytes(b"%PDF-test")
@@ -201,7 +198,7 @@ def test_upload_tool_file_path(tmp_path: Path) -> None:
         assert called_bytes == b"%PDF-test"
 
 
-def test_upload_tool_base64_content() -> None:
+def test_upload_tool_base64_content(patient_id_ctx: None) -> None:
     """base64 source: decoded bytes are forwarded to the workflow."""
     raw = b"%PDF-b64test"
     encoded = base64.b64encode(raw).decode("ascii")
@@ -279,7 +276,7 @@ def test_list_biomarkers_workflow_filter() -> None:
     assert items[0]["canonical_biomarker_id"] == "hba1c"
 
 
-def test_list_biomarkers_tool_empty() -> None:
+def test_list_biomarkers_tool_empty(patient_id_ctx: None) -> None:
     container = _mock_container()
     container.biomarker_repo.list_for_patient.return_value = []
     result = list_biomarkers_tool.run(container)
@@ -334,7 +331,7 @@ def test_view_trend_workflow_passthrough() -> None:
     assert len(result.points) == 1
 
 
-def test_get_trend_tool_formats_json() -> None:
+def test_get_trend_tool_formats_json(patient_id_ctx: None) -> None:
     trend = TrendResult(
         patient_id=_PATIENT_ID,
         canonical_id="hba1c",
@@ -372,7 +369,7 @@ def test_query_workflow_passthrough() -> None:
     assert result.text == "Your HbA1c was 6.8% on March 12, 2026."
 
 
-def test_query_tool_returns_text() -> None:
+def test_query_tool_returns_text(patient_id_ctx: None) -> None:
     container = _mock_container()
     container.nlq_handler.answer.return_value = NlqResponse(
         text="Answer text",
@@ -417,7 +414,7 @@ def test_generate_summary_workflow_returns_summary_id() -> None:
     assert result.conditions_section == "Type 2 Diabetes"
 
 
-def test_prepare_summary_tool_includes_summary_id() -> None:
+def test_prepare_summary_tool_includes_summary_id(patient_id_ctx: None) -> None:
     summary_id = uuid.uuid4()
     container = _mock_container()
     container.summary_generator.generate.return_value = MagicMock(
@@ -476,23 +473,26 @@ def test_export_tool_invalid_format() -> None:
 
 
 def test_export_tool_pdf_returns_base64() -> None:
-    from src.mcp_server.tools._guard import PATIENT_ID as CONFIGURED_PATIENT_ID
-
     summary_id = uuid.uuid4()
     pdf_bytes = b"PDF content"
+    patient_id = uuid.uuid4()
 
     container = _mock_container()
     container.summary_repo.get.return_value = MagicMock(
         summary_id=summary_id,
-        patient_id=CONFIGURED_PATIENT_ID,
+        patient_id=patient_id,
     )
 
-    with pytest.MonkeyPatch().context() as mp:
-        mp.setattr(
-            "src.orchestration.workflows._export_summary",
-            lambda **kwargs: pdf_bytes,
-            raising=False,
-        )
-        result = export_tool.run(str(summary_id), "pdf", container)
+    token = set_patient_id(patient_id)
+    try:
+        with pytest.MonkeyPatch().context() as mp:
+            mp.setattr(
+                "src.orchestration.workflows._export_summary",
+                lambda **kwargs: pdf_bytes,
+                raising=False,
+            )
+            result = export_tool.run(str(summary_id), "pdf", container)
+    finally:
+        _patient_id_var.reset(token)
     assert "Base64" in result
     assert base64.b64encode(pdf_bytes).decode("ascii") in result
