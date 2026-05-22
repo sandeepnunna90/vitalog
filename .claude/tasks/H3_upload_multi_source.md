@@ -1,6 +1,6 @@
 # H3 — Multi-source upload: URL + local file_path + base64
 
-**Status:** ⬜ pending  
+**Status:** ✅ done  
 **Branch:** `feat/h3-upload-multi-source`  
 **Depends on:** G1, G3
 
@@ -176,6 +176,32 @@ def upload_document(
 3. `make lint` — ruff clean
 4. `make typecheck` — mypy --strict passes
 5. Manual: share a Google Drive PDF link in chat → Claude calls `upload_document(url=...)` → processes correctly
+
+---
+
+### Implementation (2026-05-22)
+
+**Files modified:**
+- `pyproject.toml` — added `httpx>=0.27.0`
+- `uv.lock` — updated after `uv sync`
+- `src/mcp_server/tools/upload.py` — added `_fetch_url` + `_normalize_share_url`; SSRF guard (HTTPS-only); 50 MB streaming OOM cap; removed `~/Downloads` fallback and `filename` param; moved `httpx` import to module level
+- `src/mcp_server/server.py` — added `url` + `file_path` params to `upload_document` tool; updated description with explicit routing instructions and trigger phrases for local paths
+- `tests/mcp_server/test_tools_smoke.py` — added URL fetch, file_path, base64, no-source, and URL normalization tests; removed Downloads test; fixed `tmp_path` type annotation
+
+**Key design decisions:**
+- URL-based is the primary path: user pastes a share link in chat, server fetches directly — no size limits, works from any LLM client
+- Google Drive and Dropbox share URLs rewritten to direct-download equivalents; all other URLs pass through unchanged
+- SSRF guard: HTTPS-only check applied before normalization so `http://169.254.169.254/` is rejected
+- OOM guard: streaming with 50 MB cap matches Textract file-size limit
+
+**PR review fixes (PR #37):**
+- SSRF: added `url.lower().startswith("https://")` check in `_fetch_url`
+- OOM: replaced `resp.content` buffer with chunked streaming and 50 MB cap
+- Style: moved `import httpx` from inside `_fetch_url` to module-level imports
+- Test: fixed `tmp_path` annotation from `pytest.TempPathFactory` → `pathlib.Path`
+
+**Post-merge fix:**
+- Updated `upload_document` tool description to add explicit routing instructions so Claude Desktop's model uses `file_path` for local path strings instead of refusing them
 
 ---
 
