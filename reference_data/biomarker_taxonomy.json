@@ -2775,5 +2775,54 @@
     },
     "verification_tier": "canonical",
     "verified": true
+  },
+  {
+    "vitalog_id": "vitamin_d",
+    "canonical_name": "25-Hydroxyvitamin D",
+    "definition": "Vitamin D (25-hydroxyvitamin D) is the storage form measured in blood; deficiency is common and linked to poor bone health, immune function, and cardiovascular risk.",
+    "loinc_code": "1989-3",
+    "ucum_unit": "ng/mL",
+    "unit_conversions": [
+      {
+        "from_unit": "nmol/L",
+        "to_unit": "ng/mL",
+        "formula": "linear",
+        "factor": 0.4006
+      }
+    ],
+    "physiological_min": 4.0,
+    "physiological_max": 150.0,
+    "aliases": [
+      "vitamin D",
+      "Vitamin D",
+      "25-OH Vitamin D",
+      "25-hydroxyvitamin D",
+      "25(OH)D",
+      "vitamin D3",
+      "calcidiol",
+      "25-OHD",
+      "Vitamin D, 25-Hydroxy"
+    ],
+    "conditions": [
+      "T2D",
+      "osteoporosis",
+      "general_health"
+    ],
+    "guideline_ranges": {
+      "Endocrine_Society_deficient": "<20 ng/mL",
+      "Endocrine_Society_insufficient": "20-29 ng/mL",
+      "Endocrine_Society_sufficient": "30-100 ng/mL",
+      "Endocrine_Society_toxic": ">100 ng/mL"
+    },
+    "guideline_citations": {
+      "Endocrine_Society": "Holick MF, et al. Endocrine Society Clinical Practice Guideline: Vitamin D Deficiency. J Clin Endocrinol Metab. 2011;96(7):1911-1930. https://doi.org/10.1210/jc.2011-0385"
+    },
+    "provenance": {
+      "source": "Endocrine Society 2011 Vitamin D Deficiency Guideline",
+      "verified_date": "2024-01-01",
+      "notes": "25-hydroxyvitamin D (calcidiol) is the major circulating form; measures total vitamin D status"
+    },
+    "verification_tier": "canonical",
+    "verified": true
   }
 ]

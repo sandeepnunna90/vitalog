@@ -95,13 +95,8 @@ def run(
     result = upload_document_workflow(file_bytes, "document.pdf", get_patient_id(), container)
 
     lines = [f"Document processed ({result.category})."]
-    if result.auto_accepted or result.pending_user or result.rejected or result.pending_taxonomy:
-        lines.append(
-            f"  {result.auto_accepted} auto-accepted, "
-            f"{result.pending_user} pending user review, "
-            f"{result.pending_taxonomy} pending taxonomy, "
-            f"{result.rejected} rejected."
-        )
+    if result.auto_accepted:
+        lines.append(f"  {result.auto_accepted} biomarkers extracted and stored.")
     if result.duplicate_skipped:
         lines.append(f"  {result.duplicate_skipped} duplicate(s) skipped (already on record).")
     if result.document_id:
