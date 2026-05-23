@@ -22,9 +22,9 @@ from src.persistence.taxonomy_repository import TaxonomyRepository
 
 def _get_client() -> object:
     url = os.environ.get("SUPABASE_URL", "")
-    key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
+    key = os.environ.get("SUPABASE_SERVICE_KEY", "")
     if not url or not key:
-        print("ERROR: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set", file=sys.stderr)
+        print("ERROR: SUPABASE_URL and SUPABASE_SERVICE_KEY must be set", file=sys.stderr)
         sys.exit(1)
     return create_client(url, key)
 

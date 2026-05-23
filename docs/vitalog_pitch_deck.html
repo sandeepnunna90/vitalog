@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vitalog — Pitch Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+
+/* ── Reset ──────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Tokens ─────────────────────────────────────────────── */
+:root {
+  --teal:       #0D4F5C;
+  --teal-mid:   #1A7A8A;
+  --teal-light: #DCF0F4;
+  --teal-pale:  #F0F8FA;
+  --coral:      #E85D4A;
+  --coral-lt:   #FDF1EF;
+  --bg:         #F7F8F9;
+  --text:       #1C1C1E;
+  --muted:      #6B7B80;
+  --white:      #FFFFFF;
+  --rule:       #E2EAEC;
+  --font:       'Inter', -apple-system, sans-serif;
+
+  --slide-w: 1280px;
+  --slide-h: 720px;
+  --pad-x: 72px;
+  --pad-y: 56px;
+}
+
+/* ── Body / Deck ─────────────────────────────────────────── */
+html, body {
+  height: 100%;
+  background: #111;
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+}
+
+#deck {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px 24px 80px;
+  position: relative;
+}
+
+/* ── Slide shell ─────────────────────────────────────────── */
+.slide {
+  width: var(--slide-w);
+  height: var(--slide-h);
+  position: relative;
+  overflow: hidden;
+  display: none;
+  flex-direction: column;
+  flex-shrink: 0;
+  font-family: var(--font);
+}
+.slide.active { display: flex; }
+.slide--light { background: var(--bg); }
+.slide--dark  { background: var(--teal); }
+
+/* ── Logo ────────────────────────────────────────────────── */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  position: absolute;
+  top: 30px;
+  left: var(--pad-x);
+  z-index: 5;
+}
+.logo-word {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.logo--light .logo-word { color: var(--teal); }
+.logo--dark  .logo-word { color: var(--white); }
+
+/* ── Top accent bar ──────────────────────────────────────── */
+.top-bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: var(--coral);
+}
+
+/* ── Slide body ──────────────────────────────────────────── */
+.slide-body {
+  position: absolute;
+  top: 96px;
+  left: var(--pad-x);
+  right: var(--pad-x);
+  bottom: var(--pad-y);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Section label ───────────────────────────────────────── */
+.label {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--coral);
+  margin-bottom: 16px;
+}
+
+/* ── Slide title ─────────────────────────────────────────── */
+.title {
+  font-size: 46px;
+  font-weight: 800;
+  color: var(--teal);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  margin-bottom: 32px;
+}
+.title.sm { font-size: 38px; margin-bottom: 24px; }
+
+/* ── Bullets ─────────────────────────────────────────────── */
+.bullets {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+.bullets li {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  font-size: 16.5px;
+  line-height: 1.55;
+  color: var(--text);
+}
+.bullets li::before {
+  content: '';
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--coral);
+  flex-shrink: 0;
+  margin-top: 7px;
+}
+.bullets.sm li { font-size: 15px; gap: 11px; }
+.bullets.sm li::before { width: 6px; height: 6px; margin-top: 6px; }
+
+/* ── Pull quote ──────────────────────────────────────────── */
+.pull-quote {
+  margin-top: auto;
+  border-left: 3px solid var(--teal);
+  padding: 14px 20px;
+  background: var(--teal-pale);
+  border-radius: 0 8px 8px 0;
+  font-size: 15px;
+  font-style: italic;
+  color: var(--teal);
+  line-height: 1.65;
+}
+
+/* ── Flow steps (solution) ───────────────────────────────── */
+.steps {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  margin-bottom: 22px;
+  flex: 1;
+}
+.step {
+  flex: 1;
+  background: var(--teal-light);
+  border-radius: 10px;
+  padding: 22px 20px 20px;
+}
+.step-num {
+  display: block;
+  font-size: 30px;
+  font-weight: 900;
+  color: var(--coral);
+  line-height: 1;
+  margin-bottom: 10px;
+}
+.step h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--teal);
+  margin-bottom: 8px;
+}
+.step p {
+  font-size: 13.5px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+.step-arrow {
+  font-size: 20px;
+  color: var(--teal-mid);
+  align-self: center;
+  flex-shrink: 0;
+  padding: 0 2px;
+}
+
+/* ── Safety note ─────────────────────────────────────────── */
+.safety {
+  background: var(--coral-lt);
+  border-left: 3px solid var(--coral);
+  padding: 11px 16px;
+  border-radius: 0 6px 6px 0;
+  font-size: 12.5px;
+  color: #7A2417;
+  line-height: 1.6;
+}
+
+/* ── Stat cards ──────────────────────────────────────────── */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 28px;
+}
+.stat {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  padding: 22px 16px 18px;
+  text-align: center;
+}
+.stat-val {
+  display: block;
+  font-size: 46px;
+  font-weight: 900;
+  color: var(--coral);
+  line-height: 1;
+  margin-bottom: 10px;
+  letter-spacing: -0.02em;
+}
+.stat-lbl {
+  font-size: 12.5px;
+  color: var(--teal);
+  line-height: 1.45;
+  font-weight: 500;
+}
+
+/* ── Demo grid ───────────────────────────────────────────── */
+.demo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  flex: 1;
+  margin-bottom: 20px;
+}
+.demo-col-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--teal-mid);
+  margin-bottom: 12px;
+}
+.demo-items {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.demo-items li {
+  font-size: 14.5px;
+  color: var(--text);
+  line-height: 1.5;
+  padding: 10px 14px;
+  background: var(--white);
+  border-radius: 8px;
+  border-left: 3px solid var(--teal);
+}
+.demo-footer {
+  font-size: 11.5px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  border-top: 1px solid var(--rule);
+  padding-top: 14px;
+}
+
+/* ── Week rows ───────────────────────────────────────────── */
+.weeks { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+.week {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 14px;
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+}
+.week-pill {
+  background: var(--teal);
+  color: var(--white);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 14px;
+  border-radius: 100px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.week-text {
+  font-size: 13.5px;
+  color: var(--text);
+  line-height: 1.45;
+}
+
+/* ── Hard things ─────────────────────────────────────────── */
+.rule { height: 1px; background: var(--rule); margin-bottom: 18px; }
+.hard-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 12px;
+}
+.hard-items { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.hard-items li {
+  display: flex;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.5;
+}
+.hard-items li::before {
+  content: '→';
+  color: var(--coral);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ── Slide 1 — Title ─────────────────────────────────────── */
+.s1-watermark {
+  position: absolute;
+  right: -20px;
+  top: 50%;
+  transform: translateY(-52%);
+  font-size: 200px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.045);
+  letter-spacing: -0.04em;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  line-height: 1;
+}
+.s1-body {
+  position: absolute;
+  left: var(--pad-x);
+  top: 50%;
+  transform: translateY(-50%);
+  max-width: 740px;
+}
+.s1-eyebrow {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 22px;
+}
+.s1-title {
+  font-size: 80px;
+  font-weight: 800;
+  color: var(--white);
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  margin-bottom: 26px;
+}
+.s1-title .accent { color: var(--coral); }
+.s1-sub {
+  font-size: 20px;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.6;
+  max-width: 540px;
+  font-weight: 400;
+}
+.s1-footer {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 50px;
+  background: var(--coral);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--pad-x);
+  font-size: 13px;
+  color: rgba(255,255,255,0.92);
+  font-weight: 500;
+  letter-spacing: 0.03em;
+}
+
+/* ── Slide 7 — Team ──────────────────────────────────────── */
+.s7-body {
+  position: absolute;
+  left: var(--pad-x);
+  right: var(--pad-x);
+  top: 0;
+  bottom: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.s7-eyebrow {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 18px;
+}
+.s7-name {
+  font-size: 62px;
+  font-weight: 800;
+  color: var(--white);
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  margin-bottom: 14px;
+}
+.s7-role {
+  font-size: 20px;
+  color: rgba(255,255,255,0.55);
+  margin-bottom: 10px;
+  font-weight: 400;
+}
+.s7-bio {
+  font-size: 17px;
+  color: rgba(255,255,255,0.38);
+  line-height: 1.65;
+  margin-bottom: 32px;
+  max-width: 580px;
+}
+.s7-note {
+  font-size: 14px;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.02em;
+}
+
+/* ── Navigation ──────────────────────────────────────────── */
+#nav {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(13,79,92,0.92);
+  backdrop-filter: blur(8px);
+  padding: 8px 20px;
+  border-radius: 100px;
+  border: 1px solid rgba(255,255,255,0.1);
+  z-index: 100;
+}
+.nav-btn {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  font-size: 16px;
+  font-family: var(--font);
+  padding: 2px 6px;
+  line-height: 1;
+}
+.nav-btn:hover { color: #fff; }
+.nav-btn:disabled { opacity: 0.25; cursor: default; }
+#nav-dots { display: flex; gap: 6px; align-items: center; }
+.dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+.dot.on { background: var(--coral); width: 16px; border-radius: 3px; }
+#counter { font-size: 11px; color: rgba(255,255,255,0.35); min-width: 30px; text-align: center; }
+
+/* ── Print ───────────────────────────────────────────────── */
+@media print {
+  html, body { background: white; }
+  #deck { display: block; padding: 0; min-height: unset; background: white; }
+  #nav { display: none; }
+  .slide { display: flex !important; page-break-after: always; break-after: page; }
+  @page { size: 1280px 720px; margin: 0; }
+}
+
+
+/* ── Architecture diagram ────────────────────────────── */
+.arch { display: flex; flex-direction: column; gap: 7px; flex: 1; }
+.arch-arrow { text-align: center; font-size: 14px; color: var(--muted); line-height: 1; margin: -2px 0; }
+
+.arch-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 10px 18px;
+}
+.arch-row--gateway {
+  background: var(--coral-lt);
+  border-color: rgba(232,93,74,0.3);
+}
+.arch-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--white);
+  background: var(--teal);
+  padding: 4px 12px;
+  border-radius: 100px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 110px;
+  text-align: center;
+}
+.arch-row--gateway .arch-badge { background: var(--coral); }
+.arch-desc {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.45;
+}
+.arch-desc strong { color: var(--teal); font-weight: 600; }
+.arch-row--gateway .arch-desc strong { color: #7A2417; }
+.arch-desc .sep { color: var(--muted); margin: 0 4px; }
+
+.arch-value-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.arch-box {
+  background: var(--white);
+  border: 1.5px solid var(--teal-mid);
+  border-radius: 8px;
+  padding: 13px 13px 11px;
+}
+.arch-box-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--white);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background: var(--teal);
+  margin: -13px -13px 9px -13px;
+  padding: 9px 13px;
+  border-radius: 6px 6px 0 0;
+}
+.arch-box ul { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+.arch-box ul li {
+  font-size: 12.5px;
+  color: var(--text);
+  line-height: 1.4;
+  display: flex;
+  gap: 7px;
+}
+.arch-box ul li::before { content: '·'; color: var(--coral); font-weight: 900; flex-shrink: 0; }
+
+</style>
+</head>
+<body>
+
+<div id="deck">
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 1 — TITLE
+════════════════════════════════════════════════════════ -->
+<div class="slide slide--dark active" data-i="0">
+
+  <div class="s1-watermark" aria-hidden="true">Vitalog</div>
+
+  <!-- Logo -->
+  <div class="logo logo--dark">
+    <svg width="24" height="19" viewBox="0 0 24 19" fill="none" aria-hidden="true">
+      <circle cx="2.5" cy="16.5" r="2.5" fill="#E85D4A"/>
+      <circle cx="12"  cy="9.5"  r="2.5" fill="#E85D4A"/>
+      <circle cx="21.5" cy="2.5" r="2.5" fill="#E85D4A"/>
+      <path d="M2.5 16.5 L12 9.5 L21.5 2.5" stroke="#E85D4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="logo-word">Vitalog</span>
+  </div>
+
+  <div class="s1-body">
+    <p class="s1-eyebrow">Health Intelligence</p>
+    <h1 class="s1-title">Your lab results.<br>Unified. <span class="accent">Intelligent.</span></h1>
+    <p class="s1-sub">See trends across years of data. Ask questions in plain language. Walk into every appointment knowing exactly what changed and what to ask.</p>
+  </div>
+
+  <div class="s1-footer">
+    100x Engineers &nbsp;·&nbsp; Applied AI Mastery &nbsp;·&nbsp; May 2026
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 2 — PROBLEM
+════════════════════════════════════════════════════════ -->
+<div class="slide slide--light" data-i="1">
+  <div class="top-bar"></div>
+
+  <div class="logo logo--light">
+    <svg width="24" height="19" viewBox="0 0 24 19" fill="none" aria-hidden="true">
+      <circle cx="2.5" cy="16.5" r="2.5" fill="#E85D4A"/>
+      <circle cx="12"  cy="9.5"  r="2.5" fill="#E85D4A"/>
+      <circle cx="21.5" cy="2.5" r="2.5" fill="#E85D4A"/>
+      <path d="M2.5 16.5 L12 9.5 L21.5 2.5" stroke="#E85D4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="logo-word">Vitalog</span>
+  </div>
+
+  <div class="slide-body">
+    <p class="label">The Problem</p>
+    <h2 class="title">Years of lab reports.<br>No way to see the full picture.</h2>
+
+    <ul class="bullets" style="margin-bottom: 28px;">
+      <li>Patients managing chronic conditions accumulate reports across multiple labs, portals, and providers — with no unified view</li>
+      <li>Each report is a snapshot. Trends — the thing that actually matters — are invisible across those snapshots</li>
+      <li>Raw numbers come with reference ranges but no context for your personal history</li>
+      <li>Patients walk into appointments not knowing what changed, what's trending, or what to ask</li>
+    </ul>
+
+    <blockquote class="pull-quote">
+      "I have results from three different labs and I never know what to bring to my appointment."
+    </blockquote>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 3 — SOLUTION
+════════════════════════════════════════════════════════ -->
+<div class="slide slide--light" data-i="2">
+  <div class="top-bar"></div>
+
+  <div class="logo logo--light">
+    <svg width="24" height="19" viewBox="0 0 24 19" fill="none" aria-hidden="true">
+      <circle cx="2.5" cy="16.5" r="2.5" fill="#E85D4A"/>
+      <circle cx="12"  cy="9.5"  r="2.5" fill="#E85D4A"/>
+      <circle cx="21.5" cy="2.5" r="2.5" fill="#E85D4A"/>
+      <path d="M2.5 16.5 L12 9.5 L21.5 2.5" stroke="#E85D4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="logo-word">Vitalog</span>
+  </div>
+
+  <div class="slide-body">
+    <p class="label">The Solution</p>
+    <h2 class="title sm">Scattered lab reports → unified,<br>intelligent health record.</h2>
+
+    <div class="steps">
+      <div class="step">
+        <span class="step-num">01</span>
+        <h3>Upload</h3>
+        <p>PDF, photo, or scanned image — via URL, file, or link. From any lab</p>
+      </div>
+      <span class="step-arrow" aria-hidden="true">→</span>
+      <div class="step">
+        <span class="step-num">02</span>
+        <h3>Extract</h3>
+        <p>AWS Textract + Claude Vision pull every biomarker with field-level confidence</p>
+      </div>
+      <span class="step-arrow" aria-hidden="true">→</span>
+      <div class="step">
+        <span class="step-num">03</span>
+        <h3>Ask</h3>
+        <p>Natural language queries grounded in your actual data</p>
+      </div>
+      <span class="step-arrow" aria-hidden="true">→</span>
+      <div class="step">
+        <span class="step-num">04</span>
+        <h3>Summarise</h3>
+        <p>Citation-verified one-page summary — every number traceable to the source</p>
+      </div>
+    </div>
+
+    <div class="safety">
+      <strong>Hard constraint:</strong> Vitalog provides information, not advice. No diagnoses. No medication recommendations. No dietary prescriptions. Every number traces back to the source report.
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 4 — PRODUCT DEMO
+════════════════════════════════════════════════════════ -->
+<div class="slide slide--light" data-i="3">
+  <div class="top-bar"></div>
+
+  <div class="logo logo--light">
+    <svg width="24" height="19" viewBox="0 0 24 19" fill="none" aria-hidden="true">
+      <circle cx="2.5" cy="16.5" r="2.5" fill="#E85D4A"/>
+      <circle cx="12"  cy="9.5"  r="2.5" fill="#E85D4A"/>
+      <circle cx="21.5" cy="2.5" r="2.5" fill="#E85D4A"/>
+      <path d="M2.5 16.5 L12 9.5 L21.5 2.5" stroke="#E85D4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="logo-word">Vitalog</span>
+  </div>
+
+  <div class="slide-body">
+    <p class="label">Product Demo</p>
+    <h2 class="title sm">Live Demo</h2>
+
+    <div class="demo-grid">
+      <div>
+        <p class="demo-col-label">Getting data in</p>
+        <ul class="demo-items">
+          <li>Upload 2 lab reports (PDF or photo) via URL</li>
+          <li>Unknown biomarker auto-queued → resolved live, no re-upload</li>
+          <li>Full biomarker list across both reports, normalised</li>
+          <li>Trends across time with clinical guideline bands overlaid</li>
+        </ul>
+      </div>
+      <div>
+        <p class="demo-col-label">Intelligence on top</p>
+        <ul class="demo-items">
+          <li>Ask: <em>"What's changed in my bloodwork since last year?"</em></li>
+          <li>One-page appointment summary — ready to share with your doctor</li>
+          <li>Export as PDF</li>
+          <li>Guardrails: clinical advice, medications, diet — all declined cleanly</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="demo-footer">
+      Interface: Claude Desktop &nbsp;·&nbsp; Transport: MCP over SSE &nbsp;·&nbsp; Deployed: Render
+    </p>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 5 — ARCHITECTURE
+════════════════════════════════════════════════════════ -->
+<div class="slide slide--light" data-i="3">
+  <div class="top-bar"></div>
+
+  <div class="logo logo--light">
+    <svg width="24" height="19" viewBox="0 0 24 19" fill="none" aria-hidden="true">
+      <circle cx="2.5" cy="16.5" r="2.5" fill="#E85D4A"/>
+      <circle cx="12"  cy="9.5"  r="2.5" fill="#E85D4A"/>
+      <circle cx="21.5" cy="2.5" r="2.5" fill="#E85D4A"/>
+      <path d="M2.5 16.5 L12 9.5 L21.5 2.5" stroke="#E85D4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="logo-word">Vitalog</span>
+  </div>
+
+  <div class="slide-body">
+    <p class="label">Architecture</p>
+    <h2 class="title sm" style="margin-bottom: 18px;">How it's built</h2>
+
+    <div class="arch">
+
+      <!-- Interface -->
+      <div class="arch-row">
+        <span class="arch-badge">Interface</span>
+        <p class="arch-desc">
+          <strong>MCP Server</strong> — 6 tools deployed on Render via SSE
+          <span class="sep">·</span> Claude Desktop
+          <span class="sep">·</span> OAuth 2.0 (RFC 7591 dynamic client registration)
+          <span class="sep">·</span> Multi-source upload (URL / file / base64)
+        </p>
+      </div>
+
+      <div class="arch-arrow">↓</div>
+
+      <!-- Value layer — 4 boxes -->
+      <div class="arch-value-grid">
+        <div class="arch-box" style="background:#EDF7F5;">
+          <div class="arch-box-title">Ingestion</div>
+          <ul>
+            <li>Upload & MIME validation</li>
+            <li>Document classifier (lab / unsupported / other)</li>
+            <li>AWS Textract OCR + Claude Vision fallback</li>
+            <li>Structurer with 3-band confidence routing</li>
+          </ul>
+        </div>
+        <div class="arch-box" style="background:#EEF4FF;">
+          <div class="arch-box-title">Normalization</div>
+          <ul>
+            <li>Alias lookup — maps lab naming variants to a unified taxonomy</li>
+            <li>Unit conversion via UCUM standard</li>
+            <li>LOINC code — standardised clinical identifier per biomarker</li>
+            <li>Range check — rejects implausible extracted values</li>
+            <li>Dedup + pending queue — unknown names queued, never discarded</li>
+          </ul>
+        </div>
+        <div class="arch-box" style="background:#FFF4EC;">
+          <div class="arch-box-title">Intelligence</div>
+          <ul>
+            <li>Trend engine with guideline bands</li>
+            <li>NLQ handler (plain language queries)</li>
+            <li>Observation generator</li>
+            <li>Summary + PDF / Markdown / JSON export</li>
+          </ul>
+        </div>
+        <div class="arch-box" style="background:#F5F0FF;">
+          <div class="arch-box-title">Persistence</div>
+          <ul>
+            <li>Supabase Postgres</li>
+            <li>Supabase Storage (lab files)</li>
+            <li>Repository pattern throughout</li>
+            <li>Tamper-evident audit log</li>
+          </ul>
+        </div>
+      </div>
+
+      <p style="font-size:10.5px;color:var(--muted);letter-spacing:0.02em;padding:0 2px;">
+        <strong style="color:var(--teal);font-weight:600;">LOINC</strong> — Logical Observation Identifiers Names &amp; Codes &nbsp;·&nbsp;
+        <strong style="color:var(--teal);font-weight:600;">UCUM</strong> — Unified Code for Units of Measure
+      </p>
+
+      <div class="arch-arrow">↓</div>
+
+      <!-- AI Gateway -->
+      <div class="arch-row arch-row--gateway">
+        <span class="arch-badge">AI Gateway</span>
+        <p class="arch-desc">
+          <strong>Every LLM call routes here</strong>
+          <span class="sep">·</span> L1 Input guard + injection detection
+          <span class="sep">·</span> L2 Safety preamble + few-shot refusals
+          <span class="sep">·</span> L3 Banned-phrase regex
+          <span class="sep">·</span> Mode A citation verifier (summaries)
+          <span class="sep">·</span> Mode B citation verifier (NLQ + observations)
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 5 — AI GATEWAY
+════════════════════════════════════════════════════════ -->
+<div class="slide slide--light" data-i="4">
+  <div class="top-bar"></div>
+
+  <div class="logo logo--light">
+    <svg width="24" height="19" viewBox="0 0 24 19" fill="none" aria-hidden="true">
+      <circle cx="2.5" cy="16.5" r="2.5" fill="#E85D4A"/>
+      <circle cx="12"  cy="9.5"  r="2.5" fill="#E85D4A"/>
+      <circle cx="21.5" cy="2.5" r="2.5" fill="#E85D4A"/>
+      <path d="M2.5 16.5 L12 9.5 L21.5 2.5" stroke="#E85D4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="logo-word">Vitalog</span>
+  </div>
+
+  <div class="slide-body">
+    <p class="label">AI Gateway</p>
+    <h2 class="title sm" style="margin-bottom:18px;">Safety by architecture, not by prompt.</h2>
+
+    <!-- Pipeline row: L1 → L2 → LLM → L3 -->
+    <div style="display:flex;align-items:stretch;gap:6px;margin-bottom:14px;">
+
+      <div style="flex:1;background:var(--white);border:1px solid var(--rule);border-radius:8px;padding:13px 15px;">
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:7px;">
+          <span style="background:var(--teal);color:white;font-size:10px;font-weight:700;padding:3px 11px;border-radius:100px;flex-shrink:0;">L1</span>
+          <strong style="font-size:13px;color:var(--teal);">Input guard</strong>
+        </div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:4px;">
+          <li style="font-size:11.5px;color:var(--muted);line-height:1.45;display:flex;gap:7px;"><span style="color:var(--coral);font-weight:900;flex-shrink:0;">·</span>Dates, SSNs, phone numbers redacted from audit logs</li>
+          <li style="font-size:11.5px;color:var(--muted);line-height:1.45;display:flex;gap:7px;"><span style="color:var(--coral);font-weight:900;flex-shrink:0;">·</span>Scans nested JSON fields for prompt injection — not just surface text</li>
+          <li style="font-size:11.5px;color:var(--muted);line-height:1.45;display:flex;gap:7px;"><span style="color:var(--coral);font-weight:900;flex-shrink:0;">·</span>Flags attacks, never silently drops a request</li>
+        </ul>
+      </div>
+
+      <div style="align-self:center;font-size:14px;color:var(--muted);flex-shrink:0;padding:0 2px;">→</div>
+
+      <div style="flex:1;background:var(--white);border:1px solid var(--rule);border-radius:8px;padding:13px 15px;">
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:7px;">
+          <span style="background:var(--teal);color:white;font-size:10px;font-weight:700;padding:3px 11px;border-radius:100px;flex-shrink:0;">L2</span>
+          <strong style="font-size:13px;color:var(--teal);">Safety preamble</strong>
+        </div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:4px;">
+          <li style="font-size:11.5px;color:var(--muted);line-height:1.45;display:flex;gap:7px;"><span style="color:var(--coral);font-weight:900;flex-shrink:0;">·</span>Role boundary prepended to every call, loaded once at startup</li>
+          <li style="font-size:11.5px;color:var(--muted);line-height:1.45;display:flex;gap:7px;"><span style="color:var(--coral);font-weight:900;flex-shrink:0;">·</span>Three few-shot refusal examples: medical advice, medication adjustment, diagnosis</li>
+          <li style="font-size:11.5px;color:var(--muted);line-height:1.45;display:flex;gap:7px;"><span style="color:var(--coral);font-weight:900;flex-shrink:0;">·</span>Model sees the correct refusal shape before it responds</li>
+        </ul>
+      </div>
+
+      <div style="align-self:center;font-size:14px;color:var(--muted);flex-shrink:0;padding:0 2px;">→</div>
+
+      <div style="flex:0 0 90px;background:var(--teal);border-radius:8px;padding:13px 10px;display:flex;align-items:center;justify-content:center;text-align:center;">
+        <span style="font-size:12px;font-weight:700;color:white;line-height:1.4;">LLM<br>call</span>
+      </div>
+
+      <div style="align-self:center;font-size:14px;color:var(--muted);flex-shrink:0;padding:0 2px;">→</div>
+
+      <div style="flex:1;background:var(--white);border:1px solid var(--rule);border-radius:8px;padding:13px 15px;">
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:7px;">
+          <span style="background:var(--teal);color:white;font-size:10px;font-weight:700;padding:3px 11px;border-radius:100px;flex-shrink:0;">L3</span>
+          <strong style="font-size:13px;color:var(--teal);">Output scanner</strong>
+        </div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:4px;">
+          <li style="font-size:11.5px;color:var(--muted);line-height:1.45;display:flex;gap:7px;"><span style="color:var(--coral);font-weight:900;flex-shrink:0;">·</span>Pydantic schema validation first — cheapest check, fails fast</li>
+          <li style="font-size:11.5px;color:var(--muted);line-height:1.45;display:flex;gap:7px;"><span style="color:var(--coral);font-weight:900;flex-shrink:0;">·</span>Banned-phrase regex scanner — deterministic, no hallucination risk</li>
+          <li style="font-size:11.5px;color:var(--muted);line-height:1.45;display:flex;gap:7px;"><span style="color:var(--coral);font-weight:900;flex-shrink:0;">·</span>Retry prompt names the exact phrase that triggered the block</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- Citation verifiers: Mode A | Mode B -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+
+      <div style="background:var(--coral-lt);border:1px solid rgba(232,93,74,0.25);border-radius:8px;padding:14px 16px;">
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:8px;">
+          <span style="background:var(--coral);color:white;font-size:10px;font-weight:700;padding:3px 11px;border-radius:100px;flex-shrink:0;">Mode A</span>
+          <strong style="font-size:13px;color:#7A2417;">Structured citations — Summary</strong>
+        </div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:4px;">
+          <li style="font-size:11.5px;color:#7A2417;opacity:0.85;line-height:1.45;display:flex;gap:7px;"><span style="color:var(--coral);font-weight:900;flex-shrink:0;">·</span>Every number must include a citation object with a source record UUID</li>
+          <li style="font-size:11.5px;color:#7A2417;opacity:0.85;line-height:1.45;display:flex;gap:7px;"><span style="color:var(--coral);font-weight:900;flex-shrink:0;">·</span>Verifier looks up each UUID and checks the value (±0.5% tolerance)</li>
+          <li style="font-size:11.5px;color:#7A2417;opacity:0.85;line-height:1.45;display:flex;gap:7px;"><span style="color:var(--coral);font-weight:900;flex-shrink:0;">·</span>One unverifiable value → entire output rejected and retried</li>
+        </ul>
+      </div>
+
+      <div style="background:var(--coral-lt);border:1px solid rgba(232,93,74,0.25);border-radius:8px;padding:14px 16px;">
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:8px;">
+          <span style="background:var(--coral);color:white;font-size:10px;font-weight:700;padding:3px 11px;border-radius:100px;flex-shrink:0;">Mode B</span>
+          <strong style="font-size:13px;color:#7A2417;">Parse and match — NLQ &amp; Observations</strong>
+        </div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:4px;">
+          <li style="font-size:11.5px;color:#7A2417;opacity:0.85;line-height:1.45;display:flex;gap:7px;"><span style="color:var(--coral);font-weight:900;flex-shrink:0;">·</span>Every number extracted from prose and matched against patient records</li>
+          <li style="font-size:11.5px;color:#7A2417;opacity:0.85;line-height:1.45;display:flex;gap:7px;"><span style="color:var(--coral);font-weight:900;flex-shrink:0;">·</span>Decimals: ±0.5% tolerance · Integers: exact match required</li>
+          <li style="font-size:11.5px;color:#7A2417;opacity:0.85;line-height:1.45;display:flex;gap:7px;"><span style="color:var(--coral);font-weight:900;flex-shrink:0;">·</span>Value not in the retrieval set → retry</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- Guarantee bar -->
+    <div style="background:var(--teal);border-radius:8px;padding:11px 18px;">
+      <p style="font-size:13px;color:rgba(255,255,255,0.92);line-height:1.5;">The LLM cannot fabricate a biomarker value and have it reach the user — it either cites a real record, or the output is rejected.</p>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 6 — TRACTION
+════════════════════════════════════════════════════════ -->
+<div class="slide slide--light" data-i="4">
+  <div class="top-bar"></div>
+
+  <div class="logo logo--light">
+    <svg width="24" height="19" viewBox="0 0 24 19" fill="none" aria-hidden="true">
+      <circle cx="2.5" cy="16.5" r="2.5" fill="#E85D4A"/>
+      <circle cx="12"  cy="9.5"  r="2.5" fill="#E85D4A"/>
+      <circle cx="21.5" cy="2.5" r="2.5" fill="#E85D4A"/>
+      <path d="M2.5 16.5 L12 9.5 L21.5 2.5" stroke="#E85D4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="logo-word">Vitalog</span>
+  </div>
+
+  <div class="slide-body">
+    <p class="label">Traction</p>
+    <h2 class="title sm">Pre-revenue. Built, deployed,<br>and tested on real lab reports.</h2>
+
+    <div class="stats">
+      <div class="stat">
+        <span class="stat-val">6</span>
+        <span class="stat-lbl">MCP tools — complete end-to-end product surface</span>
+      </div>
+      <div class="stat">
+        <span class="stat-val">30/33</span>
+        <span class="stat-lbl">stories shipped in ~3 weeks</span>
+      </div>
+      <div class="stat">
+        <span class="stat-val">20+</span>
+        <span class="stat-lbl">adversarial prompts tested — all blocked</span>
+      </div>
+      <div class="stat">
+        <span class="stat-val">0</span>
+        <span class="stat-lbl">hallucinated values reach the output</span>
+      </div>
+    </div>
+
+    <ul class="bullets sm">
+      <li>Used real lab reports for end-to-end testing — upload, extract, trend, summary, export</li>
+      <li>Live on Render with OAuth 2.0 — not a local notebook demo</li>
+      <li>Hallucination prevention is architectural, not a prompt instruction — two independent citation verifiers</li>
+      <li>Every story had acceptance criteria, automated PR review, and was tested before merge</li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 6 — BUILD JOURNEY
+════════════════════════════════════════════════════════ -->
+<div class="slide slide--light" data-i="5">
+  <div class="top-bar"></div>
+
+  <div class="logo logo--light">
+    <svg width="24" height="19" viewBox="0 0 24 19" fill="none" aria-hidden="true">
+      <circle cx="2.5" cy="16.5" r="2.5" fill="#E85D4A"/>
+      <circle cx="12"  cy="9.5"  r="2.5" fill="#E85D4A"/>
+      <circle cx="21.5" cy="2.5" r="2.5" fill="#E85D4A"/>
+      <path d="M2.5 16.5 L12 9.5 L21.5 2.5" stroke="#E85D4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="logo-word">Vitalog</span>
+  </div>
+
+  <div class="slide-body">
+    <p class="label">Build Journey</p>
+    <h2 class="title sm">33 stories &nbsp;·&nbsp; 144 points &nbsp;·&nbsp; ~3 weeks</h2>
+
+    <div class="weeks">
+      <div class="week">
+        <span class="week-pill">Week 1</span>
+        <span class="week-text">Data model &nbsp;·&nbsp; Supabase persistence &nbsp;·&nbsp; 84-biomarker taxonomy &nbsp;·&nbsp; AI Gateway &nbsp;·&nbsp; 3-layer guardrails</span>
+      </div>
+      <div class="week">
+        <span class="week-pill">Week 2</span>
+        <span class="week-text">AWS Textract OCR &nbsp;·&nbsp; Vision-LLM fallback &nbsp;·&nbsp; Document classifier &nbsp;·&nbsp; Confidence routing &nbsp;·&nbsp; Alias lookup &nbsp;·&nbsp; Unit conversion &nbsp;·&nbsp; Duplicate detection &nbsp;·&nbsp; Pending queue</span>
+      </div>
+      <div class="week">
+        <span class="week-pill">Week 3</span>
+        <span class="week-text">Trend engine &nbsp;·&nbsp; NLQ handler &nbsp;·&nbsp; Observation generator &nbsp;·&nbsp; Citation-verified summary &nbsp;·&nbsp; PDF/MD/JSON export &nbsp;·&nbsp; MCP server &nbsp;·&nbsp; Render deployment &nbsp;·&nbsp; OAuth 2.0</span>
+      </div>
+    </div>
+
+    <div class="rule"></div>
+
+    <p class="hard-label">Hard things that got built</p>
+    <ul class="hard-items">
+      <li>Two citation-verification modes — no hallucinated biomarker value reaches the output</li>
+      <li>Pending taxonomy queue — unknown biomarker names are never silently discarded</li>
+      <li>Architecture → acceptance criteria → code → automated review — on every single story</li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 7 — TEAM
+════════════════════════════════════════════════════════ -->
+<div class="slide slide--dark" data-i="6">
+  <div style="position:absolute;top:0;left:0;right:0;height:4px;background:var(--coral);"></div>
+
+  <div class="logo logo--dark">
+    <svg width="24" height="19" viewBox="0 0 24 19" fill="none" aria-hidden="true">
+      <circle cx="2.5" cy="16.5" r="2.5" fill="#E85D4A"/>
+      <circle cx="12"  cy="9.5"  r="2.5" fill="#E85D4A"/>
+      <circle cx="21.5" cy="2.5" r="2.5" fill="#E85D4A"/>
+      <path d="M2.5 16.5 L12 9.5 L21.5 2.5" stroke="#E85D4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="logo-word">Vitalog</span>
+  </div>
+
+  <div class="s7-body">
+    <p class="s7-eyebrow">Team</p>
+    <h2 class="s7-name">Sandeep Nunna</h2>
+    <p class="s7-role">Software Engineer</p>
+    <p class="s7-note">Built solo &nbsp;·&nbsp; 100x Engineers Applied AI Mastery cohort &nbsp;·&nbsp; May 2026</p>
+  </div>
+
+  <div class="s1-footer">
+    100x Engineers &nbsp;·&nbsp; Applied AI Mastery &nbsp;·&nbsp; May 2026
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 9 — THANK YOU / Q&A
+════════════════════════════════════════════════════════ -->
+<div class="slide slide--dark" data-i="8">
+  <div style="position:absolute;top:0;left:0;right:0;height:4px;background:var(--coral);"></div>
+
+  <div class="logo logo--dark">
+    <svg width="24" height="19" viewBox="0 0 24 19" fill="none" aria-hidden="true">
+      <circle cx="2.5" cy="16.5" r="2.5" fill="#E85D4A"/>
+      <circle cx="12"  cy="9.5"  r="2.5" fill="#E85D4A"/>
+      <circle cx="21.5" cy="2.5" r="2.5" fill="#E85D4A"/>
+      <path d="M2.5 16.5 L12 9.5 L21.5 2.5" stroke="#E85D4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="logo-word">Vitalog</span>
+  </div>
+
+  <div class="s1-watermark" aria-hidden="true">Q&amp;A</div>
+
+  <div class="s1-body" style="max-width:780px;">
+    <h2 class="s1-title" style="font-size:96px;margin-bottom:20px;">Thank you.</h2>
+    <p class="s1-sub" style="font-size:22px;">Questions?</p>
+  </div>
+
+  <div class="s1-footer">
+    100x Engineers &nbsp;·&nbsp; Applied AI Mastery &nbsp;·&nbsp; May 2026
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+
+<!-- ── Navigation ─────────────────────────────────────────── -->
+<nav id="nav" aria-label="Slide navigation">
+  <button class="nav-btn" id="btn-prev" disabled aria-label="Previous">←</button>
+  <div id="nav-dots"></div>
+  <button class="nav-btn" id="btn-next" aria-label="Next">→</button>
+  <span id="counter">1 / 9</span>
+</nav>
+
+
+<script>
+const slides = Array.from(document.querySelectorAll('.slide'));
+const total  = slides.length;
+let cur = 0;
+
+// Build dots
+const dotsEl = document.getElementById('nav-dots');
+slides.forEach((_, i) => {
+  const b = document.createElement('button');
+  b.className = 'dot' + (i === 0 ? ' on' : '');
+  b.setAttribute('aria-label', `Go to slide ${i + 1}`);
+  b.addEventListener('click', () => go(i));
+  dotsEl.appendChild(b);
+});
+
+function go(n) {
+  if (n < 0 || n >= total || n === cur) return;
+  slides[cur].classList.remove('active');
+  cur = n;
+  slides[cur].classList.add('active');
+  sync();
+}
+
+function sync() {
+  dotsEl.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('on', i === cur));
+  document.getElementById('counter').textContent = `${cur + 1} / ${total}`;
+  document.getElementById('btn-prev').disabled = cur === 0;
+  document.getElementById('btn-next').disabled = cur === total - 1;
+}
+
+document.getElementById('btn-prev').addEventListener('click', () => go(cur - 1));
+document.getElementById('btn-next').addEventListener('click', () => go(cur + 1));
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ')  { e.preventDefault(); go(cur + 1); }
+  if (e.key === 'ArrowLeft')                     { e.preventDefault(); go(cur - 1); }
+});
+
+// Touch swipe
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+document.addEventListener('touchend',   e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 50) go(dx < 0 ? cur + 1 : cur - 1);
+}, { passive: true });
+
+sync();
+</script>
+</body>
+</html>

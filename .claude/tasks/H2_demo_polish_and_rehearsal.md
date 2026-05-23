@@ -70,4 +70,31 @@ Roadmap §4 Exit criteria list every one of these items as a hard gate. This sto
 
 ## Notes / changelog
 
-_(append after work is done)_
+### Cohort demo 2026-05-22
+
+**Scope adjustment:** Original AC set was written for capstone submission (cold-machine test, AGENTS.md, recording committed to git, etc.). Today's goal is a clean cohort demo — not the full submission checklist.
+
+**Actual demo script:** `docs/demo_queries.md` — execute in order, live, via Claude Desktop connected to `https://vitalog-9z6b.onrender.com/sse`.
+
+**Demo flow (from demo_queries.md):**
+1. Upload lab report #1 via Google Drive URL
+2. Upload lab report #2 via Google Drive URL
+3. `List all my biomarkers`
+4. Trend queries: HbA1c, glucose, LDL, HDL, triglycerides, creatinine, hemoglobin
+5. NLQ queries: cholesterol history, kidney function, cardiovascular risk, red blood cell status, thyroid health
+6. `Generate a health summary for me` → Mode A citation-verified output
+7. `Export the summary as a PDF` (or markdown)
+8. Guardrail queries: diet advice, medications, appointments, calorie tracking, family member comparison, blood pressure
+
+**Deferred for today (not blocking demo):**
+- H1 hero longitudinal dataset — not needed for cohort
+- `scripts/demo_dry_run.sh` / `make pre-demo-check`
+- AGENTS.md
+- Backup video recording
+- Cold-machine reproduction test
+- C5 confidence band calibration
+
+**What was verified before demo:**
+- MCP OAuth flow confirmed working (H5)
+- Two lab reports uploaded and biomarkers extracted (H5 test run)
+- Trend, NLQ, summary, export, and guardrail paths all confirmed live

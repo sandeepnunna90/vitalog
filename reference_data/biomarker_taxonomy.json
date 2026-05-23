@@ -2,7 +2,7 @@
   {
     "vitalog_id": "hba1c",
     "canonical_name": "Hemoglobin A1c",
-    "definition": "Hemoglobin A1c measures the percentage of hemoglobin coated with sugar, reflecting average blood glucose over the past 2–3 months.",
+    "definition": "Hemoglobin A1c measures the percentage of hemoglobin coated with sugar, reflecting average blood glucose over the past 2\u20133 months.",
     "loinc_code": "4548-4",
     "ucum_unit": "%",
     "unit_conversions": [
@@ -41,7 +41,7 @@
       "ADA_target_elderly": "<8.0%"
     },
     "guideline_citations": {
-      "ADA": "American Diabetes Association. Standards of Care in Diabetes—2024. Diabetes Care. 2024;47(Suppl 1):S1-S321. https://doi.org/10.2337/dc24-S001"
+      "ADA": "American Diabetes Association. Standards of Care in Diabetes\u20142024. Diabetes Care. 2024;47(Suppl 1):S1-S321. https://doi.org/10.2337/dc24-S001"
     },
     "provenance": {
       "source": "ADA Standards of Care in Diabetes 2024, Section 6",
@@ -54,7 +54,7 @@
   {
     "vitalog_id": "fasting_glucose",
     "canonical_name": "Fasting Plasma Glucose",
-    "definition": "Fasting blood glucose measures blood sugar after ≥8 hours without eating, used to screen for and monitor diabetes and prediabetes.",
+    "definition": "Fasting blood glucose measures blood sugar after \u22658 hours without eating, used to screen for and monitor diabetes and prediabetes.",
     "loinc_code": "1558-6",
     "ucum_unit": "mg/dL",
     "unit_conversions": [
@@ -91,7 +91,7 @@
       "ADA_target_preprandial": "80-130 mg/dL"
     },
     "guideline_citations": {
-      "ADA": "American Diabetes Association. Standards of Care in Diabetes—2024. Diabetes Care. 2024;47(Suppl 1):S1-S321. https://doi.org/10.2337/dc24-S001"
+      "ADA": "American Diabetes Association. Standards of Care in Diabetes\u20142024. Diabetes Care. 2024;47(Suppl 1):S1-S321. https://doi.org/10.2337/dc24-S001"
     },
     "provenance": {
       "source": "ADA Standards of Care in Diabetes 2024, Section 2",
@@ -104,7 +104,7 @@
   {
     "vitalog_id": "postprandial_glucose",
     "canonical_name": "2-Hour Postprandial Glucose",
-    "definition": "Postprandial glucose measures blood sugar 1–2 hours after a meal, reflecting how well your body processes carbohydrates.",
+    "definition": "Postprandial glucose measures blood sugar 1\u20132 hours after a meal, reflecting how well your body processes carbohydrates.",
     "loinc_code": "1521-4",
     "ucum_unit": "mg/dL",
     "unit_conversions": [
@@ -139,7 +139,7 @@
       "ADA_target_postprandial": "<180 mg/dL"
     },
     "guideline_citations": {
-      "ADA": "American Diabetes Association. Standards of Care in Diabetes—2024. Diabetes Care. 2024;47(Suppl 1):S1-S321. https://doi.org/10.2337/dc24-S001"
+      "ADA": "American Diabetes Association. Standards of Care in Diabetes\u20142024. Diabetes Care. 2024;47(Suppl 1):S1-S321. https://doi.org/10.2337/dc24-S001"
     },
     "provenance": {
       "source": "ADA Standards of Care in Diabetes 2024, Section 6",
@@ -200,7 +200,7 @@
   {
     "vitalog_id": "ldl_cholesterol",
     "canonical_name": "LDL Cholesterol",
-    "definition": "LDL (“bad”) cholesterol drives arterial plaque buildup; lowering it is the primary goal of cholesterol-lowering therapy.",
+    "definition": "LDL (\u201cbad\u201d) cholesterol drives arterial plaque buildup; lowering it is the primary goal of cholesterol-lowering therapy.",
     "loinc_code": "13457-7",
     "ucum_unit": "mg/dL",
     "unit_conversions": [
@@ -254,7 +254,7 @@
   {
     "vitalog_id": "hdl_cholesterol",
     "canonical_name": "HDL Cholesterol",
-    "definition": "HDL (“good”) cholesterol transports excess cholesterol back to the liver; higher levels are generally protective against heart disease.",
+    "definition": "HDL (\u201cgood\u201d) cholesterol transports excess cholesterol back to the liver; higher levels are generally protective against heart disease.",
     "loinc_code": "2085-9",
     "ucum_unit": "mg/dL",
     "unit_conversions": [
@@ -396,7 +396,7 @@
   {
     "vitalog_id": "egfr",
     "canonical_name": "Estimated Glomerular Filtration Rate",
-    "definition": "eGFR (estimated Glomerular Filtration Rate) estimates how much blood your kidneys filter per minute — the primary measure of kidney function.",
+    "definition": "eGFR (estimated Glomerular Filtration Rate) estimates how much blood your kidneys filter per minute \u2014 the primary measure of kidney function.",
     "loinc_code": "62238-1",
     "ucum_unit": "mL/min/1.73m2",
     "unit_conversions": [],
@@ -433,7 +433,7 @@
     },
     "guideline_citations": {
       "KDIGO": "KDIGO 2024 CKD Guideline. Kidney Int. 2024. https://doi.org/10.1016/j.kint.2023.10.018",
-      "ADA": "American Diabetes Association. Standards of Care in Diabetes—2024. Diabetes Care. 2024;47(Suppl 1):S1-S321. https://doi.org/10.2337/dc24-S001"
+      "ADA": "American Diabetes Association. Standards of Care in Diabetes\u20142024. Diabetes Care. 2024;47(Suppl 1):S1-S321. https://doi.org/10.2337/dc24-S001"
     },
     "provenance": {
       "source": "KDIGO 2024 CKD Clinical Practice Guideline",
@@ -492,7 +492,7 @@
   {
     "vitalog_id": "urine_acr",
     "canonical_name": "Urine Albumin-to-Creatinine Ratio",
-    "definition": "Urine Albumin-to-Creatinine Ratio measures albumin leaking into urine — an early indicator of kidney damage from diabetes or hypertension.",
+    "definition": "Urine Albumin-to-Creatinine Ratio measures albumin leaking into urine \u2014 an early indicator of kidney damage from diabetes or hypertension.",
     "loinc_code": "9318-7",
     "ucum_unit": "mg/g",
     "unit_conversions": [
@@ -530,7 +530,7 @@
     },
     "guideline_citations": {
       "KDIGO": "KDIGO 2024 CKD Guideline. Kidney Int. 2024. https://doi.org/10.1016/j.kint.2023.10.018",
-      "ADA": "American Diabetes Association. Standards of Care in Diabetes—2024. Diabetes Care. 2024;47(Suppl 1):S1-S321. https://doi.org/10.2337/dc24-S001"
+      "ADA": "American Diabetes Association. Standards of Care in Diabetes\u20142024. Diabetes Care. 2024;47(Suppl 1):S1-S321. https://doi.org/10.2337/dc24-S001"
     },
     "provenance": {
       "source": "KDIGO 2024 CKD Guideline, Chapter 1",
@@ -803,7 +803,7 @@
   {
     "vitalog_id": "hs_crp",
     "canonical_name": "High-Sensitivity C-Reactive Protein",
-    "definition": "High-sensitivity CRP measures low-grade systemic inflammation; levels above 2 mg/L signal elevated cardiovascular risk even within conventional normal ranges.",
+    "definition": "High-sensitivity CRP measures low-grade systemic inflammation; levels above 2\u00a0mg/L signal elevated cardiovascular risk even within conventional normal ranges.",
     "loinc_code": "30522-7",
     "ucum_unit": "mg/L",
     "unit_conversions": [
@@ -850,55 +850,6 @@
     "verified": true
   },
   {
-    "vitalog_id": "vitamin_d",
-    "canonical_name": "25-Hydroxyvitamin D",
-    "definition": "Vitamin D (25-hydroxyvitamin D) is the storage form measured in blood; deficiency is common and linked to poor bone health, immune function, and cardiovascular risk.",
-    "loinc_code": "1989-3",
-    "ucum_unit": "ng/mL",
-    "unit_conversions": [
-      {
-        "from_unit": "nmol/L",
-        "to_unit": "ng/mL",
-        "formula": "linear",
-        "factor": 0.4006
-      }
-    ],
-    "physiological_min": 4.0,
-    "physiological_max": 150.0,
-    "aliases": [
-      "vitamin D",
-      "Vitamin D",
-      "25-OH Vitamin D",
-      "25-hydroxyvitamin D",
-      "25(OH)D",
-      "vitamin D3",
-      "calcidiol",
-      "25-OHD",
-      "Vitamin D, 25-Hydroxy"
-    ],
-    "conditions": [
-      "T2D",
-      "osteoporosis",
-      "general_health"
-    ],
-    "guideline_ranges": {
-      "Endocrine_Society_deficient": "<20 ng/mL",
-      "Endocrine_Society_insufficient": "20-29 ng/mL",
-      "Endocrine_Society_sufficient": "30-100 ng/mL",
-      "Endocrine_Society_toxic": ">100 ng/mL"
-    },
-    "guideline_citations": {
-      "Endocrine_Society": "Holick MF, et al. Endocrine Society Clinical Practice Guideline: Vitamin D Deficiency. J Clin Endocrinol Metab. 2011;96(7):1911-1930. https://doi.org/10.1210/jc.2011-0385"
-    },
-    "provenance": {
-      "source": "Endocrine Society 2011 Vitamin D Deficiency Guideline",
-      "verified_date": "2024-01-01",
-      "notes": "25-hydroxyvitamin D (calcidiol) is the major circulating form; measures total vitamin D status"
-    },
-    "verification_tier": "canonical",
-    "verified": true
-  },
-  {
     "vitalog_id": "vitamin_b12",
     "canonical_name": "Vitamin B12",
     "definition": "Vitamin B12 is essential for nerve function and red blood cell production; deficiency can occur with metformin use or inadequate dietary intake.",
@@ -935,7 +886,7 @@
       "borderline": "200-300 pg/mL"
     },
     "guideline_citations": {
-      "ADA": "American Diabetes Association. Standards of Care in Diabetes—2024. Diabetes Care. 2024;47(Suppl 1):S1-S321. https://doi.org/10.2337/dc24-S001",
+      "ADA": "American Diabetes Association. Standards of Care in Diabetes\u20142024. Diabetes Care. 2024;47(Suppl 1):S1-S321. https://doi.org/10.2337/dc24-S001",
       "Lab_Reference": "Stabler SP. Vitamin B12 Deficiency. N Engl J Med. 2013;368:149-160. https://doi.org/10.1056/NEJMcp1113996"
     },
     "provenance": {
@@ -1189,7 +1140,7 @@
   {
     "vitalog_id": "potassium",
     "canonical_name": "Serum Potassium",
-    "definition": "Potassium is an electrolyte critical for heart rhythm and muscle contraction; abnormal levels — common with kidney disease or diuretics — can be dangerous.",
+    "definition": "Potassium is an electrolyte critical for heart rhythm and muscle contraction; abnormal levels \u2014 common with kidney disease or diuretics \u2014 can be dangerous.",
     "loinc_code": "2823-3",
     "ucum_unit": "mEq/L",
     "unit_conversions": [
@@ -1364,7 +1315,7 @@
       "ADA_severe_hypoglycemia": "<54 mg/dL"
     },
     "guideline_citations": {
-      "ADA": "American Diabetes Association. Standards of Care in Diabetes—2024. Diabetes Care. 2024;47(Suppl 1):S1-S321. https://doi.org/10.2337/dc24-S001"
+      "ADA": "American Diabetes Association. Standards of Care in Diabetes\u20142024. Diabetes Care. 2024;47(Suppl 1):S1-S321. https://doi.org/10.2337/dc24-S001"
     },
     "provenance": {
       "source": "ADA Standards of Care in Diabetes 2024",
@@ -1377,7 +1328,7 @@
   {
     "vitalog_id": "fructosamine",
     "canonical_name": "Fructosamine",
-    "definition": "Fructosamine reflects average blood glucose over the past 2–3 weeks — a shorter window than HbA1c, useful for faster glycemic assessment.",
+    "definition": "Fructosamine reflects average blood glucose over the past 2\u20133 weeks \u2014 a shorter window than HbA1c, useful for faster glycemic assessment.",
     "loinc_code": "1592-5",
     "ucum_unit": "umol/L",
     "unit_conversions": [],
@@ -1399,7 +1350,7 @@
       "elevated_indicates_poor_control": ">286 umol/L"
     },
     "guideline_citations": {
-      "ADA": "American Diabetes Association. Standards of Care in Diabetes—2024. Diabetes Care. 2024;47(Suppl 1):S1-S321. https://doi.org/10.2337/dc24-S001"
+      "ADA": "American Diabetes Association. Standards of Care in Diabetes\u20142024. Diabetes Care. 2024;47(Suppl 1):S1-S321. https://doi.org/10.2337/dc24-S001"
     },
     "provenance": {
       "source": "ADA Standards of Care in Diabetes 2024",
@@ -2126,7 +2077,11 @@
     "conditions": [],
     "guideline_ranges": {},
     "guideline_citations": {},
-    "provenance": {"source": "standard lipid panel", "verified_date": "2024-01-01", "notes": ""},
+    "provenance": {
+      "source": "standard lipid panel",
+      "verified_date": "2024-01-01",
+      "notes": ""
+    },
     "verification_tier": "canonical",
     "verified": true
   },
@@ -2146,9 +2101,17 @@
       "Anti-HBs"
     ],
     "conditions": [],
-    "guideline_ranges": {"immune": ">=10 mIU/mL"},
-    "guideline_citations": {"CDC": "CDC. Hepatitis B vaccination. https://www.cdc.gov/hepatitis/hbv/index.htm"},
-    "provenance": {"source": "standard hepatitis panel", "verified_date": "2024-01-01", "notes": ""},
+    "guideline_ranges": {
+      "immune": ">=10 mIU/mL"
+    },
+    "guideline_citations": {
+      "CDC": "CDC. Hepatitis B vaccination. https://www.cdc.gov/hepatitis/hbv/index.htm"
+    },
+    "provenance": {
+      "source": "standard hepatitis panel",
+      "verified_date": "2024-01-01",
+      "notes": ""
+    },
     "verification_tier": "canonical",
     "verified": true
   },
@@ -2161,11 +2124,19 @@
     "unit_conversions": [],
     "physiological_min": 0.0,
     "physiological_max": 0.0,
-    "aliases": ["Appearance", "Urine Appearance", "urine appearance"],
+    "aliases": [
+      "Appearance",
+      "Urine Appearance",
+      "urine appearance"
+    ],
     "conditions": [],
     "guideline_ranges": {},
     "guideline_citations": {},
-    "provenance": {"source": "standard urinalysis", "verified_date": "2024-01-01", "notes": "qualitative"},
+    "provenance": {
+      "source": "standard urinalysis",
+      "verified_date": "2024-01-01",
+      "notes": "qualitative"
+    },
     "verification_tier": "canonical",
     "verified": true
   },
@@ -2178,45 +2149,71 @@
     "unit_conversions": [],
     "physiological_min": 0.0,
     "physiological_max": 0.0,
-    "aliases": ["Urine-Color", "Urine Color", "Color", "urine color"],
+    "aliases": [
+      "Urine-Color",
+      "Urine Color",
+      "Color",
+      "urine color"
+    ],
     "conditions": [],
     "guideline_ranges": {},
     "guideline_citations": {},
-    "provenance": {"source": "standard urinalysis", "verified_date": "2024-01-01", "notes": "qualitative"},
+    "provenance": {
+      "source": "standard urinalysis",
+      "verified_date": "2024-01-01",
+      "notes": "qualitative"
+    },
     "verification_tier": "canonical",
     "verified": true
   },
   {
     "vitalog_id": "urine_ph",
     "canonical_name": "Urine pH",
-    "definition": "Urine pH measures acidity; normal range is 4.5–8.0.",
+    "definition": "Urine pH measures acidity; normal range is 4.5\u20138.0.",
     "loinc_code": "5764-6",
     "ucum_unit": "",
     "unit_conversions": [],
     "physiological_min": 4.0,
     "physiological_max": 9.0,
-    "aliases": ["pH", "Urine pH", "urine ph"],
+    "aliases": [
+      "pH",
+      "Urine pH",
+      "urine ph"
+    ],
     "conditions": [],
     "guideline_ranges": {},
     "guideline_citations": {},
-    "provenance": {"source": "standard urinalysis", "verified_date": "2024-01-01", "notes": ""},
+    "provenance": {
+      "source": "standard urinalysis",
+      "verified_date": "2024-01-01",
+      "notes": ""
+    },
     "verification_tier": "canonical",
     "verified": true
   },
   {
     "vitalog_id": "urine_specific_gravity",
     "canonical_name": "Urine Specific Gravity",
-    "definition": "Specific gravity measures urine concentration; normal range is 1.001–1.030.",
+    "definition": "Specific gravity measures urine concentration; normal range is 1.001\u20131.030.",
     "loinc_code": "5811-5",
     "ucum_unit": "",
     "unit_conversions": [],
     "physiological_min": 1.0,
     "physiological_max": 1.04,
-    "aliases": ["Specific Gravity", "Urine Specific Gravity", "SG", "specific gravity"],
+    "aliases": [
+      "Specific Gravity",
+      "Urine Specific Gravity",
+      "SG",
+      "specific gravity"
+    ],
     "conditions": [],
     "guideline_ranges": {},
     "guideline_citations": {},
-    "provenance": {"source": "standard urinalysis", "verified_date": "2024-01-01", "notes": ""},
+    "provenance": {
+      "source": "standard urinalysis",
+      "verified_date": "2024-01-01",
+      "notes": ""
+    },
     "verification_tier": "canonical",
     "verified": true
   },
@@ -2229,11 +2226,20 @@
     "unit_conversions": [],
     "physiological_min": 0.0,
     "physiological_max": 0.0,
-    "aliases": ["Protein", "Urine Protein", "urine protein", "Protein, Urine"],
+    "aliases": [
+      "Protein",
+      "Urine Protein",
+      "urine protein",
+      "Protein, Urine"
+    ],
     "conditions": [],
     "guideline_ranges": {},
     "guideline_citations": {},
-    "provenance": {"source": "standard urinalysis", "verified_date": "2024-01-01", "notes": "qualitative"},
+    "provenance": {
+      "source": "standard urinalysis",
+      "verified_date": "2024-01-01",
+      "notes": "qualitative"
+    },
     "verification_tier": "canonical",
     "verified": true
   },
@@ -2246,11 +2252,19 @@
     "unit_conversions": [],
     "physiological_min": 0.0,
     "physiological_max": 0.0,
-    "aliases": ["Glucose, Urine", "urine glucose", "Urine Glucose"],
+    "aliases": [
+      "Glucose, Urine",
+      "urine glucose",
+      "Urine Glucose"
+    ],
     "conditions": [],
     "guideline_ranges": {},
     "guideline_citations": {},
-    "provenance": {"source": "standard urinalysis", "verified_date": "2024-01-01", "notes": "qualitative"},
+    "provenance": {
+      "source": "standard urinalysis",
+      "verified_date": "2024-01-01",
+      "notes": "qualitative"
+    },
     "verification_tier": "canonical",
     "verified": true
   },
@@ -2263,11 +2277,20 @@
     "unit_conversions": [],
     "physiological_min": 0.0,
     "physiological_max": 0.0,
-    "aliases": ["Ketones", "Urine Ketones", "urine ketones", "Ketones, Urine"],
+    "aliases": [
+      "Ketones",
+      "Urine Ketones",
+      "urine ketones",
+      "Ketones, Urine"
+    ],
     "conditions": [],
     "guideline_ranges": {},
     "guideline_citations": {},
-    "provenance": {"source": "standard urinalysis", "verified_date": "2024-01-01", "notes": "qualitative"},
+    "provenance": {
+      "source": "standard urinalysis",
+      "verified_date": "2024-01-01",
+      "notes": "qualitative"
+    },
     "verification_tier": "canonical",
     "verified": true
   },
@@ -2280,11 +2303,20 @@
     "unit_conversions": [],
     "physiological_min": 0.0,
     "physiological_max": 0.0,
-    "aliases": ["Occult Blood", "Blood, Urine", "urine blood", "Occult Blood, Urine"],
+    "aliases": [
+      "Occult Blood",
+      "Blood, Urine",
+      "urine blood",
+      "Occult Blood, Urine"
+    ],
     "conditions": [],
     "guideline_ranges": {},
     "guideline_citations": {},
-    "provenance": {"source": "standard urinalysis", "verified_date": "2024-01-01", "notes": "qualitative"},
+    "provenance": {
+      "source": "standard urinalysis",
+      "verified_date": "2024-01-01",
+      "notes": "qualitative"
+    },
     "verification_tier": "canonical",
     "verified": true
   },
@@ -2297,11 +2329,19 @@
     "unit_conversions": [],
     "physiological_min": 0.0,
     "physiological_max": 0.0,
-    "aliases": ["Nitrite, Urine", "Urine Nitrite", "nitrite urine"],
+    "aliases": [
+      "Nitrite, Urine",
+      "Urine Nitrite",
+      "nitrite urine"
+    ],
     "conditions": [],
     "guideline_ranges": {},
     "guideline_citations": {},
-    "provenance": {"source": "standard urinalysis", "verified_date": "2024-01-01", "notes": "qualitative"},
+    "provenance": {
+      "source": "standard urinalysis",
+      "verified_date": "2024-01-01",
+      "notes": "qualitative"
+    },
     "verification_tier": "canonical",
     "verified": true
   },
@@ -2314,11 +2354,19 @@
     "unit_conversions": [],
     "physiological_min": 0.0,
     "physiological_max": 0.0,
-    "aliases": ["WBC Esterase", "Leukocyte Esterase", "wbc esterase"],
+    "aliases": [
+      "WBC Esterase",
+      "Leukocyte Esterase",
+      "wbc esterase"
+    ],
     "conditions": [],
     "guideline_ranges": {},
     "guideline_citations": {},
-    "provenance": {"source": "standard urinalysis", "verified_date": "2024-01-01", "notes": "qualitative"},
+    "provenance": {
+      "source": "standard urinalysis",
+      "verified_date": "2024-01-01",
+      "notes": "qualitative"
+    },
     "verification_tier": "canonical",
     "verified": true
   },
@@ -2331,11 +2379,20 @@
     "unit_conversions": [],
     "physiological_min": 0.0,
     "physiological_max": 0.0,
-    "aliases": ["Bilirubin", "Urine Bilirubin", "bilirubin urine", "Bilirubin, Urine"],
+    "aliases": [
+      "Bilirubin",
+      "Urine Bilirubin",
+      "bilirubin urine",
+      "Bilirubin, Urine"
+    ],
     "conditions": [],
     "guideline_ranges": {},
     "guideline_citations": {},
-    "provenance": {"source": "standard urinalysis", "verified_date": "2024-01-01", "notes": "qualitative — disambiguated from serum bilirubin by absent unit"},
+    "provenance": {
+      "source": "standard urinalysis",
+      "verified_date": "2024-01-01",
+      "notes": "qualitative \u2014 disambiguated from serum bilirubin by absent unit"
+    },
     "verification_tier": "canonical",
     "verified": true
   },
@@ -2348,11 +2405,19 @@
     "unit_conversions": [],
     "physiological_min": 0.0,
     "physiological_max": 10.0,
-    "aliases": ["Urobilinogen,Semi-Qn", "Urobilinogen", "urine urobilinogen"],
+    "aliases": [
+      "Urobilinogen,Semi-Qn",
+      "Urobilinogen",
+      "urine urobilinogen"
+    ],
     "conditions": [],
     "guideline_ranges": {},
     "guideline_citations": {},
-    "provenance": {"source": "standard urinalysis", "verified_date": "2024-01-01", "notes": ""},
+    "provenance": {
+      "source": "standard urinalysis",
+      "verified_date": "2024-01-01",
+      "notes": ""
+    },
     "verification_tier": "canonical",
     "verified": true
   },
@@ -2365,11 +2430,19 @@
     "unit_conversions": [],
     "physiological_min": 0.0,
     "physiological_max": 0.0,
-    "aliases": ["Bacteria", "Urine Bacteria", "bacteria urine"],
+    "aliases": [
+      "Bacteria",
+      "Urine Bacteria",
+      "bacteria urine"
+    ],
     "conditions": [],
     "guideline_ranges": {},
     "guideline_citations": {},
-    "provenance": {"source": "standard urinalysis", "verified_date": "2024-01-01", "notes": "qualitative"},
+    "provenance": {
+      "source": "standard urinalysis",
+      "verified_date": "2024-01-01",
+      "notes": "qualitative"
+    },
     "verification_tier": "canonical",
     "verified": true
   },
@@ -2382,11 +2455,20 @@
     "unit_conversions": [],
     "physiological_min": 0.0,
     "physiological_max": 100.0,
-    "aliases": ["Casts", "Urine Casts", "casts urine", "Casts, Urine"],
+    "aliases": [
+      "Casts",
+      "Urine Casts",
+      "casts urine",
+      "Casts, Urine"
+    ],
     "conditions": [],
     "guideline_ranges": {},
     "guideline_citations": {},
-    "provenance": {"source": "standard urinalysis", "verified_date": "2024-01-01", "notes": ""},
+    "provenance": {
+      "source": "standard urinalysis",
+      "verified_date": "2024-01-01",
+      "notes": ""
+    },
     "verification_tier": "canonical",
     "verified": true
   },
@@ -2399,11 +2481,19 @@
     "unit_conversions": [],
     "physiological_min": 0.0,
     "physiological_max": 100.0,
-    "aliases": ["Epithelial Cells (non renal)", "Epithelial Cells", "epithelial cells urine"],
+    "aliases": [
+      "Epithelial Cells (non renal)",
+      "Epithelial Cells",
+      "epithelial cells urine"
+    ],
     "conditions": [],
     "guideline_ranges": {},
     "guideline_citations": {},
-    "provenance": {"source": "standard urinalysis", "verified_date": "2024-01-01", "notes": ""},
+    "provenance": {
+      "source": "standard urinalysis",
+      "verified_date": "2024-01-01",
+      "notes": ""
+    },
     "verification_tier": "canonical",
     "verified": true
   },
@@ -2416,11 +2506,19 @@
     "unit_conversions": [],
     "physiological_min": 0.0,
     "physiological_max": 0.0,
-    "aliases": ["Chlamydia trachomatis, NAA", "Chlamydia NAA", "CT NAA"],
+    "aliases": [
+      "Chlamydia trachomatis, NAA",
+      "Chlamydia NAA",
+      "CT NAA"
+    ],
     "conditions": [],
     "guideline_ranges": {},
     "guideline_citations": {},
-    "provenance": {"source": "standard STI panel", "verified_date": "2024-01-01", "notes": "qualitative"},
+    "provenance": {
+      "source": "standard STI panel",
+      "verified_date": "2024-01-01",
+      "notes": "qualitative"
+    },
     "verification_tier": "canonical",
     "verified": true
   },
@@ -2433,11 +2531,19 @@
     "unit_conversions": [],
     "physiological_min": 0.0,
     "physiological_max": 0.0,
-    "aliases": ["Neisseria gonorrhoeae, NAA", "GC NAA", "Gonorrhea NAA"],
+    "aliases": [
+      "Neisseria gonorrhoeae, NAA",
+      "GC NAA",
+      "Gonorrhea NAA"
+    ],
     "conditions": [],
     "guideline_ranges": {},
     "guideline_citations": {},
-    "provenance": {"source": "standard STI panel", "verified_date": "2024-01-01", "notes": "qualitative"},
+    "provenance": {
+      "source": "standard STI panel",
+      "verified_date": "2024-01-01",
+      "notes": "qualitative"
+    },
     "verification_tier": "canonical",
     "verified": true
   },
@@ -2450,11 +2556,19 @@
     "unit_conversions": [],
     "physiological_min": 0.0,
     "physiological_max": 0.0,
-    "aliases": ["Trich vag by NAA", "Trichomonas NAA", "TV NAA"],
+    "aliases": [
+      "Trich vag by NAA",
+      "Trichomonas NAA",
+      "TV NAA"
+    ],
     "conditions": [],
     "guideline_ranges": {},
     "guideline_citations": {},
-    "provenance": {"source": "standard STI panel", "verified_date": "2024-01-01", "notes": "qualitative"},
+    "provenance": {
+      "source": "standard STI panel",
+      "verified_date": "2024-01-01",
+      "notes": "qualitative"
+    },
     "verification_tier": "canonical",
     "verified": true
   },
@@ -2467,11 +2581,20 @@
     "unit_conversions": [],
     "physiological_min": 0.0,
     "physiological_max": 0.0,
-    "aliases": ["RPR", "Rapid Plasma Reagin", "Syphilis Screen", "rpr"],
+    "aliases": [
+      "RPR",
+      "Rapid Plasma Reagin",
+      "Syphilis Screen",
+      "rpr"
+    ],
     "conditions": [],
     "guideline_ranges": {},
     "guideline_citations": {},
-    "provenance": {"source": "standard STI panel", "verified_date": "2024-01-01", "notes": "qualitative"},
+    "provenance": {
+      "source": "standard STI panel",
+      "verified_date": "2024-01-01",
+      "notes": "qualitative"
+    },
     "verification_tier": "canonical",
     "verified": true
   },
@@ -2484,11 +2607,20 @@
     "unit_conversions": [],
     "physiological_min": 0.0,
     "physiological_max": 0.0,
-    "aliases": ["HIV Ab/p24 Ag Screen", "HIV Screen", "HIV 1/2 Ag/Ab", "HIV test"],
+    "aliases": [
+      "HIV Ab/p24 Ag Screen",
+      "HIV Screen",
+      "HIV 1/2 Ag/Ab",
+      "HIV test"
+    ],
     "conditions": [],
     "guideline_ranges": {},
     "guideline_citations": {},
-    "provenance": {"source": "standard STI panel", "verified_date": "2024-01-01", "notes": "qualitative"},
+    "provenance": {
+      "source": "standard STI panel",
+      "verified_date": "2024-01-01",
+      "notes": "qualitative"
+    },
     "verification_tier": "canonical",
     "verified": true
   },
@@ -2501,11 +2633,19 @@
     "unit_conversions": [],
     "physiological_min": 0.0,
     "physiological_max": 0.0,
-    "aliases": ["HBsAg Screen", "HBsAg", "Hepatitis B Surface Antigen"],
+    "aliases": [
+      "HBsAg Screen",
+      "HBsAg",
+      "Hepatitis B Surface Antigen"
+    ],
     "conditions": [],
     "guideline_ranges": {},
     "guideline_citations": {},
-    "provenance": {"source": "standard hepatitis panel", "verified_date": "2024-01-01", "notes": "qualitative"},
+    "provenance": {
+      "source": "standard hepatitis panel",
+      "verified_date": "2024-01-01",
+      "notes": "qualitative"
+    },
     "verification_tier": "canonical",
     "verified": true
   },
@@ -2518,11 +2658,19 @@
     "unit_conversions": [],
     "physiological_min": 0.0,
     "physiological_max": 0.0,
-    "aliases": ["Hep A Ab, IgM", "HAV IgM", "Hepatitis A IgM"],
+    "aliases": [
+      "Hep A Ab, IgM",
+      "HAV IgM",
+      "Hepatitis A IgM"
+    ],
     "conditions": [],
     "guideline_ranges": {},
     "guideline_citations": {},
-    "provenance": {"source": "standard hepatitis panel", "verified_date": "2024-01-01", "notes": "qualitative"},
+    "provenance": {
+      "source": "standard hepatitis panel",
+      "verified_date": "2024-01-01",
+      "notes": "qualitative"
+    },
     "verification_tier": "canonical",
     "verified": true
   },
@@ -2535,11 +2683,19 @@
     "unit_conversions": [],
     "physiological_min": 0.0,
     "physiological_max": 0.0,
-    "aliases": ["Hep A Ab, Total", "HAV Total Ab", "Hepatitis A Total Ab"],
+    "aliases": [
+      "Hep A Ab, Total",
+      "HAV Total Ab",
+      "Hepatitis A Total Ab"
+    ],
     "conditions": [],
     "guideline_ranges": {},
     "guideline_citations": {},
-    "provenance": {"source": "standard hepatitis panel", "verified_date": "2024-01-01", "notes": "qualitative"},
+    "provenance": {
+      "source": "standard hepatitis panel",
+      "verified_date": "2024-01-01",
+      "notes": "qualitative"
+    },
     "verification_tier": "canonical",
     "verified": true
   },
@@ -2552,11 +2708,19 @@
     "unit_conversions": [],
     "physiological_min": 0.0,
     "physiological_max": 0.0,
-    "aliases": ["Hep B Core Ab, Tot", "HBcAb Total", "Hepatitis B Core Ab"],
+    "aliases": [
+      "Hep B Core Ab, Tot",
+      "HBcAb Total",
+      "Hepatitis B Core Ab"
+    ],
     "conditions": [],
     "guideline_ranges": {},
     "guideline_citations": {},
-    "provenance": {"source": "standard hepatitis panel", "verified_date": "2024-01-01", "notes": "qualitative"},
+    "provenance": {
+      "source": "standard hepatitis panel",
+      "verified_date": "2024-01-01",
+      "notes": "qualitative"
+    },
     "verification_tier": "canonical",
     "verified": true
   },
@@ -2569,11 +2733,20 @@
     "unit_conversions": [],
     "physiological_min": 0.0,
     "physiological_max": 0.0,
-    "aliases": ["Hep C Virus Ab", "HCV Ab", "Hepatitis C Ab", "Anti-HCV"],
+    "aliases": [
+      "Hep C Virus Ab",
+      "HCV Ab",
+      "Hepatitis C Ab",
+      "Anti-HCV"
+    ],
     "conditions": [],
     "guideline_ranges": {},
     "guideline_citations": {},
-    "provenance": {"source": "standard hepatitis panel", "verified_date": "2024-01-01", "notes": "qualitative"},
+    "provenance": {
+      "source": "standard hepatitis panel",
+      "verified_date": "2024-01-01",
+      "notes": "qualitative"
+    },
     "verification_tier": "canonical",
     "verified": true
   },
